@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NEON_POINTS_VAULT | Admin Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(15, 25, 48, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(0, 227, 253, 0.15);
+        }
+        body {
+            background-color: #060e20;
+            color: #dee5ff;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed-dim": "#00d4ec",
+                        "surface-container-low": "#091328",
+                        "secondary-fixed": "#c0d1ff",
+                        "surface-container-high": "#141f38",
+                        "outline-variant": "#40485d",
+                        "secondary-dim": "#0f6df3",
+                        "inverse-surface": "#faf8ff",
+                        "secondary": "#6e9bff",
+                        "error-container": "#9f0519",
+                        "primary-dim": "#00d4ec",
+                        "inverse-primary": "#006976",
+                        "error": "#ff716c",
+                        "surface-variant": "#192540",
+                        "tertiary-container": "#7c4dff",
+                        "tertiary-dim": "#7e51ff",
+                        "on-tertiary-fixed-variant": "#4000ad",
+                        "surface-container": "#0f1930",
+                        "primary-container": "#00e3fd",
+                        "on-surface": "#dee5ff",
+                        "surface-dim": "#060e20",
+                        "primary": "#81ecff",
+                        "on-primary": "#005762",
+                        "on-tertiary-container": "#ffffff",
+                        "on-secondary": "#001d4e",
+                        "surface-tint": "#81ecff",
+                        "outline": "#6d758c",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-fixed-variant": "#004baf",
+                        "on-background": "#dee5ff",
+                        "on-primary-container": "#004d57",
+                        "on-primary-fixed-variant": "#005762",
+                        "tertiary-fixed": "#b8a3ff",
+                        "surface-container-highest": "#192540",
+                        "tertiary": "#a68cff",
+                        "on-secondary-fixed": "#003076",
+                        "secondary-container": "#0058ca",
+                        "on-surface-variant": "#a3aac4",
+                        "surface": "#060e20",
+                        "on-secondary-container": "#f7f7ff",
+                        "on-error-container": "#ffa8a3",
+                        "background": "#060e20",
+                        "surface-bright": "#1f2b49",
+                        "primary-fixed": "#00e3fd",
+                        "on-tertiary": "#25006b",
+                        "on-tertiary-fixed": "#1c0055",
+                        "on-primary-fixed": "#003840",
+                        "secondary-fixed-dim": "#acc3ff",
+                        "inverse-on-surface": "#4d556b",
+                        "error-dim": "#d7383b",
+                        "tertiary-fixed-dim": "#ab93ff",
+                        "on-error": "#490006"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-body selection:bg-primary/30 selection:text-primary overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-950/60 backdrop-blur-xl border-b border-cyan-500/20 shadow-[0_8px_32px_0_rgba(110,155,255,0.08)] px-8 h-20 w-full flex justify-between items-center">
+<div class="flex items-center gap-8">
+<h1 class="text-2xl font-black tracking-tighter text-cyan-400 drop-shadow-[0_0_8px_rgba(0,229,255,0.5)] font-['Plus_Jakarta_Sans']">NEON_POINTS_VAULT</h1>
+<div class="hidden md:flex items-center bg-surface-container-high rounded-full px-4 py-2 border border-outline-variant/30">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-64" placeholder="Search system logs..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full text-slate-400 hover:bg-cyan-500/10 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full text-cyan-400 font-bold bg-cyan-500/10 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="p-2 rounded-full text-slate-400 hover:bg-cyan-500/10 transition-all duration-300 active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+<div class="h-10 w-10 rounded-full border-2 border-primary overflow-hidden">
+<img alt="Admin Profile Avatar" class="h-full w-full object-cover" data-alt="Professional headshot of a modern digital administrator in tech attire with clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbWd6GSlg4Hh8m2zdt539XQeYfyt_IUMaKcLbOIVhQVqc7llulTmeoU1oM9nXaf5YBESgQC94beeZb2NP2f-lq5FgNqf68TbRq_5aeNPDb9OuOibzqLT1CRpe6z5cd1pdT4EGs32KWa7EGA0js-OD6nIxAm2xPAtHnPfrG3PbS8w584OxpKJomd8v9lfabmnE0Ow6QOGSdNx0z2MHoKrkV17VsPAubUP1tlLit_3jgChYJVC1M4rgECW_uwtH_awVwyC0J-2ZnfsQ"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-72 bg-slate-950/80 backdrop-blur-2xl border-r border-cyan-500/10 shadow-2xl z-40 hidden md:block">
+<nav class="flex flex-col h-full pt-24 pb-8">
+<div class="px-8 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center border border-primary/30">
+<span class="material-symbols-outlined text-primary">security</span>
+</div>
+<div>
+<div class="text-cyan-400 font-black font-['Plus_Jakarta_Sans'] text-sm uppercase tracking-widest">VAULT_ADMIN</div>
+<div class="text-[10px] text-on-surface-variant/60 font-mono">V1.0.4-STABLE</div>
+</div>
+</div>
+<div class="flex flex-col flex-1">
+<a class="flex items-center gap-4 text-slate-400 hover:text-cyan-200 px-6 py-4 hover:bg-slate-900/50 transition-colors hover:translate-x-1 duration-200 font-['Plus_Jakarta_Sans'] text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+                </a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-cyan-200 px-6 py-4 hover:bg-slate-900/50 transition-colors hover:translate-x-1 duration-200 font-['Plus_Jakarta_Sans'] text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">redeem</span> Rewards Catalog
+                </a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-cyan-200 px-6 py-4 hover:bg-slate-900/50 transition-colors hover:translate-x-1 duration-200 font-['Plus_Jakarta_Sans'] text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">group</span> User Points
+                </a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-cyan-200 px-6 py-4 hover:bg-slate-900/50 transition-colors hover:translate-x-1 duration-200 font-['Plus_Jakarta_Sans'] text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">history</span> Audit Logs
+                </a>
+<a class="flex items-center gap-4 bg-gradient-to-r from-cyan-500/20 to-transparent text-cyan-400 border-l-2 border-cyan-400 px-6 py-4 transition-colors font-['Plus_Jakarta_Sans'] text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">settings</span> System Config
+                </a>
+<a class="flex items-center gap-4 text-slate-400 hover:text-cyan-200 px-6 py-4 hover:bg-slate-900/50 transition-colors hover:translate-x-1 duration-200 font-['Plus_Jakarta_Sans'] text-sm font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined">monitoring</span> Analytics
+                </a>
+</div>
+<div class="px-6 mt-auto">
+<button class="w-full bg-primary text-on-primary font-bold py-3 rounded-full shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    Generate Report
+                </button>
+<div class="mt-6 border-t border-outline-variant/20 pt-4">
+<a class="flex items-center gap-4 text-slate-400 hover:text-cyan-200 px-2 py-3 text-xs font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm">contact_support</span> Support
+                    </a>
+<a class="flex items-center gap-4 text-error/80 hover:text-error px-2 py-3 text-xs font-semibold uppercase tracking-widest" href="#">
+<span class="material-symbols-outlined text-sm">logout</span> Logout
+                    </a>
+</div>
+</div>
+</nav>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-72 pt-32 px-8 pb-12 min-h-screen">
+<header class="mb-12">
+<div class="flex items-center gap-4 mb-2">
+<span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-primary/20">System Economy HUD</span>
+</div>
+<h2 class="text-4xl md:text-5xl font-extrabold font-headline tracking-tight text-on-surface mb-2 italic">Vault Configuration</h2>
+<p class="text-on-surface-variant max-w-2xl text-lg">Manage the algorithmic core of Affiliate Hub PH gamification. Adjust point velocities, conversion weights, and moderation protocols.</p>
+</header>
+<!-- Bento Grid System Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Points in Circulation</span>
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+</div>
+<div>
+<div class="text-3xl font-black text-primary tracking-tight">12.4M</div>
+<div class="text-[10px] text-green-400 font-bold flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">trending_up</span> +14.2% THIS WEEK
+                    </div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Redeemed</span>
+<span class="material-symbols-outlined text-tertiary">redeem</span>
+</div>
+<div>
+<div class="text-3xl font-black text-tertiary tracking-tight">₱2.8M</div>
+<div class="text-[10px] text-on-surface-variant/60 font-mono mt-1">ESTIMATED GCASH VALUE</div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-40">
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Popular Reward</span>
+<span class="material-symbols-outlined text-secondary">stars</span>
+</div>
+<div>
+<div class="text-xl font-bold text-on-surface tracking-tight">Daily Spin Ticket</div>
+<div class="text-[10px] text-secondary font-bold mt-1">42,103 REDEMPTIONS</div>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-40 border-primary/40 relative overflow-hidden">
+<div class="absolute inset-0 bg-primary/5 -z-10"></div>
+<div class="flex justify-between items-start">
+<span class="text-xs font-bold text-primary uppercase tracking-widest">Active Multiplier</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<div class="text-4xl font-black text-primary tracking-tighter">2.0x</div>
+<div class="text-[10px] text-primary/80 font-bold mt-1 tracking-wider">WEEKEND SURGE ACTIVE</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Points Configuration Card -->
+<section class="lg:col-span-8 flex flex-col gap-8">
+<div class="glass-card rounded-xl p-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] rounded-full"></div>
+<div class="flex justify-between items-end mb-8">
+<div>
+<h3 class="text-xl font-bold font-headline mb-1">Points Allocation Engine</h3>
+<p class="text-sm text-on-surface-variant">Set velocity for user activities across the platform.</p>
+</div>
+<button class="text-xs font-bold text-primary px-4 py-2 border border-primary/20 rounded-full hover:bg-primary/10 transition-colors">
+                            REVERT TO DEFAULTS
+                        </button>
+</div>
+<div class="space-y-6">
+<!-- Points Item -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">person_add</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">New Referral</div>
+<div class="text-xs text-on-surface-variant">Points awarded per successful affiliate invite</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<input class="w-24 bg-surface-dim border-outline-variant/30 rounded-lg text-center font-bold text-primary focus:ring-primary focus:border-primary" type="number" value="500"/>
+<span class="text-xs font-bold text-on-surface-variant">PTS</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">chat</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Chat Engagement</div>
+<div class="text-xs text-on-surface-variant">Points per high-quality message sent</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<input class="w-24 bg-surface-dim border-outline-variant/30 rounded-lg text-center font-bold text-primary focus:ring-primary focus:border-primary" type="number" value="10"/>
+<span class="text-xs font-bold text-on-surface-variant">PTS</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low hover:bg-surface-container-high transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">event_available</span>
+</div>
+<div>
+<div class="font-bold text-on-surface">Daily Login</div>
+<div class="text-xs text-on-surface-variant">Daily reward for active session</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<input class="w-24 bg-surface-dim border-outline-variant/30 rounded-lg text-center font-bold text-primary focus:ring-primary focus:border-primary" type="number" value="50"/>
+<span class="text-xs font-bold text-on-surface-variant">PTS</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-4 bg-primary text-on-primary font-black rounded-xl hover:shadow-[0_0_20px_rgba(129,236,255,0.4)] transition-all">
+                        DEPLOY NEW ALLOCATION RULES
+                    </button>
+</div>
+<!-- Conversion Rates Card -->
+<div class="glass-card rounded-xl p-8">
+<h3 class="text-xl font-bold font-headline mb-6">Reward Conversion Rates</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="p-6 rounded-xl border border-outline-variant/20 bg-surface-container-low">
+<label class="block text-xs font-black text-on-surface-variant uppercase tracking-widest mb-4">GCash Liquidity Rate</label>
+<div class="flex items-center justify-between bg-surface-dim p-4 rounded-lg border border-primary/20">
+<div class="text-center">
+<div class="text-xl font-black text-primary">1,000</div>
+<div class="text-[10px] text-on-surface-variant font-bold">POINTS</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">sync_alt</span>
+<div class="text-center">
+<div class="text-xl font-black text-green-400">₱100.00</div>
+<div class="text-[10px] text-on-surface-variant font-bold">PHP CASH</div>
+</div>
+</div>
+</div>
+<div class="p-6 rounded-xl border border-outline-variant/20 bg-surface-container-low">
+<label class="block text-xs font-black text-on-surface-variant uppercase tracking-widest mb-4">Ticket Acquisition Costs</label>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface/80">Spin Ticket</span>
+<span class="font-black text-secondary">200 PTS</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-on-surface/80">Raffle Entry</span>
+<span class="font-black text-secondary">500 PTS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Side Controls: Moderation & Promotions -->
+<section class="lg:col-span-4 flex flex-col gap-8">
+<!-- AI Moderation & Anti-Spam -->
+<div class="glass-card rounded-xl p-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded bg-error/10 flex items-center justify-center text-error">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<h3 class="text-lg font-bold font-headline">Anti-Spam Protocol</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-sm font-bold">AI Moderation</div>
+<div class="text-[10px] text-on-surface-variant uppercase">Sentinel V2 Active</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-container-highest rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-black text-on-surface-variant uppercase mb-2">
+<span>Message Cooldown</span>
+<span class="text-primary">3 SECONDS</span>
+</div>
+<input class="w-full h-1.5 bg-surface-container-highest rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+</div>
+<div class="p-4 rounded-lg bg-error/5 border border-error/20">
+<div class="text-xs font-bold text-error mb-2 uppercase tracking-tighter">Spam Penalty</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-on-surface/60 italic">Deduction per violation</span>
+<span class="font-black text-error">-250 PTS</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Promotional Multipliers -->
+<div class="glass-card rounded-xl p-8 relative overflow-hidden group">
+<img alt="Abstract neon light patterns" class="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-20 transition-opacity" data-alt="Vibrant abstract flow of neon blue and violet light trails on dark background with cinematic depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfmcsdTQ7erzpWOmUmJ1iMWrS2KZvblVufcjjUmL8yqAFpnIo9o3RjEBcifv-tAkrrpIU8eXVZP4kHQBV_wVYDCRF9KAe6D0fVjydCvtyPueTifmFCy2-VDP2IQXaqosuWLBm6unuoJmrqGkRkkgzgOh0KW5Z-BSqQbaYqBJOfzYfysdkEtsmQD7rPs2aBkyBR25EmOrPhXbm_v4KL7LX1w7DhOx6NQHZRQaqn3kJoRlDP8MReBAvLbgHrx0j7VxljuLVs6Mu4TWA"/>
+<div class="relative z-10">
+<h3 class="text-lg font-bold font-headline mb-6">Campaign Multipliers</h3>
+<div class="space-y-4">
+<div class="p-4 rounded-lg bg-surface-container-highest border border-primary/30 relative">
+<div class="flex justify-between items-start mb-2">
+<span class="px-2 py-0.5 bg-primary text-on-primary text-[8px] font-black rounded uppercase">Active Now</span>
+<span class="text-[10px] font-mono text-on-surface-variant">ENDS IN 14H : 22M</span>
+</div>
+<div class="font-bold text-sm">Weekend Surge 2x</div>
+<div class="text-xs text-on-surface-variant">Global 2x multiplier for all referral activities.</div>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-outline-variant/30 rounded-lg text-on-surface-variant hover:text-primary hover:border-primary/50 transition-all text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                                Schedule New Campaign
+                            </button>
+</div>
+</div>
+</div>
+<!-- Support Shortcut -->
+<div class="bg-gradient-to-br from-tertiary/20 to-secondary/20 rounded-xl p-6 border border-white/5">
+<div class="flex items-center gap-4 mb-4">
+<span class="material-symbols-outlined text-tertiary">rocket_launch</span>
+<div class="text-sm font-bold">System Health Monitor</div>
+</div>
+<div class="w-full bg-surface-dim h-2 rounded-full overflow-hidden mb-2">
+<div class="bg-gradient-to-r from-primary to-tertiary h-full w-[94%] shadow-[0_0_8px_rgba(129,236,255,0.5)]"></div>
+</div>
+<div class="text-[10px] text-on-surface-variant flex justify-between font-bold">
+<span>API RESPONSE: 24ms</span>
+<span>NODE LOAD: 12%</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Interactive Bottom Bar for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-slate-950/90 backdrop-blur-xl border-t border-cyan-500/20 z-50 flex justify-around py-4">
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold">HOME</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-cyan-400">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-[10px] font-bold">CONFIG</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="text-[10px] font-bold">DATA</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-400">
+<span class="material-symbols-outlined">group</span>
+<span class="text-[10px] font-bold">USERS</span>
+</button>
+</nav>
+</body></html>

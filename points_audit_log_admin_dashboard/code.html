@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Audit Terminal | Affiliate Hub PH</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-tertiary-fixed-variant": "#4000ad",
+              "tertiary-fixed-dim": "#ab93ff",
+              "secondary-fixed": "#c0d1ff",
+              "primary-container": "#00e3fd",
+              "on-background": "#dee5ff",
+              "on-tertiary-container": "#ffffff",
+              "on-error": "#490006",
+              "surface-container-highest": "#192540",
+              "surface-container": "#0f1930",
+              "on-secondary-container": "#f7f7ff",
+              "on-tertiary": "#25006b",
+              "primary-fixed-dim": "#00d4ec",
+              "tertiary-dim": "#7e51ff",
+              "surface-dim": "#060e20",
+              "surface-container-low": "#091328",
+              "secondary": "#6e9bff",
+              "tertiary-fixed": "#b8a3ff",
+              "on-primary-container": "#004d57",
+              "on-primary": "#005762",
+              "secondary-fixed-dim": "#acc3ff",
+              "secondary-container": "#0058ca",
+              "primary-fixed": "#00e3fd",
+              "outline-variant": "#40485d",
+              "on-secondary-fixed": "#003076",
+              "error-container": "#9f0519",
+              "on-surface-variant": "#a3aac4",
+              "surface-container-lowest": "#000000",
+              "inverse-primary": "#006976",
+              "error": "#ff716c",
+              "on-error-container": "#ffa8a3",
+              "on-secondary": "#001d4e",
+              "tertiary-container": "#7c4dff",
+              "surface": "#060e20",
+              "tertiary": "#a68cff",
+              "on-primary-fixed-variant": "#005762",
+              "inverse-on-surface": "#4d556b",
+              "outline": "#6d758c",
+              "surface-variant": "#192540",
+              "primary-dim": "#00d4ec",
+              "inverse-surface": "#faf8ff",
+              "surface-bright": "#1f2b49",
+              "on-surface": "#dee5ff",
+              "on-primary-fixed": "#003840",
+              "primary": "#81ecff",
+              "surface-container-high": "#141f38",
+              "error-dim": "#d7383b",
+              "secondary-dim": "#0f6df3",
+              "background": "#060e20",
+              "on-secondary-fixed-variant": "#004baf",
+              "on-tertiary-fixed": "#1c0055",
+              "surface-tint": "#81ecff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(15, 25, 48, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(129, 236, 255, 0.1);
+      }
+      .neon-glow-primary {
+        box-shadow: 0 0 15px rgba(0, 229, 255, 0.15);
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-[#81ecff]/10 bg-[#091328] font-['Plus_Jakarta_Sans'] text-sm tracking-tight shadow-[40px_0_60px_-15px_rgba(110,155,255,0.08)] flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tighter text-[#00E5FF]">Affiliate Hub PH</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-[#a3aac4] mt-1">Admin Terminal</p>
+</div>
+<nav class="flex-1 space-y-2 px-3">
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38]/50 transition-all rounded-lg group" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38]/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl">redeem</span>
+<span>Rewards Catalog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38]/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl">payments</span>
+<span>User Points</span>
+</a>
+<!-- Active Navigation: Audit Logs -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#00E5FF] bg-[#141f38] border-l-2 border-[#00E5FF] transition-all" href="#">
+<span class="material-symbols-outlined text-xl">receipt_long</span>
+<span>Audit Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38]/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span>System Config</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38]/50 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span>Analytics</span>
+</a>
+</nav>
+<div class="px-6 mb-6">
+<button class="w-full py-3 bg-primary-container text-on-primary-container font-bold rounded-full text-xs shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-transform">
+                Generate Report
+            </button>
+</div>
+<div class="mt-auto px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-[#a3aac4] hover:text-[#dee5ff] transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">help_outline</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-error/80 hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-lg">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 right-0 left-64 h-16 z-40 bg-[#060e20]/80 backdrop-blur-xl flex justify-between items-center px-8 w-full shadow-lg shadow-black/20">
+<div class="flex items-center gap-6">
+<span class="text-lg font-black text-[#dee5ff]">Audit Terminal</span>
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="bg-surface-container-high border-none rounded-full pl-10 pr-4 py-1.5 text-xs w-64 focus:ring-1 focus:ring-primary text-on-surface" placeholder="Search Transaction or User ID..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="px-4 py-2 bg-primary text-on-primary-container font-bold rounded-full text-xs hover:opacity-90 transition-opacity">
+                Quick Export
+            </button>
+<div class="flex items-center gap-4 text-outline">
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings_overscan</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-primary/20">
+<img alt="Admin User" class="h-full w-full object-cover" data-alt="professional portrait of a tech executive in a dark modern studio setting with blue ambient lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWEFOqoQP2IqB0EOHKmJv6S9MEWVAEXhEFsyn2S7ACzyE8iRSIpRop1XWaXywpjTYy5gy68zJb6MqBQ8in5E5KFzdypqPvtvInI4vfBws5P4IcWgESXtF2Pp3fn8laeqSOBfGQpUQZF8WIvYZj7Wt3CPNMpmiehuxGqCo65LYGz9rNyAlElR__rhFtyb0tCQwVD5e8Rs8BwN83q2DJIyzeJRUOW2SmIs9ZuOEENDbJW2kPJ4xpWXDGB2waDT8YxAECd3tIj34HkfY"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-8 pb-12 min-h-screen">
+<!-- Metrics Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Metric 1 -->
+<div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl text-primary">monitoring</span>
+</div>
+<p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-2">Total Points Distributed Today</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-4xl font-extrabold text-on-surface tracking-tighter">1,284,500</h2>
+<span class="text-primary text-sm font-bold">+12.5%</span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-secondary w-3/4 shadow-[0_0_8px_#81ecff]"></div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl text-error">gavel</span>
+</div>
+<p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-2">Points Flagged for Audit</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-4xl font-extrabold text-on-surface tracking-tighter">42,105</h2>
+<span class="text-error text-sm font-bold">High Risk</span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error w-1/4 shadow-[0_0_8px_#ff716c]"></div>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-6xl text-tertiary">stars</span>
+</div>
+<p class="text-on-surface-variant text-xs font-medium uppercase tracking-widest mb-2">Top Redemption Category</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-4xl font-extrabold text-on-surface tracking-tighter">Digital Vouchers</h2>
+<span class="text-tertiary text-sm font-bold">48%</span>
+</div>
+<div class="mt-4 h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary to-tertiary-dim w-1/2 shadow-[0_0_8px_#a68cff]"></div>
+</div>
+</div>
+</section>
+<!-- Audit Table Controls -->
+<section class="glass-card rounded-xl p-6 mb-8 flex flex-wrap items-center justify-between gap-6 border-none">
+<div class="flex flex-wrap items-center gap-4">
+<div class="flex items-center bg-surface-container-low px-4 py-2.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-sm text-outline mr-2">filter_alt</span>
+<select class="bg-transparent border-none text-xs text-on-surface focus:ring-0 p-0 pr-8 cursor-pointer">
+<option>All Transaction Types</option>
+<option>Referral</option>
+<option>Chat</option>
+<option>Daily</option>
+<option>Redemption</option>
+</select>
+</div>
+<div class="flex items-center bg-surface-container-low px-4 py-2.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-sm text-outline mr-2">verified</span>
+<select class="bg-transparent border-none text-xs text-on-surface focus:ring-0 p-0 pr-8 cursor-pointer">
+<option>All Statuses</option>
+<option>Completed</option>
+<option>Pending</option>
+<option>Flagged</option>
+</select>
+</div>
+<div class="flex items-center bg-surface-container-low px-4 py-2.5 rounded-full border border-outline-variant/20">
+<span class="material-symbols-outlined text-sm text-outline mr-2">calendar_today</span>
+<span class="text-xs text-on-surface">Oct 01, 2023 - Oct 31, 2023</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2.5 bg-surface-container-high text-on-surface-variant rounded-full hover:text-primary hover:bg-surface-bright transition-all">
+<span class="material-symbols-outlined">refresh</span>
+</button>
+<button class="px-6 py-2.5 bg-secondary text-on-secondary font-bold rounded-full text-xs shadow-lg shadow-secondary/20 hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">download</span>
+                    Quick Export
+                </button>
+</div>
+</section>
+<!-- Audit Table Body -->
+<section class="glass-card rounded-xl overflow-hidden border-none shadow-2xl">
+<div class="overflow-x-auto no-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-highest/50 border-b border-outline-variant/10">
+<tr>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant">Transaction ID</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant">User</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant">Type</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant text-right">Amount</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant text-center">Status</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant">Timestamp</th>
+<th class="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/5">
+<!-- Table Row 1 -->
+<tr class="group hover:bg-surface-container-high transition-colors relative">
+<td class="px-8 py-6">
+<span class="absolute left-0 top-0 bottom-0 w-[2px] bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></span>
+<span class="font-mono text-xs text-primary font-semibold tracking-wider">#TX-90281-PH</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" data-alt="close-up profile portrait of a young man with glasses and casual attire looking confident" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAR8bHYuLlmNZiQTRpbjMFYWVXYRD68NBpYwBevI50rsP_uwSuOQJsJS6zs4k_7pMzEZ1az7X-4yJgjjFym-iT8PDGipjH3EzG6e-DFOeOjcNR6PxIk2X3u8NveAibQCjDVbw-rywXfXdshic0XSgWJ7ZGGe3eD7gnqcGzQ1BBJdxQWzKmCEEtU1wbk3Ym8Z7HWzTuSlawQnWGx-d_hf-DH4HGHvroUA0eKuZvkD-kB3-CUpslaH9nnUbm46bGASk7M0jDruF6AcY0"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Juan Dela Cruz</p>
+<p class="text-[10px] text-on-surface-variant">ID: 8820194</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase tracking-wider">Referral</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-sm font-extrabold text-[#00E5FF]">+2,500</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex justify-center">
+<span class="flex items-center gap-1 text-[10px] font-bold text-primary">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                        COMPLETED
+                                    </span>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-xs text-on-surface font-medium">Oct 24, 2023</p>
+<p class="text-[10px] text-on-surface-variant">14:22:10 GMT+8</p>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-primary transition-all" title="View Details">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="p-2 hover:bg-error/10 rounded-full text-on-surface-variant hover:text-error transition-all" title="Flag Transaction">
+<span class="material-symbols-outlined text-xl">flag</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Table Row 2 (Flagged) -->
+<tr class="group hover:bg-surface-container-high transition-colors relative">
+<td class="px-8 py-6">
+<span class="absolute left-0 top-0 bottom-0 w-[2px] bg-error scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></span>
+<span class="font-mono text-xs text-primary font-semibold tracking-wider">#TX-90312-PH</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" data-alt="portrait of a professional woman in her late 20s with a sleek ponytail and modern fashion" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqa0heUZvbKyBrBZfRLqag27tp4H8MdG4Pbcygtq5O2Uy3L5q0b4B1GUxyX2yN_AOWCIhtEhhRTcZ9siBP2kHkdVHwlz7e4XjJ0OUIgd4VZerOIEgA3qjYOrl2dZeV3AeuUg10JUCAnCdw4sTjYRiUXiL9Cvp8PAmKKMQZ4QPWOXWorLbZnrrGCo1OUzRkpQeWsoNJdRssGRWnk6EnWApcIuIhVe084u9T1SN9pbyC4LIFo_3i2RgpQf8wb-vvHaHVLp1fWdNk1eg"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Maria Santos</p>
+<p class="text-[10px] text-on-surface-variant">ID: 9112830</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-tertiary/10 text-tertiary rounded-full text-[10px] font-bold uppercase tracking-wider">Redemption</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-sm font-extrabold text-error">-15,000</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex justify-center">
+<span class="flex items-center gap-1 text-[10px] font-bold text-error">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">warning</span>
+                                        FLAGGED
+                                    </span>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-xs text-on-surface font-medium">Oct 24, 2023</p>
+<p class="text-[10px] text-on-surface-variant">15:05:44 GMT+8</p>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-primary transition-all" title="View Details">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="px-4 py-1.5 bg-error text-on-error font-bold rounded-full text-[10px] hover:opacity-90 transition-opacity" title="Review Flag">
+                                        RESOLVE
+                                    </button>
+</div>
+</td>
+</tr>
+<!-- Table Row 3 -->
+<tr class="group hover:bg-surface-container-high transition-colors relative">
+<td class="px-8 py-6">
+<span class="absolute left-0 top-0 bottom-0 w-[2px] bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></span>
+<span class="font-mono text-xs text-primary font-semibold tracking-wider">#TX-90345-PH</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" data-alt="headshot of a cheerful man in a tech office setting with warm indoor lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBszNdc7gyqeeA6sX7kYaO9y2qOYbW04g37B_ixk_ff6JqKFsmc4MoYQeRpMtMW9BXRdK54PKJ1cJd-Jpoac_sd4uAAS7aiFKMEoiOMT9gH5UoPbUFjWsyfIsVlmamWUgQVfU8hf7QZqq74whj7Az9E5d1jkyhbTMPpNHEkDBgguthfiwFJDybQQYbwcYpni3_4tWAm2-Qt74ETWlS6QrRSCLIW7zSWOQMkvrCOfj3ISOkUjn_-9TTqBBRDZOENzpTbKngdls52BhU"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Ricardo Mercado</p>
+<p class="text-[10px] text-on-surface-variant">ID: 7720391</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-secondary/10 text-secondary rounded-full text-[10px] font-bold uppercase tracking-wider">Chat Reward</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-sm font-extrabold text-[#00E5FF]">+50</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex justify-center">
+<span class="flex items-center gap-1 text-[10px] font-bold text-outline">
+<span class="material-symbols-outlined text-xs">pending</span>
+                                        PENDING
+                                    </span>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-xs text-on-surface font-medium">Oct 24, 2023</p>
+<p class="text-[10px] text-on-surface-variant">16:10:02 GMT+8</p>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-primary transition-all" title="View Details">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="p-2 hover:bg-error/10 rounded-full text-on-surface-variant hover:text-error transition-all" title="Flag Transaction">
+<span class="material-symbols-outlined text-xl">flag</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Table Row 4 -->
+<tr class="group hover:bg-surface-container-high transition-colors relative">
+<td class="px-8 py-6">
+<span class="absolute left-0 top-0 bottom-0 w-[2px] bg-primary scale-y-0 group-hover:scale-y-100 transition-transform origin-top"></span>
+<span class="font-mono text-xs text-primary font-semibold tracking-wider">#TX-90388-PH</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20 overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" data-alt="profile photo of a creative professional woman with curly hair in a vibrant artistic studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClyQiKHdfUMCHEPFaHKPwQPxM_Ee1t1lApV1wfdMCJyzwmGpFdW5sThnq5bIIsJbzxQ8VUS0xKEItTDqB9pRoFmnE_JAAsjNIJsjP6eY5OIjI-q6uDMk9KjSE43QbZ54Udh2yec_k-eG4J8uxoQkCGTj2ZW4naszekSLe5Ho1VocKmLl1fSIY1ExHg_po9cJ2Z5BGQrsC3P2GKMPqwSD3FoUyI10zEhg0gc8qOS6QjZltOzeyMa-8HqTt6tN5-FAixtL4KgpHW1Rg"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Ana Luna</p>
+<p class="text-[10px] text-on-surface-variant">ID: 6652011</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-surface-variant text-on-surface-variant rounded-full text-[10px] font-bold uppercase tracking-wider">Daily Bonus</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="text-sm font-extrabold text-[#00E5FF]">+100</span>
+</td>
+<td class="px-8 py-6">
+<div class="flex justify-center">
+<span class="flex items-center gap-1 text-[10px] font-bold text-primary">
+<span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                        COMPLETED
+                                    </span>
+</div>
+</td>
+<td class="px-8 py-6">
+<p class="text-xs text-on-surface font-medium">Oct 24, 2023</p>
+<p class="text-[10px] text-on-surface-variant">17:45:19 GMT+8</p>
+</td>
+<td class="px-8 py-6 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 hover:bg-surface-bright rounded-full text-on-surface-variant hover:text-primary transition-all" title="View Details">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+<button class="p-2 hover:bg-error/10 rounded-full text-on-surface-variant hover:text-error transition-all" title="Flag Transaction">
+<span class="material-symbols-outlined text-xl">flag</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Overlay -->
+<div class="bg-surface-container-highest/50 px-8 py-4 flex items-center justify-between border-t border-outline-variant/10">
+<span class="text-[10px] text-on-surface-variant font-medium tracking-wider">SHOWING 1-4 OF 1,429 TRANSACTIONS</span>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant/20 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-on-primary-container text-xs font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant/20 text-on-surface-variant hover:text-primary transition-all text-xs font-bold">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant/20 text-on-surface-variant hover:text-primary transition-all text-xs font-bold">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-full border border-outline-variant/20 text-on-surface-variant hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB (Suppressed on Audit page as per Shell Logic - but included here only if deemed primary action for page context. Task asked for 'Quick Export' specifically in NavBar/Controls, no FAB specified) -->
+</body></html>

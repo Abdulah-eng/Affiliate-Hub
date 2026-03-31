@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #060e20;
+  --foreground: #dee5ff;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-body;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-surface-container/60 backdrop-blur-2xl border border-primary/10 overflow-hidden relative transition-all duration-500;
+    box-shadow: 0 4px 60px rgba(110, 155, 255, 0.08);
+  }
+
+  .glass-panel::after {
+    content: '';
+    @apply absolute inset-0 bg-glass-gradient pointer-events-none;
+  }
+
+  .neon-glow-primary {
+    @apply shadow-[0_0_20px_rgba(129,236,255,0.2)];
+  }
+
+  .neon-glow-secondary {
+    @apply shadow-[0_0_20px_rgba(110,155,255,0.2)];
+  }
+
+  .hover-neon-primary:hover {
+    @apply shadow-[0_0_30px_rgba(129,236,255,0.4)] scale-[1.02];
+  }
+
+  /* No Hard Lines Rule (Structural Definition via Space/Tones) */
+  .vault-card {
+    @apply rounded-xl p-8;
+  }
+
+  .vault-layout-gap {
+    @apply gap-10 md:gap-24;
+  }
+}
+
+@layer utilities {
+  .animate-vapor {
+    animation: vapor 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes vapor {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

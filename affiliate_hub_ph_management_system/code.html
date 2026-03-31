@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Affiliate Hub PH | Build Your Network</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#060e20",
+              "outline-variant": "#40485d",
+              "inverse-surface": "#faf8ff",
+              "on-tertiary-fixed": "#1c0055",
+              "secondary-dim": "#0f6df3",
+              "tertiary-dim": "#7e51ff",
+              "surface": "#060e20",
+              "primary": "#81ecff",
+              "error": "#ff716c",
+              "surface-container-low": "#091328",
+              "on-secondary-fixed-variant": "#004baf",
+              "tertiary-fixed": "#b8a3ff",
+              "on-primary-fixed": "#003840",
+              "on-tertiary": "#25006b",
+              "surface-bright": "#1f2b49",
+              "error-container": "#9f0519",
+              "on-tertiary-fixed-variant": "#4000ad",
+              "outline": "#6d758c",
+              "surface-tint": "#81ecff",
+              "error-dim": "#d7383b",
+              "surface-dim": "#060e20",
+              "surface-variant": "#192540",
+              "secondary-fixed": "#c0d1ff",
+              "on-error": "#490006",
+              "primary-fixed-dim": "#00d4ec",
+              "secondary": "#6e9bff",
+              "primary-dim": "#00d4ec",
+              "on-primary": "#005762",
+              "on-tertiary-container": "#ffffff",
+              "primary-container": "#00e3fd",
+              "surface-container-high": "#141f38",
+              "on-error-container": "#ffa8a3",
+              "primary-fixed": "#00e3fd",
+              "tertiary-container": "#7c4dff",
+              "on-secondary": "#001d4e",
+              "surface-container-highest": "#192540",
+              "on-primary-fixed-variant": "#005762",
+              "surface-container-lowest": "#000000",
+              "on-surface-variant": "#a3aac4",
+              "inverse-primary": "#006976",
+              "secondary-fixed-dim": "#acc3ff",
+              "tertiary-fixed-dim": "#ab93ff",
+              "tertiary": "#a68cff",
+              "on-background": "#dee5ff",
+              "secondary-container": "#0058ca",
+              "on-surface": "#dee5ff",
+              "surface-container": "#0f1930",
+              "on-primary-container": "#004d57",
+              "on-secondary-fixed": "#003076",
+              "inverse-on-surface": "#4d556b",
+              "on-secondary-container": "#f7f7ff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(20, 31, 56, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 40px -10px rgba(129, 236, 255, 0.2);
+        }
+        .neon-halo {
+            box-shadow: 0 0 15px rgba(129, 236, 255, 0.4);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #81ecff, #6e9bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Shell -->
+<nav class="fixed top-0 right-0 w-full h-16 z-50 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10">
+<div class="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 font-['Plus_Jakarta_Sans'] font-medium text-sm" href="#">Network</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] transition-all font-['Plus_Jakarta_Sans'] font-medium text-sm" href="#">Insights</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] transition-all font-['Plus_Jakarta_Sans'] font-medium text-sm" href="#">Help</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-full font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(129,236,255,0.3)]">
+                    Quick Apply
+                </button>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-[#141f38]/50 rounded-full transition-all text-[#a3aac4]">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#141f38]/50 rounded-full transition-all text-[#a3aac4]">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center justify-center px-4 overflow-hidden">
+<!-- Decorative Void Glows -->
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 blur-[120px] rounded-full"></div>
+<div class="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center relative z-10">
+<div class="space-y-8">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-surface-container-high border border-outline-variant/30 text-primary text-xs font-bold tracking-widest uppercase">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+                        System Online
+                    </div>
+<h1 class="text-5xl md:text-7xl font-extrabold font-headline leading-[1.1] tracking-tighter text-on-surface">
+                        Build your <span class="text-gradient">affiliate network</span> in one system
+                    </h1>
+<p class="text-on-surface-variant text-lg md:text-xl max-w-lg leading-relaxed">
+                        The definitive hub for Philippine affiliates. High-performance tools for high-stakes digital assets.
+                    </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="px-8 py-4 bg-primary text-on-primary rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(129,236,255,0.4)]">
+                            Apply Now
+                        </button>
+<button class="px-8 py-4 border border-primary/20 hover:border-primary/50 text-primary rounded-full font-bold text-lg hover:bg-primary/5 transition-all">
+                            Agent Login
+                        </button>
+</div>
+</div>
+<!-- Glassmorphic Hero Card -->
+<div class="relative group">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary to-secondary opacity-20 blur-3xl group-hover:opacity-30 transition-opacity"></div>
+<div class="glass-card rounded-xl p-8 relative neon-glow-primary overflow-hidden">
+<div class="flex justify-between items-start mb-12">
+<div>
+<p class="text-on-surface-variant text-sm font-label uppercase tracking-widest">Network Health</p>
+<h3 class="text-3xl font-bold font-headline mt-1">98.2%</h3>
+</div>
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">trending_up</span>
+</div>
+</div>
+<div class="space-y-6">
+<div class="h-32 w-full flex items-end gap-2 px-2">
+<div class="w-full bg-primary/20 h-[40%] rounded-t-sm"></div>
+<div class="w-full bg-primary/20 h-[60%] rounded-t-sm"></div>
+<div class="w-full bg-primary/20 h-[55%] rounded-t-sm"></div>
+<div class="w-full bg-primary/20 h-[80%] rounded-t-sm"></div>
+<div class="w-full bg-primary h-[95%] rounded-t-sm neon-halo"></div>
+<div class="w-full bg-primary/20 h-[70%] rounded-t-sm"></div>
+<div class="w-full bg-primary/20 h-[85%] rounded-t-sm"></div>
+</div>
+<div class="pt-6 border-t border-outline-variant/20 grid grid-cols-2 gap-4">
+<div>
+<p class="text-on-surface-variant text-xs">Active Nodes</p>
+<p class="font-bold text-primary">5,402</p>
+</div>
+<div>
+<p class="text-on-surface-variant text-xs">Settlement Status</p>
+<p class="font-bold text-secondary">Verified</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="py-24 px-4 bg-surface-container-low/50">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="p-8 text-center space-y-2">
+<h4 class="text-4xl md:text-5xl font-extrabold font-headline text-primary">100+</h4>
+<p class="text-on-surface-variant font-medium tracking-wide">Partners</p>
+</div>
+<div class="p-8 text-center space-y-2 border-x border-outline-variant/10">
+<h4 class="text-4xl md:text-5xl font-extrabold font-headline text-primary">5,000+</h4>
+<p class="text-on-surface-variant font-medium tracking-wide">Applicants</p>
+</div>
+<div class="p-8 text-center space-y-2">
+<h4 class="text-4xl md:text-5xl font-extrabold font-headline text-primary">95%</h4>
+<p class="text-on-surface-variant font-medium tracking-wide">Approval Rate</p>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="py-32 px-4 max-w-7xl mx-auto">
+<div class="text-center mb-20 space-y-4">
+<h2 class="text-4xl font-bold font-headline">Engineered for <span class="text-gradient">Precision</span></h2>
+<p class="text-on-surface-variant max-w-2xl mx-auto">One central point of control for your entire affiliate ecosystem.</p>
+</div>
+<div class="grid md:grid-cols-3 gap-6 auto-rows-[300px]">
+<div class="md:col-span-2 glass-card rounded-xl p-10 flex flex-col justify-between group hover:border-primary/30 transition-all">
+<div class="max-w-md">
+<h3 class="text-2xl font-bold font-headline mb-4">Centralized Dashboard</h3>
+<p class="text-on-surface-variant">Real-time tracking of every conversion and commission across all partnered brands from a single pane of glass.</p>
+</div>
+<div class="flex items-center gap-4 text-primary font-bold">
+                        Learn More <span class="material-symbols-outlined">arrow_forward</span>
+</div>
+</div>
+<div class="glass-card rounded-xl p-10 flex flex-col justify-center space-y-6 hover:bg-surface-container-high transition-all">
+<div class="w-14 h-14 bg-secondary/10 flex items-center justify-center rounded-2xl text-secondary">
+<span class="material-symbols-outlined" style="font-size: 32px;">verified_user</span>
+</div>
+<h3 class="text-xl font-bold font-headline">One KYC Verification</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Submit your documents once and gain instant eligibility for all system partners.</p>
+</div>
+<div class="glass-card rounded-xl p-10 flex flex-col justify-center space-y-6 hover:bg-surface-container-high transition-all">
+<div class="w-14 h-14 bg-tertiary/10 flex items-center justify-center rounded-2xl text-tertiary">
+<span class="material-symbols-outlined" style="font-size: 32px;">layers</span>
+</div>
+<h3 class="text-xl font-bold font-headline">Multi-platform Apply</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Scale your reach. Apply to multiple brand programs with a single click action.</p>
+</div>
+<div class="md:col-span-2 relative overflow-hidden rounded-xl border border-outline-variant/10 group">
+<img alt="Dashboard UI concept" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700" data-alt="Modern dark mode fintech dashboard interface with vibrant cyan and purple data visualizations and sleek typography on glass panels" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbHj2kCJe6kU6nsw3bn6ZBkpOCfZXMfgm9Q9jV7-Il2ezKb_LcAH8frMHm1EYod6yQXhe0q8FthJkMnl0mC2qN3Y4hR80-0b2nRWgYcigTCIYbuY02PaH0NlQPNHZFquQoeJuM1kGaofdeS-KP2kWhWGn0IyDqACrIxkXFYeliBhcj93DbYtEjO_qCmmeHLZPaMOeyp_QxmT4C4jZiOo98Fp2sTSKC1pLFCBhBv3c5bffgXUkiaov_m8jJilXolIfBcZkPQUmktzY"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent p-10 flex flex-col justify-end">
+<h3 class="text-2xl font-bold font-headline mb-2">Automated Insights</h3>
+<p class="text-on-surface-variant max-w-sm">AI-driven forecasting to identify which networks are performing best in the current market.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Partner Brands -->
+<section class="py-24 border-y border-outline-variant/10">
+<div class="max-w-7xl mx-auto px-4">
+<p class="text-center text-xs font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-12">Authorized Partner Network</p>
+<div class="flex flex-wrap justify-center gap-12 md:gap-24 items-center opacity-60 hover:opacity-100 transition-opacity">
+<span class="text-2xl font-black font-headline tracking-tighter text-on-surface">WinForLife</span>
+<span class="text-2xl font-black font-headline tracking-tighter text-on-surface">BIGWIN</span>
+<span class="text-2xl font-black font-headline tracking-tighter text-on-surface">Rollem</span>
+<span class="text-2xl font-black font-headline tracking-tighter text-on-surface">AceBet</span>
+<span class="text-2xl font-black font-headline tracking-tighter text-on-surface">GoldenSlot</span>
+</div>
+</div>
+</section>
+<!-- How It Works Section -->
+<section class="py-32 px-4 relative overflow-hidden">
+<div class="max-w-7xl mx-auto">
+<div class="mb-20">
+<h2 class="text-4xl font-bold font-headline mb-4">Your Path to <span class="text-gradient">Vault Access</span></h2>
+<p class="text-on-surface-variant">Streamlined onboarding for serious professionals.</p>
+</div>
+<div class="grid md:grid-cols-4 gap-8">
+<!-- Step 1 -->
+<div class="relative group">
+<div class="text-6xl font-black font-headline text-outline-variant/20 absolute -top-10 -left-4 group-hover:text-primary/10 transition-colors">01</div>
+<div class="pt-8 space-y-4 relative z-10">
+<h3 class="text-xl font-bold">Register</h3>
+<p class="text-on-surface-variant text-sm">Create your master account and secure your personal Kinetic Vault ID.</p>
+</div>
+<div class="mt-6 h-1 w-full bg-outline-variant/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 group-hover:w-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative group">
+<div class="text-6xl font-black font-headline text-outline-variant/20 absolute -top-10 -left-4 group-hover:text-primary/10 transition-colors">02</div>
+<div class="pt-8 space-y-4 relative z-10">
+<h3 class="text-xl font-bold">Choose Partners</h3>
+<p class="text-on-surface-variant text-sm">Browse our elite network of high-converting gaming and fintech brands.</p>
+</div>
+<div class="mt-6 h-1 w-full bg-outline-variant/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 group-hover:w-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative group">
+<div class="text-6xl font-black font-headline text-outline-variant/20 absolute -top-10 -left-4 group-hover:text-primary/10 transition-colors">03</div>
+<div class="pt-8 space-y-4 relative z-10">
+<h3 class="text-xl font-bold">Submit KYC</h3>
+<p class="text-on-surface-variant text-sm">Verify your identity once. Secure, fast, and globally compliant standards.</p>
+</div>
+<div class="mt-6 h-1 w-full bg-outline-variant/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 group-hover:w-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="relative group">
+<div class="text-6xl font-black font-headline text-outline-variant/20 absolute -top-10 -left-4 group-hover:text-primary/10 transition-colors">04</div>
+<div class="pt-8 space-y-4 relative z-10">
+<h3 class="text-xl font-bold">Dashboard Access</h3>
+<p class="text-on-surface-variant text-sm">Unlock the full suite of tracking tools and start building your network.</p>
+</div>
+<div class="mt-6 h-1 w-full bg-outline-variant/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/4 group-hover:w-full transition-all duration-500"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 px-4">
+<div class="max-w-5xl mx-auto glass-card rounded-xl p-12 md:p-20 text-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5"></div>
+<div class="relative z-10 space-y-8">
+<h2 class="text-4xl md:text-5xl font-extrabold font-headline leading-tight">Ready to dominate the <br/><span class="text-gradient">Affiliate Ecosystem?</span></h2>
+<p class="text-on-surface-variant text-lg max-w-xl mx-auto">Join the 5,000+ professionals already leveraging the Hub to scale their affiliate networks.</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+<button class="w-full sm:w-auto px-12 py-5 bg-primary text-on-primary rounded-full font-bold text-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(129,236,255,0.4)]">
+                            Apply Now
+                        </button>
+<button class="w-full sm:w-auto px-12 py-5 border border-outline-variant text-on-surface rounded-full font-bold text-xl hover:bg-surface-container-high transition-all">
+                            Contact Support
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer Shell -->
+<footer class="bg-surface-container-low border-t border-outline-variant/10 py-16 px-8">
+<div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
+<div class="col-span-2 space-y-6">
+<span class="text-xl font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+<p class="text-on-surface-variant max-w-sm leading-relaxed">The premier destination for Philippine-based digital entrepreneurs. Built on the Kinetic Vault engine for absolute performance.</p>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">mail</span>
+</a>
+</div>
+</div>
+<div class="space-y-4">
+<h5 class="font-bold text-on-surface font-headline uppercase text-xs tracking-widest">Platform</h5>
+<ul class="space-y-2 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Affiliate Network</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Insights &amp; Data</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">KYC Verification</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Agent Portal</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h5 class="font-bold text-on-surface font-headline uppercase text-xs tracking-widest">Support</h5>
+<ul class="space-y-2 text-on-surface-variant text-sm">
+<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">API Docs</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto pt-12 mt-12 border-t border-outline-variant/5 text-center text-xs text-on-surface-variant/50">
+            © 2024 Affiliate Hub PH. All rights reserved. Secured by Kinetic Vault Systems.
+        </div>
+</footer>
+</body></html>
