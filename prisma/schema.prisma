@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// User role definition
+enum Role {
+  AGENT
+  CSR
+  ADMIN
+}
+
+// Application status definition
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REQUEST_REUPLOAD
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(AGENT)
+
+  // Agent Specific
+  username      String?   @unique
+  password      String?
+  
+  // KYC Info
+  kycStatus     KycStatus @default(PENDING)
+  kycSubmittedAt DateTime?
+  kycReviewedAt  DateTime?
+  kycNotes      String?
+  
+  telegram      String?
+  location      String?
+  idPhotoUrl    String?
+  selfieUrl     String?
+
+  referralCode  String?   @unique
+  referrerId    String?
+
+  // Relations
+  referrer      User?     @relation("Referrals", fields: [referrerId], references: [id])
+  referrals     User[]    @relation("Referrals")
+
+  platforms     PlatformAccess[]
+  transactions  PointTransaction[]
+  chatMessages  ChatMessage[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Partner Brands
+model Brand {
+  id            String    @id @default(cuid())
+  name          String    @unique
+  logoUrl       String?
+  loginUrl      String?
+  status        String    @default("ONLINE") // ONLINE, MAINTENANCE
+
+  accessItems   PlatformAccess[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// The credentials mapping for an agent to a specific partner brand
+model PlatformAccess {
+  id            String    @id @default(cuid())
+  userId        String
+  brandId       String
+  username      String?
+  password      String?
+  status        String    @default("PENDING") // PENDING, APPROVED, REJECTED
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand         Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, brandId])
+}
+
+// Gamification and Wallet
+model PointTransaction {
+  id            String    @id @default(cuid())
+  userId        String
+  amount        Int
+  type          String    // REFERRAL, CHAT, LOGIN_STREAK, REDEMPTION
+  description   String?
+  status        String    @default("COMPLETED") // COMPLETED, PENDING, FLAGGED
+  
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+}
+
+// Public Agent Chat
+model ChatMessage {
+  id            String    @id @default(cuid())
+  userId        String
+  content       String
+
+  // Rewards linked to this message if any
+  rewardPoints  Int       @default(0)
+  
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+}
+
+// Global configuration
+model SystemSetting {
+  id            String    @id @default(cuid())
+  key           String    @unique
+  value         String
+  description   String?
+  
+  updatedAt     DateTime  @updatedAt
+}

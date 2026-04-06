@@ -11,6 +11,7 @@ import {
   Globe,
   Layers
 } from "lucide-react";
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 export default function AgentLayout({
@@ -19,6 +20,11 @@ export default function AgentLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session } = useSession();
+  const user = session?.user as any;
+  const userName = user?.name || user?.username || 'Agent';
+  const role = user?.role || 'AGENT';
+  const points = 24500; // Mock or fetch from session/db later
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,11 +49,14 @@ export default function AgentLayout({
                 <Bell size={20} className="group-hover:rotate-12 transition-transform" />
                 <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_#81ecff]"></span>
               </button>
-              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary p-[1px] cursor-pointer hover:shadow-[0_0_15px_rgba(129,236,255,0.3)] transition-all">
+              <Link 
+                href="/agent/settings"
+                className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary p-[1px] cursor-pointer hover:shadow-[0_0_15px_rgba(129,236,255,0.3)] transition-all group"
+              >
                 <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
-                  <UserCircle size={24} className="text-primary" />
+                  <UserCircle size={24} className="text-primary group-hover:scale-110 transition-transform" />
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </div>
@@ -56,7 +65,9 @@ export default function AgentLayout({
         <div className="bg-surface-container-low/90 backdrop-blur-lg border-y border-white/5 py-2.5 px-6 lg:px-12 flex items-center gap-8 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Rank</span>
-            <span className="text-xs font-black text-cyan-400 px-4 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 shadow-[0_0_10px_rgba(0,229,255,0.1)] uppercase">Elite Tier</span>
+            <span className="text-xs font-black text-cyan-400 px-4 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 shadow-[0_0_10px_rgba(0,229,255,0.1)] uppercase">
+              {user?.kycStatus === 'APPROVED' ? 'Elite Tier' : 'Pending Vault'}
+            </span>
           </div>
           <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
           

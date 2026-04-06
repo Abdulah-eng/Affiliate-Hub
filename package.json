@@ -6,17 +6,26 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "node --env-file=.env prisma/seed.js"
+  },
+  "prisma": {
+    "seed": "node --env-file=.env prisma/seed.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.21.1",
+    "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
+    "ioredis": "^5.10.1",
     "lucide-react": "^0.460.0",
     "next": "^15.1.0",
+    "next-auth": "^4.24.13",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -24,6 +33,7 @@
     "eslint": "^8",
     "eslint-config-next": "^15.1.0",
     "postcss": "^8",
+    "prisma": "^5.21.1",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

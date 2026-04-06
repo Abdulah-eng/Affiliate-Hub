@@ -1,50 +1,82 @@
-"use client";
-
-import React, { useState } from 'react';
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { ChatClient } from "./ChatClient";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
-  Send, 
-  Smile, 
-  Paperclip, 
-  Search, 
-  MoreVertical, 
-  ShieldCheck, 
   Zap, 
   Users, 
   Trophy, 
   Lock, 
-  TrendingUp,
-  Image as ImageIcon,
-  CheckCheck
+  MoreVertical
 } from "lucide-react";
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
+import { ClientSoon } from "@/components/ui/ClientSoon";
 
-const MESSAGES = [
-  { id: 1, user: 'Alex "Conversion" King', time: '14:20 PM', text: 'Just hit my weekly target! The new affiliate banners for the Makati event are performing 20% better than the old ones. 🚀', role: 'PRO', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAAK-JhtdypHSzXULEkcGn6tGnCtwOma7zJNL1_WIiRkhfX0oGMTOUjpoG4swFcN02xfqggL5f1lo9G6pcyMhVLSpIw0Hz-hIm3H-dgc1HZPVKFS4ihj5tj574O_axhv0U-DyOTnn0VR1UEv2VNpsP62nKTv7s7M496RLUjM01xHAUk3tf5WqCSCChljvaQzJjWFr7GRSGAYyYPk96_BuV8oCKZFDgZHVdEFAxAR8QlO2lqEUbwMlhDmJr-5ejw3w9q4zyv5XMHwYc', self: false, points: '+10 PTS' },
-  { id: 2, user: 'You', time: '14:22 PM', text: "That's huge, Alex! Are you using the static ones or the animated HTML5 set? I noticed a difference on mobile traffic.", role: 'ELITE', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDKKU1HFilghZg9DFulWfuGLhyclI3JKfIvkrUs-dbPMZqkbyvqcuUxU2ewYZ5g_NlCU4rVrKc49O7h4LDkROhx4Xp1wRPa6CPS0UP2AZHDUQMfo6TFLP_P-4uKPPvVpmndfEkg1cxhcCzG6YpBxplqSSZzIsiVLOVYrvjozqwzOmL2Sq0AYaz1GyUQesPGI5WMPvbEsHIuOt0f1JQCRnTKUexEBe9mIeJVVuWkpmBTUXvrAO_Sfn8c5-F2Hmpsbp9IK-uDoL0RRQg', self: true },
-  { id: 3, user: 'Mia_Tech_PH', time: '14:25 PM', text: "Anyone experiencing delay in pixel tracking for the Lazada campaign? Need help checking if it's just my local dashboard. 🛠️", role: 'JUNIOR', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBAKAp2tNHKcVcIR_v2_1sfH_Y4MSue4KSi0theQMsdGzxZ4b37Uh20WlMQl5OsApO6Tt4tE3_N4Tf1xLXUskUX9CYuUO4lhiKlleB3PT1ye9Sx7XzTEGd6BjqKXwh-Fbrtk-UjWbFKhkFEdD9RRH6sXMvMVObBuxJc1LmDNB3xIi9flluPGWtOzjmqmd62w9hXaCp_M6gVKMQ3oCWt7Yz7kR5T6GjOAwzZoqgqyOUfYQtbQZkfxDHL9zKpHMuC_oxvrIxR1cym60Y', self: false, points: '+5 PTS' }
-];
+export default async function NexusFeedPage() {
+  const session = await getServerSession(authOptions);
+  const currentUserId = session?.user?.id || "";
 
-export default function AgentChatPage() {
-  const [input, setInput] = useState('');
+  // Fetch initial 50 messages
+  const initialData = await prisma.chatMessage.findMany({
+    take: 50,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: {
+          name: true,
+          username: true,
+          role: true,
+          id: true
+        }
+      }
+    }
+  });
+
+  // Re-sort to ascending for the UI
+  const messages = initialData.reverse().map((m: any) => ({
+    id: m.id,
+    content: m.content,
+    userId: m.userId,
+    userName: m.user.name || m.user.username || "Agent",
+    userRole: m.user.role,
+    createdAt: m.createdAt.toISOString(),
+    rewardPoints: m.rewardPoints
+  }));
+
+  // Get top chatters
+  const topChatters = await prisma.chatMessage.groupBy({
+    by: ["userId"],
+    _count: { id: true },
+    orderBy: { _count: { id: "desc" } },
+    take: 5
+  });
+
+  // Fetch user data for reputations (Mock or real)
+  const user = await prisma.user.findUnique({
+    where: { id: currentUserId },
+    select: { name: true, username: true, role: true }
+  });
 
   return (
-    <div className="flex h-[calc(100vh-120px)] animate-vapor -mt-2">
+    <div className="flex h-[calc(100vh-220px)] animate-vapor -mt-4">
       {/* Sidebar - Contacts & Groups */}
-      <div className="w-80 hidden lg:flex flex-col border-r border-white/5 pr-8 space-y-8">
+      <div className="w-80 hidden lg:flex flex-col border-r border-white/5 pr-8 space-y-8 overflow-y-auto no-scrollbar">
         <div className="space-y-4">
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Nexus Lobby</h3>
           <div className="space-y-2">
             {[
               { name: 'Global Chat', icon: <Users size={18} />, active: true, count: '1.2k' },
               { name: 'Private Nodes', icon: <Lock size={18} />, count: '0' },
-              { name: 'Squad Groups', icon: <ShieldCheck size={18} />, count: '2' }
+              { name: 'Squad Groups', icon: <Users size={18} />, count: '2' }
             ].map((item, idx) => (
-              <button 
+              <ClientSoon 
                 key={idx} 
+                as="button"
+                message={`Connecting to ${item.name} is currently offline.`}
                 className={cn(
                   "w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group",
-                  item.active ? "bg-primary/10 text-primary border-l-2 border-primary" : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
+                  item.active ? "bg-primary/10 text-primary border-l-2 border-primary shadow-[0_0_20px_rgba(129,236,255,0.05)]" : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -52,7 +84,7 @@ export default function AgentChatPage() {
                   <span className="text-sm font-black uppercase tracking-tight">{item.name}</span>
                 </div>
                 <span className="text-[10px] font-black opacity-40">{item.count}</span>
-              </button>
+              </ClientSoon>
             ))}
           </div>
         </div>
@@ -61,29 +93,35 @@ export default function AgentChatPage() {
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Active Operatives</h3>
           <div className="space-y-3">
             {[
-              { name: 'Cyber_Merchant', status: 'Healthy', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDAJaedaZxQGKFUbQ15ojWyFLlvDh9k6MoJX9pKvPvlTCiD2-zojy2y-6XXhJoWxCFVagPjhvtU23OBw15cdFWmYuefMjt4rjB7QbOy6sm3Ayr8n05gKTucKiNOMEpa_XrGyPywfBrluxa4XhUWfOLEpI7czBbl56Yhv4MAR5M3z_HCYm3eSMi37VlhG8PieaqSiOisv795jxxr_C7hoJM2Z64wMCIS-cs6o1RvCQRosof_-kPSznrEnDm4zcddtvgKQ0wgTgFlMtg' },
-              { name: 'Sarah_Ops', status: 'Away (5m)', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCFltzfseh5LDgzXTcRAl3x2p6eqU8p6eRMtlvJBGUAGOOBWIhg-6r51H95jSTiaU0HbX5iZ8VByEw7WuBt_t27jyupyS3lBIclbCoXArlU_79ELFdGpXWZ8wfZ4hjvncKKJcsArxuSjDlHOg3BVukIJrDIs2xrDPCXKH_aN6KkJL2wrvSzumuQ8YgIv6FTFhULFW_CLFcTTBlp2j2ZJOeo1lCkjvuQJ_DQuxCNO_wJTfjQyZoNa30tpg8hyKvlkvTRAnFpQ1w3c0M' },
-              { name: 'PinoAffiliate_CEO', status: 'Healthy', avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAws8tUHvvAwKjGyjJcZvGJvB_DK652mlEAqC4Y8TW1Bpdr6N8BLiP-Vr_Y6byAojPUto4-0GcVGlLpGGWpL4WrQfFCvKq6dXI36XGBallEB9DNsiRBeIT9zBmWPrULMW7TKBKD-MrjvFQk90pBDy6r_aMnYQbtNL5O-TQJoVdgMT-Upew4RdwnKJoO4fzlpzxSo8SVEQQPwYq-yYeDIBHsiSeRhpcH4aQp7LCK1Hqt05xDkTvlHbzKgJnJCNUwWwCmD8bycgtKNXQ' }
+              { name: 'Cyber_Merchant', status: 'Healthy', char: 'C' },
+              { name: 'Sarah_Ops', status: 'Away (5m)', char: 'S' },
+              { name: 'PinoAffiliate_CEO', status: 'Healthy', char: 'P' }
             ].map((u, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-white/[0.03] transition-all cursor-pointer group border border-transparent hover:border-white/5">
+              <ClientSoon 
+                key={i} 
+                as="div"
+                message={`Direct connection to ${u.name} is unavailable.`}
+                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-white/[0.03] transition-all cursor-pointer group border border-transparent hover:border-white/5"
+              >
                 <div className="relative">
-                  <img src={u.avatar} className="w-10 h-10 rounded-xl object-cover grayscale group-hover:grayscale-0 transition-all" />
+                  <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-primary border border-primary/10">
+                    {u.char}
+                  </div>
                   <div className={cn("absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-950", u.status.includes('Away') ? "bg-amber-500" : "bg-emerald-500 animate-pulse")} />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-on-surface uppercase tracking-tight">{u.name}</p>
+                  <p className="text-xs font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">{u.name}</p>
                   <p className="text-[9px] text-on-surface-variant font-medium uppercase">{u.status}</p>
                 </div>
-              </div>
+              </ClientSoon>
             ))}
           </div>
         </div>
       </div>
 
       {/* Main Chat Feed */}
-      <div className="flex-1 flex flex-col bg-surface-container-low/20 rounded-3xl border border-white/5 overflow-hidden shadow-2xl relative">
-        {/* Chat Header */}
-        <div className="px-10 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="px-10 py-6 border-y lg:border-t-0 border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-3xl lg:rounded-tl-none">
           <div className="flex items-center gap-5">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
               <Zap fill="currentColor" size={24} />
@@ -96,84 +134,26 @@ export default function AgentChatPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-             <div className="hidden md:flex -space-x-4">
-                {[1, 2, 3].map(i => (
-                  <img key={i} className="w-8 h-8 rounded-full border-2 border-surface-container-low hover:z-10 transition-all cursor-pointer" src={`https://i.pravatar.cc/150?u=${i + 10}`} />
-                ))}
-                <div className="w-8 h-8 rounded-full border-2 border-surface-container-low bg-surface-container-high flex items-center justify-center text-[10px] font-black">+1.2k</div>
-             </div>
-             <button className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-primary/5 rounded-xl"><MoreVertical size={20} /></button>
-          </div>
+          <ClientSoon 
+            as="button"
+            message="Additional channel options coming soon."
+            className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-primary/5 rounded-xl"
+          >
+            <MoreVertical size={20} />
+          </ClientSoon>
         </div>
 
-        {/* Message List */}
-        <div className="flex-1 overflow-y-auto px-10 py-8 space-y-10 no-scrollbar">
-          {MESSAGES.map((msg) => (
-            <div key={msg.id} className={cn(
-              "flex gap-5 max-w-[80%]",
-              msg.self ? "flex-row-reverse ml-auto" : "flex-row"
-            )}>
-              <div className="shrink-0 relative h-fit">
-                <img src={msg.avatar} className="w-12 h-12 rounded-2xl object-cover ring-2 ring-white/5" />
-                <div className={cn(
-                  "absolute -bottom-1 px-1.5 rounded-sm text-[8px] font-black uppercase tracking-tighter",
-                  msg.role === 'PRO' ? "bg-tertiary right-0" : 
-                  msg.role === 'ELITE' ? "bg-primary p-0 text-background left-0" : 
-                  "bg-on-surface-variant right-0"
-                )}>
-                  {msg.role}
-                </div>
-              </div>
-              <div className={cn("space-y-2", msg.self ? "text-right" : "text-left")}>
-                <div className={cn("flex items-center gap-3", msg.self ? "justify-end" : "justify-start")}>
-                  {!msg.self && <span className="text-sm font-black text-on-surface uppercase tracking-tight">{msg.user}</span>}
-                  <span className="text-[10px] font-black text-on-surface-variant opacity-40">{msg.time}</span>
-                  {msg.self && <span className="text-sm font-black text-primary uppercase tracking-tight">You</span>}
-                </div>
-                <div className={cn(
-                  "p-5 rounded-2xl relative group border",
-                  msg.self ? "bg-primary/10 border-primary/20 rounded-tr-none text-on-surface" : "bg-white/[0.03] border-white/5 rounded-tl-none text-on-surface-variant/90"
-                )}>
-                  <p className="text-sm font-medium leading-relaxed">{msg.text}</p>
-                  {msg.points && (
-                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
-                       <span className="bg-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-1 rounded-full border border-emerald-500/30 shadow-lg">{msg.points}</span>
-                    </div>
-                  )}
-                  {msg.self && <div className="flex justify-end mt-2"><CheckCheck size={14} className="text-primary opacity-60" /></div>}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Input Area */}
-        <div className="p-8 bg-white/[0.01] border-t border-white/5">
-          <div className="bg-surface-container-high/40 border border-white/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 transition-all shadow-xl group">
-             <button className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl"><Paperclip size={20} /></button>
-             <input 
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-sm font-medium text-on-surface placeholder:text-on-surface-variant/30" 
-              placeholder="Sync a message to the Nexus..." 
-             />
-             <div className="flex items-center gap-2 pr-2">
-                <button className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl hidden md:block"><Smile size={20} /></button>
-                <button className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl hidden md:block"><ImageIcon size={20} /></button>
-                <button className="bg-primary text-background px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-3 hover:shadow-[0_0_30px_rgba(129,236,255,0.4)] transition-all active:scale-95 group-hover:scale-[1.02]">
-                   Send <Send size={16} />
-                </button>
-             </div>
-          </div>
-        </div>
+        <ChatClient 
+          initialMessages={messages} 
+          currentUserId={currentUserId} 
+        />
       </div>
 
       {/* Right Sidebar - Performance Hub */}
-      <div className="w-96 hidden xl:flex flex-col border-l border-white/5 pl-8 space-y-10">
+      <div className="w-96 hidden xl:flex flex-col border-l border-white/5 pl-8 space-y-10 overflow-y-auto no-scrollbar">
         <div className="space-y-6">
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Node Performance</h3>
-          <GlassCard className="p-8 bg-surface-container-low/40 border-primary/10 relative overflow-hidden group">
+          <GlassCard className="p-8 bg-surface-container-low/40 border-primary/10 relative overflow-hidden group shadow-2xl">
             <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform duration-700">
                <Trophy size={64} className="text-primary" />
             </div>
@@ -200,41 +180,29 @@ export default function AgentChatPage() {
         </div>
 
         <div className="space-y-6">
-          <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Daily Flux Quests</h3>
+          <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Top Transmitters</h3>
           <div className="space-y-3">
-             {[
-               { name: 'Nexus Sync', pts: '+50', status: 'COMPLETE', active: true },
-               { name: 'Propagation I', pts: '+20', status: 'PENDING', active: false },
-               { name: 'Elite Feedback', pts: '2/5', status: 'ACTIVE', active: false }
-             ].map((q, i) => (
-                <div key={i} className={cn(
-                  "p-5 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer",
-                  q.active ? "bg-primary/5 border-primary/20" : "bg-white/[0.02] border-white/5 hover:border-primary/10"
+             {topChatters.map((chatter: any, i: number) => (
+                <div key={chatter.userId} className={cn(
+                  "p-5 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer bg-white/[0.02] border-white/5 hover:border-primary/10"
                 )}>
                   <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110",
-                      q.active ? "bg-primary/10 text-primary" : "bg-white/5 text-on-surface-variant"
-                    )}>
-                      <Zap size={18} fill={q.active ? "currentColor" : "none"} />
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold uppercase border border-primary/20">
+                      ?
                     </div>
                     <div>
-                      <p className="text-xs font-black text-on-surface uppercase tracking-tight">{q.name}</p>
-                      <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">{q.pts} PTS Allocation</p>
+                      <p className="text-xs font-black text-on-surface uppercase tracking-tight">Agent {chatter.userId.slice(0, 5)}</p>
+                      <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">{chatter._count.id} Messages Sync'd</p>
                     </div>
                   </div>
-                  <span className={cn(
-                    "text-[8px] font-black uppercase tracking-widest",
-                    q.status === 'COMPLETE' ? "text-emerald-400" : 
-                    q.status === 'ACTIVE' ? "text-primary" : "text-on-surface-variant"
-                  )}>{q.status}</span>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-primary">ACTIVE</span>
                 </div>
              ))}
           </div>
         </div>
 
-        <div className="mt-auto p-8 rounded-3xl bg-slate-950 border border-white/5">
-           <p className="text-[9px] font-black text-[#a3aac4] leading-relaxed uppercase tracking-widest">
+        <div className="mt-auto p-6 rounded-3xl bg-slate-950/40 border border-white/5">
+           <p className="text-[9px] font-black text-[#a3aac4] leading-relaxed uppercase tracking-widest text-center">
               <span className="text-primary">FAIR PLAY NOTICE:</span> ENGAGEMENT REWARDS ARE AI-MONITORED. VIOLATIONS LEAD TO PERMANENT VAULT SUSPENSION.
            </p>
         </div>

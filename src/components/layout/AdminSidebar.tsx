@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 
 export const AdminSidebar = () => {
   const pathname = usePathname();
@@ -72,7 +73,10 @@ export const AdminSidebar = () => {
         <Link href="/admin/docs" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
           <FileText size={16} /> Documentation
         </Link>
-        <button className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-full transition-all text-xs font-bold uppercase tracking-widest active:scale-95 group">
+        <button 
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="w-full mt-6 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-full transition-all text-xs font-bold uppercase tracking-widest active:scale-95 group"
+        >
           <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
           Secure Logout
         </button>

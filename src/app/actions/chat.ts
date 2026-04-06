@@ -1,0 +1,101 @@
+"use server";
+
+import { prisma } from "@/lib/prisma";
+import { redis } from "@/lib/redis";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../api/auth/[...nextauth]/route";
+
+const CHAT_REDIS_KEY = "chat:recent_messages";
+const MAX_CACHED_MESSAGES = 100;
+
+export async function sendMessage(content: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  // Basic anti-spam: check last message time in Redis (With fallback if Redis fails)
+  const lastMsgKey = `ratelimit:chat:${session.user.id}`;
+  let lastMsgTime = null;
+  try {
+    lastMsgTime = await redis.get(lastMsgKey);
+    if (lastMsgTime && (Date.now() - parseInt(lastMsgTime)) < 3000) {
+      return { success: false, error: "Please wait before sending another message." };
+    }
+    await redis.set(lastMsgKey, Date.now(), "PX", 3000); // 3 seconds cooldown
+  } catch (e) {
+    console.warn("Redis is unavailable for ratelimit, bypassing.", e);
+  }
+
+  // Store in DB
+  const newMessage = await prisma.chatMessage.create({
+    data: {
+      userId: session.user.id,
+      content,
+      rewardPoints: 10 // e.g. give 10 points for engagement
+    },
+    include: {
+      user: {
+        select: { name: true, username: true, role: true }
+      }
+    }
+  });
+
+  // Automatically award points to Wallet
+  await prisma.pointTransaction.create({
+    data: {
+      userId: session.user.id,
+      amount: 10,
+      type: "CHAT",
+      description: "Chat engagement reward"
+    }
+  });
+
+  // Push to Redis Cache for fast retrieval (With Fallback)
+  try {
+    const messageData = JSON.stringify(newMessage);
+    await redis.lpush(CHAT_REDIS_KEY, messageData);
+    await redis.ltrim(CHAT_REDIS_KEY, 0, MAX_CACHED_MESSAGES - 1);
+  } catch (e) {
+    console.warn("Redis is unavailable for chat caching. Falling back to DB only.");
+  }
+
+  return { success: true, message: newMessage };
+}
+
+export async function getRecentChatMessages() {
+  // Fetch from Redis first
+  let cachedMessages = [];
+  try {
+    cachedMessages = await redis.lrange(CHAT_REDIS_KEY, 0, -1);
+    if (cachedMessages.length > 0) {
+      return cachedMessages.map(m => JSON.parse(m)).reverse(); // Oldest first for UI rendering
+    }
+  } catch (e) {
+    console.warn("Redis is unavailable during fetch. Falling back to DB.");
+  }
+
+  // Fallback to DB if Redis is empty
+  const messages = await prisma.chatMessage.findMany({
+    take: MAX_CACHED_MESSAGES,
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { name: true, username: true, role: true }
+      }
+    }
+  });
+
+  // Repopulate cache
+  if (messages.length > 0) {
+    try {
+      const pipeline = redis.pipeline();
+      messages.forEach(m => pipeline.rpush(CHAT_REDIS_KEY, JSON.stringify(m)));
+      await pipeline.exec();
+    } catch (e) {
+      console.warn("Could not repopulate Redis cache.");
+    }
+  }
+
+  return messages.reverse();
+}

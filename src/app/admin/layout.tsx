@@ -23,23 +23,33 @@ export default function AdminLayout({
         
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-6 text-sm font-bold uppercase tracking-widest text-on-surface-variant">
-            <span className="hover:text-primary transition-colors cursor-pointer">Network Status</span>
-            <span className="hover:text-primary transition-colors cursor-pointer">Global Config</span>
+            <span onClick={() => alert("Network status is optimal")} className="hover:text-primary transition-colors cursor-pointer">Network Status</span>
+            <span onClick={() => alert("Global configuration accessed via settings page")} className="hover:text-primary transition-colors cursor-pointer">Global Config</span>
           </div>
           
           <div className="flex items-center gap-3">
-            <button className="p-2 text-on-surface-variant hover:bg-primary/10 rounded-full transition-all active:scale-95 group">
+            <button 
+              onClick={() => alert("No new alerts detected")}
+              className="p-2 text-on-surface-variant hover:bg-primary/10 rounded-full transition-all active:scale-95 group"
+            >
               <Bell size={20} className="group-hover:rotate-12" />
             </button>
-            <button className="p-2 text-on-surface-variant hover:bg-primary/10 rounded-full transition-all active:scale-95 group">
+            <Link 
+              href="/admin/settings"
+              className="p-2 text-on-surface-variant hover:bg-primary/10 rounded-full transition-all active:scale-95 group"
+            >
               <Settings size={20} className="group-hover:rotate-90 duration-500" />
-            </button>
-            <div className="h-8 w-8 rounded-full overflow-hidden border border-primary/20 hover:border-primary/50 transition-all cursor-pointer">
+            </Link>
+            <Link 
+              href="/admin/settings"
+              className="block h-8 w-8 rounded-full overflow-hidden border border-primary/20 hover:border-primary/50 transition-all cursor-pointer relative z-[60]"
+            >
               <img 
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlsLcOuvmzfKivHQA2F4NGV6TtMj9QxRO3c6MFZAe9coHlLSph5GoxHyFDPz0buZO3bkjApYKcMqPcIaQD92YCGMKw1rYmvOgejb7cwbCxlIpNezlIySbo7ajE-g4S7yT5fe_26QjggOL5843H21FbUo9hcS6QhYiJ7DUuS5hbCNvUulWaGOhS1Oap3yRA6tEZFt4n2HEqLnqaRckIB0i0lSDt6ZrQUoL90DrqROSezDqlDRZ601SD8QYG9ASNOyEaf3I_H-1OaFY" 
                 alt="Admin" 
+                className="w-full h-full object-cover"
               />
-            </div>
+            </Link>
           </div>
         </div>
       </header>

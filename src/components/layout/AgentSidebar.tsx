@@ -15,9 +15,16 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 
 export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) => {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  
+  const user = session?.user as any;
+  const userName = user?.name || user?.username || 'Agent';
+  const role = user?.role || 'AGENT';
+  const kycStatus = user?.kycStatus || 'PENDING';
 
   const MENU_ITEMS = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/agent' },
@@ -75,16 +82,17 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
           <div className="mt-auto pt-8 border-t border-white/5 space-y-2">
             <div className="px-4 py-4 mb-4 glass-card rounded-2xl flex items-center gap-3 bg-surface-container/20">
               <div className="relative">
-                <img 
-                  alt="Profile" 
-                  className="w-10 h-10 rounded-full bg-primary/10 p-1 border border-primary/20" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8Zw0GGcE-L4eEm0_0EM7v0BeOGgeIqG1e2eiAyoQOzdn3xMqPe1i1nnaxp1ymPhitKMPjugq_JYAhC8b6UeuPN7tFjzOwrJaj8qNDvhWpFSy0RuB80Si078J0JSNnjh_YQSTueITgj0m4dkd9RhEDrcxz3SNygxJZsH41LtCghObiVLTJiyTMn_DvNiYwv-ue4B3RsCsuOVUFIywFi3Nwn1qzmb6pbD4iEWZBZSSJ01U2aEyY0sKY0yB0VPcdBbpQ8YkOiI_RSv4" 
-                />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-slate-950 animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 text-primary font-bold">
+                  {userName[0].toUpperCase()}
+                </div>
+                <div className={cn(
+                  "absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-950",
+                  kycStatus === 'APPROVED' ? "bg-emerald-500" : "bg-amber-500"
+                )} />
               </div>
-              <div>
-                <p className="text-xs font-bold text-on-surface">Agent Zenith</p>
-                <p className="text-[10px] text-primary font-black uppercase tracking-widest">Diamond Tier</p>
+              <div className="overflow-hidden">
+                <p className="text-xs font-bold text-on-surface truncate">{userName}</p>
+                <p className="text-[10px] text-primary font-black uppercase tracking-widest">{role}</p>
               </div>
             </div>
             
@@ -94,6 +102,12 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
             <Link href="/agent/help" className="flex items-center gap-3 px-6 py-3 rounded-full text-on-surface-variant hover:text-on-surface transition-all text-xs font-bold uppercase tracking-widest">
               <HelpCircle size={18} /> Support
             </Link>
+            <button 
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-full transition-all text-xs font-bold uppercase tracking-widest mt-6"
+            >
+              Secure Logout
+            </button>
           </div>
         </div>
       </aside>
