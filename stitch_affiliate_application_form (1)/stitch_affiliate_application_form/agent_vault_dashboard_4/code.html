@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinetic Vault | Streamlined Agent Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#6e9bff",
+                        "tertiary-fixed": "#b8a3ff",
+                        "on-primary-container": "#004d57",
+                        "on-primary": "#005762",
+                        "secondary-fixed-dim": "#acc3ff",
+                        "secondary-container": "#0058ca",
+                        "on-secondary-fixed": "#003076",
+                        "primary-fixed": "#00e3fd",
+                        "outline-variant": "#40485d",
+                        "on-surface-variant": "#a3aac4",
+                        "error-container": "#9f0519",
+                        "surface-container-lowest": "#000000",
+                        "inverse-primary": "#006976",
+                        "error": "#ff716c",
+                        "on-error-container": "#ffa8a3",
+                        "on-tertiary-fixed-variant": "#4000ad",
+                        "tertiary-fixed-dim": "#ab93ff",
+                        "primary-container": "#00e3fd",
+                        "on-background": "#dee5ff",
+                        "secondary-fixed": "#c0d1ff",
+                        "on-tertiary-container": "#ffffff",
+                        "on-error": "#490006",
+                        "surface-container": "#0f1930",
+                        "surface-container-highest": "#192540",
+                        "on-secondary-container": "#f7f7ff",
+                        "on-tertiary": "#25006b",
+                        "primary-fixed-dim": "#00d4ec",
+                        "surface-container-low": "#091328",
+                        "tertiary-dim": "#7e51ff",
+                        "surface-dim": "#060e20",
+                        "on-surface": "#dee5ff",
+                        "on-primary-fixed": "#003840",
+                        "primary": "#81ecff",
+                        "surface-container-high": "#141f38",
+                        "error-dim": "#d7383b",
+                        "secondary-dim": "#0f6df3",
+                        "background": "#060e20",
+                        "on-secondary-fixed-variant": "#004baf",
+                        "on-tertiary-fixed": "#1c0055",
+                        "surface-tint": "#81ecff",
+                        "on-secondary": "#001d4e",
+                        "tertiary-container": "#7c4dff",
+                        "surface": "#060e20",
+                        "tertiary": "#a68cff",
+                        "on-primary-fixed-variant": "#005762",
+                        "outline": "#6d758c",
+                        "inverse-on-surface": "#4d556b",
+                        "primary-dim": "#00d4ec",
+                        "surface-variant": "#192540",
+                        "inverse-surface": "#faf8ff",
+                        "surface-bright": "#1f2b49"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        .glass-card {
+            background: rgba(15, 25, 48, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(0, 227, 253, 0.15);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }#nav-drawer {
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #nav-drawer.open {
+            transform: translateX(0);
+        }
+        .main-canvas {
+            transition: margin-left 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen overflow-x-hidden">
+<aside class="h-screen w-72 fixed left-0 top-0 border-r border-white/5 bg-slate-950 flex flex-col py-8 z-[60]" id="nav-drawer">
+<div class="px-8 mb-10 flex items-center justify-between">
+<span class="text-2xl font-black text-cyan-400 font-headline tracking-tighter">Kinetic Vault</span>
+<button class="p-2 text-on-surface-variant hover:text-white lg:hidden" onclick="document.getElementById('nav-drawer').classList.remove('open')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex flex-col h-full px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-400 border-l-2 border-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.2)] transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-headline font-semibold text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span class="font-headline font-medium text-sm">My Applications</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">lock_open</span>
+<span class="font-headline font-medium text-sm">Partner Vault</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-headline font-medium text-sm">Leaderboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-headline font-medium text-sm">Rewards</span>
+</a>
+<div class="mt-auto pt-8 border-t border-white/5 space-y-2">
+<div class="px-4 py-4 mb-4 glass-card rounded-2xl flex items-center gap-3">
+<img alt="Profile" class="w-10 h-10 rounded-full bg-primary-container/20 p-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8Zw0GGcE-L4eEm0_0EM7v0BeOGgeIqG1e2eiAyoQOzdn3xMqPe1i1nnaxp1ymPhitKMPjugq_JYAhC8b6UeuPN7tFjzOwrJaj8qNDvhWpFSy0RuB80Si078J0JSNnjh_YQSTueITgj0m4dkd9RhEDrcxz3SNygxJZsH41LtCghObiVLTJiyTMn_DvNiYwv-ue4B3RsCsuOVUFIywFi3Nwn1qzmb6pbD4iEWZBZSSJ01U2aEyY0sKY0yB0VPcdBbpQ8YkOiI_RSv4"/>
+<div>
+<p class="text-xs font-bold text-on-surface">Agent Zenith</p>
+<p class="text-[10px] text-primary">Diamond Tier</p>
+</div>
+</div>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-slate-400 hover:text-slate-100 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-xs">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-slate-400 hover:text-slate-100 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">help_outline</span>
+<span class="text-xs">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<header class="fixed top-0 inset-x-0 h-20 bg-slate-950/80 backdrop-blur-xl z-50 flex flex-col shadow-[0_8px_32px_0_rgba(0,0,0,0.5)]">
+<div class="flex items-center justify-between px-6 lg:px-12 h-full">
+<div class="flex items-center gap-6">
+<button class="p-2 rounded-full hover:bg-white/5 text-primary transition-colors" onclick="document.getElementById('nav-drawer').classList.add('open')">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<h1 class="text-xl font-headline font-bold text-on-surface hidden sm:block">Agent Command</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-white/5 text-on-surface-variant transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary p-[2px]">
+<div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">account_circle</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low/90 backdrop-blur-lg border-y border-white/5 py-2 px-6 lg:px-12 flex items-center gap-8 overflow-x-auto no-scrollbar">
+<div class="flex items-center gap-2 shrink-0">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Rank</span>
+<span class="text-xs font-bold text-cyan-400 px-3 py-0.5 rounded-full bg-cyan-400/10 border border-cyan-400/20">Elite</span>
+</div>
+<div class="h-4 w-[1px] bg-white/10 shrink-0"></div>
+<div class="flex items-center gap-2 shrink-0">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Performance</span>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-on-surface">40%</span>
+<div class="w-16 h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[40%]"></div>
+</div>
+<span class="text-primary text-[10px] font-bold flex items-center">
+<span class="material-symbols-outlined text-[12px]">trending_up</span> +5.2%
+                </span>
+</div>
+</div>
+<div class="h-4 w-[1px] bg-white/10 shrink-0"></div>
+<div class="flex items-center gap-2 shrink-0">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Points</span>
+<span class="text-xs font-bold text-tertiary">24,500 pts</span>
+</div>
+<div class="h-4 w-[1px] bg-white/10 shrink-0"></div>
+<div class="flex items-center gap-2 shrink-0">
+<span class="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">Vault Stats</span>
+<span class="text-xs font-bold text-on-surface">03 <span class="text-on-surface-variant font-medium">Platforms</span></span>
+</div>
+</div>
+</header>
+<main class="pt-36 pb-20 px-4 md:px-8 lg:px-12 max-w-[1400px] mx-auto transition-all">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<div class="lg:col-span-8 space-y-8">
+<section class="glass-card rounded-2xl p-6 border-l-4 border-secondary shadow-lg shadow-secondary/5">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+</div>
+<div>
+<h3 class="text-lg font-headline font-bold text-on-surface">Pending Application: WinForLife</h3>
+<p class="text-[11px] text-on-surface-variant uppercase tracking-widest font-medium">Immediate Attention Required</p>
+</div>
+</div>
+<button class="px-4 py-2 rounded-lg bg-secondary/20 hover:bg-secondary/30 text-secondary text-xs font-bold transition-colors">
+                        View Details
+                    </button>
+</div>
+<div class="relative flex justify-between items-center px-4">
+<div class="absolute top-5 left-8 right-8 h-[2px] bg-surface-container-highest -z-0">
+<div class="h-full bg-gradient-to-r from-primary to-secondary w-[66%]"></div>
+</div>
+<div class="relative flex flex-col items-center z-10">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-[0_0_15px_rgba(0,227,253,0.3)]">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<span class="mt-2 text-[10px] font-bold text-on-surface whitespace-nowrap">Account</span>
+</div>
+<div class="relative flex flex-col items-center z-10">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-[0_0_15px_rgba(0,227,253,0.3)]">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<span class="mt-2 text-[10px] font-bold text-on-surface whitespace-nowrap">KYC</span>
+</div>
+<div class="relative flex flex-col items-center z-10">
+<div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white ring-4 ring-background shadow-[0_0_20px_rgba(110,155,255,0.4)]">
+<span class="material-symbols-outlined text-sm font-bold animate-pulse">hourglass_empty</span>
+</div>
+<span class="mt-2 text-[10px] font-bold text-secondary whitespace-nowrap">CSR Review</span>
+</div>
+<div class="relative flex flex-col items-center z-10">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant border border-outline-variant">
+<span class="material-symbols-outlined text-sm font-bold">rocket_launch</span>
+</div>
+<span class="mt-2 text-[10px] font-bold text-on-surface-variant opacity-50 whitespace-nowrap">Activated</span>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<div class="flex items-center justify-between pb-4 border-b border-white/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" style="font-variation-settings: 'FILL' 1;">lock</span>
+<h2 class="text-xl font-headline font-bold text-on-surface">Platform Vault</h2>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-lg hover:bg-white/5 text-on-surface-variant">
+<span class="material-symbols-outlined text-xl">search</span>
+</button>
+<button class="px-5 py-2 rounded-full bg-primary text-on-primary font-bold text-xs shadow-lg shadow-primary/20 hover:scale-105 transition-all">
+                            Refresh Credentials
+                        </button>
+</div>
+</div>
+<div class="space-y-4 max-h-[800px] overflow-y-auto pr-2 no-scrollbar">
+<div class="glass-card rounded-2xl p-5 hover:bg-surface-container/60 transition-all border-l-4 border-primary group">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex items-center gap-4 min-w-[200px]">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-primary text-xl shadow-inner">BW</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface group-hover:text-primary transition-colors">BIGWIN</h4>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">Ready</span>
+</div>
+</div>
+<div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Login URL</p>
+<p class="text-xs text-primary truncate font-medium">bigwin-partner.ph/login</p>
+</div>
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Username</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono">zenith_bw_01</span>
+<button class="material-symbols-outlined text-sm hover:text-primary">content_copy</button>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Password</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono tracking-widest">••••••••</span>
+<button class="material-symbols-outlined text-sm hover:text-primary">visibility</button>
+<button class="material-symbols-outlined text-sm hover:text-primary">content_copy</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 shrink-0">
+<div class="hidden md:flex flex-col items-end">
+<div class="flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+<span class="text-[9px] font-bold text-on-surface-variant">iFrame Ready</span>
+</div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition-all group-hover:shadow-glow">
+                                    LAUNCH
+                                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-5 hover:bg-surface-container/60 transition-all opacity-75 grayscale group">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex items-center gap-4 min-w-[200px]">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-secondary text-xl">WF</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">WinForLife</h4>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase">Under Review</span>
+</div>
+</div>
+<div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Login URL</p>
+<p class="text-xs text-secondary truncate font-medium">wfl-agent.com/secure</p>
+</div>
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Username</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono italic">Pending approval</span>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Password</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono tracking-widest">••••••••</span>
+<span class="material-symbols-outlined text-sm">lock</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 shrink-0">
+<div class="hidden md:flex flex-col items-end">
+<div class="flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div>
+<span class="text-[9px] font-bold text-on-surface-variant">Restricted</span>
+</div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-white/5 text-on-surface-variant text-xs font-bold rounded-lg cursor-not-allowed">
+                                    LOCKED
+                                    <span class="material-symbols-outlined text-sm">lock</span>
+</button>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-5 hover:bg-surface-container/60 transition-all border-l-4 border-secondary group">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex items-center gap-4 min-w-[200px]">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-tertiary text-xl">RL</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface group-hover:text-primary transition-colors">Rollem</h4>
+<span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">Ready</span>
+</div>
+</div>
+<div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Login URL</p>
+<p class="text-xs text-primary truncate font-medium">rollem-partners.ph</p>
+</div>
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Username</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono">az_roll_99</span>
+<button class="material-symbols-outlined text-sm hover:text-primary">content_copy</button>
+</div>
+</div>
+<div class="space-y-1">
+<p class="text-[9px] text-on-surface-variant uppercase font-bold tracking-tighter">Password</p>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono tracking-widest">••••••••</span>
+<button class="material-symbols-outlined text-sm hover:text-primary">visibility</button>
+<button class="material-symbols-outlined text-sm hover:text-primary">content_copy</button>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4 shrink-0">
+<div class="hidden md:flex flex-col items-end">
+<div class="flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+<span class="text-[9px] font-bold text-on-surface-variant">iFrame Ready</span>
+</div>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold rounded-lg transition-all group-hover:shadow-glow">
+                                    LAUNCH
+                                    <span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+</div>
+</div>
+<div class="rounded-2xl border-2 border-dashed border-outline-variant/30 flex items-center justify-center p-8 hover:border-primary/50 transition-colors cursor-pointer group bg-white/2">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-2xl">add</span>
+</div>
+<div class="text-left">
+<p class="font-headline font-bold text-on-surface">Apply for New Platform</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Expand your portfolio</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="lg:col-span-4 space-y-8">
+<div class="glass-card rounded-2xl p-6 border-t-4 border-tertiary">
+<h3 class="text-sm font-headline font-bold text-on-surface mb-6 uppercase tracking-widest flex items-center justify-between">
+                    Hub Updates
+                    <span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+</h3>
+<div class="space-y-5">
+<div class="group cursor-pointer">
+<p class="text-[10px] text-tertiary font-bold mb-1">NEW CAMPAIGN • 2h ago</p>
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Rollem: Double Rebate Weekend</h5>
+<p class="text-xs text-on-surface-variant mt-1 line-clamp-2">Earn 2x points for all new player registrations this Saturday and Sunday...</p>
+</div>
+<div class="h-[1px] bg-white/5"></div>
+<div class="group cursor-pointer">
+<p class="text-[10px] text-primary font-bold mb-1">SYSTEM • 5h ago</p>
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">KYC Verification System Upgrade</h5>
+<p class="text-xs text-on-surface-variant mt-1 line-clamp-2">Our new automated KYC verification is now live for BIGWIN partners...</p>
+</div>
+<div class="h-[1px] bg-white/5"></div>
+<div class="group cursor-pointer">
+<p class="text-[10px] text-on-surface-variant font-bold mb-1">NOTIF • 1d ago</p>
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">KYC Verified: BIGWIN Platform</h5>
+</div>
+</div>
+<button class="w-full mt-6 py-2 border border-outline-variant hover:border-tertiary rounded-full text-[10px] font-bold text-on-surface-variant hover:text-tertiary transition-all uppercase tracking-widest">
+                    View All Activity
+                </button>
+</div>
+<div class="glass-card rounded-2xl p-6 bg-gradient-to-br from-surface-container/40 to-surface-container-high/60">
+<h3 class="text-sm font-headline font-bold text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+                    Access Intel
+                </h3>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-8 h-8 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">vpn_key</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Use Secure Browser</p>
+<p class="text-[10px] text-on-surface-variant mt-1">Chrome Incognito is recommended for better session management.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 shrink-0 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">sync_problem</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Login Issues?</p>
+<p class="text-[10px] text-on-surface-variant mt-1">Ensure your browser allows pop-ups for partner domains.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-card rounded-2xl p-6 relative overflow-hidden bg-surface-container-highest/40">
+<img alt="Ad" class="w-full h-24 object-cover rounded-xl mb-4 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPOpY8YsZmvxWJ8D3L9HDyFQlW1sEhqga7MV5Bzw7kXi-AMqLpZPuygfUjdS3kR5lNoLONx0Lvhiuyrikr_I0oJvZ4OFl_pc4U_ySqmL0jXZgi2hlDAbU_J6vNXgeIHMAXGI6Z8Ssxp19w6DDo5wgShzXggWBIVZpSxt2_BUghLNu0d4peKeGows9PAHVAPU57Cw5FeUmyYbHqKWmucBoP2oFW9OjfC_zRCLEmwV4auekvzCFpbaMruVdJKUw4GTIlF8D3aIrukfw"/>
+<h4 class="text-sm font-bold text-on-surface">Agent Support Hub</h4>
+<p class="text-[10px] text-on-surface-variant mt-1 mb-4">Onboarding or settlement assistance available 24/7.</p>
+<button class="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold transition-all border border-white/10">
+                    OPEN SUPPORT
+                </button>
+</div>
+</div>
+</div>
+</main>
+<button class="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-primary text-on-primary shadow-[0_0_30px_rgba(0,227,253,0.4)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined text-2xl font-bold transition-transform">add</span>
+</button>
+
+</body></html>

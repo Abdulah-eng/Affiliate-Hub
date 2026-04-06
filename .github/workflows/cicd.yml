@@ -70,6 +70,18 @@ jobs:
             # Pull latest changes from git
             git pull origin main
             
-            # Make sure the container builds and restarts with new changes
-            # Note: you may need to use `sudo docker-compose` depending on your server setup
-            docker-compose up -d --build
+            # Install dependencies without modifying package-lock.json
+            npm ci
+            
+            # Generate Prisma Client
+            npx prisma generate
+            
+            # Build the Next.js application
+            npm run build
+            
+            # Start or restart the application with PM2
+            pm2 startOrRestart ecosystem.config.js --env production
+            
+            # Save the PM2 list to resume on server reboot
+            pm2 save
+

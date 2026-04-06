@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Review Panel | Affiliate Hub PH</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#060e20",
+              "outline-variant": "#40485d",
+              "inverse-surface": "#faf8ff",
+              "on-tertiary-fixed": "#1c0055",
+              "secondary-dim": "#0f6df3",
+              "tertiary-dim": "#7e51ff",
+              "surface": "#060e20",
+              "primary": "#81ecff",
+              "error": "#ff716c",
+              "surface-container-low": "#091328",
+              "on-secondary-fixed-variant": "#004baf",
+              "tertiary-fixed": "#b8a3ff",
+              "on-primary-fixed": "#003840",
+              "on-tertiary": "#25006b",
+              "surface-bright": "#1f2b49",
+              "error-container": "#9f0519",
+              "on-tertiary-fixed-variant": "#4000ad",
+              "outline": "#6d758c",
+              "surface-tint": "#81ecff",
+              "error-dim": "#d7383b",
+              "surface-dim": "#060e20",
+              "surface-variant": "#192540",
+              "secondary-fixed": "#c0d1ff",
+              "on-error": "#490006",
+              "primary-fixed-dim": "#00d4ec",
+              "secondary": "#6e9bff",
+              "primary-dim": "#00d4ec",
+              "on-primary": "#005762",
+              "on-tertiary-container": "#ffffff",
+              "primary-container": "#00e3fd",
+              "surface-container-high": "#141f38",
+              "on-error-container": "#ffa8a3",
+              "primary-fixed": "#00e3fd",
+              "tertiary-container": "#7c4dff",
+              "on-secondary": "#001d4e",
+              "surface-container-highest": "#192540",
+              "on-primary-fixed-variant": "#005762",
+              "surface-container-lowest": "#000000",
+              "on-surface-variant": "#a3aac4",
+              "inverse-primary": "#006976",
+              "secondary-fixed-dim": "#acc3ff",
+              "tertiary-fixed-dim": "#ab93ff",
+              "tertiary": "#a68cff",
+              "on-background": "#dee5ff",
+              "secondary-container": "#0058ca",
+              "on-surface": "#dee5ff",
+              "surface-container": "#0f1930",
+              "on-primary-container": "#004d57",
+              "on-secondary-fixed": "#003076",
+              "inverse-on-surface": "#4d556b",
+              "on-secondary-container": "#f7f7ff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(15, 25, 48, 0.6);
+            backdrop-filter: blur(24px);
+            position: relative;
+        }
+        .glass-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(45deg, rgba(129, 236, 255, 0.2), rgba(110, 155, 255, 0.1));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(129, 236, 255, 0.15);
+        }
+        body {
+            background-color: #060e20;
+            color: #dee5ff;
+        }
+    </style>
+</head>
+<body class="font-body antialiased overflow-x-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-[#81ecff]/10 bg-[#091328] flex flex-col p-4 z-50 shadow-[40px_0_60px_-15px_rgba(110,155,255,0.08)]">
+<div class="mb-8 px-2">
+<h1 class="text-xl font-bold tracking-tighter text-[#81ecff] font-headline">Kinetic Vault</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-medium mt-1">Pro Affiliate</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Vault</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="assignment_ind">assignment_ind</span>
+<span class="font-medium text-sm">Application</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="group_add">group_add</span>
+<span class="font-medium text-sm">Referral Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="leaderboard">leaderboard</span>
+<span class="font-medium text-sm">Leaderboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-medium text-sm">Wallet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 rounded-xl group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary" data-icon="forum">forum</span>
+<span class="font-medium text-sm">Chat</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#81ecff] bg-[#141f38] rounded-xl border-l-2 border-[#81ecff]" href="#">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings" style="font-variation-settings: 'FILL' 1;">admin_panel_settings</span>
+<span class="font-medium text-sm">Admin Controls</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-error/80 hover:text-error transition-colors group" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-medium text-sm">Logout</span>
+</a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-medium text-sm" href="#">Network</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-medium text-sm" href="#">Insights</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-medium text-sm" href="#">Help</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#a3aac4] hover:bg-[#141f38]/50 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-[#81ecff]/10">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Admin Reviewer</p>
+<p class="text-[10px] text-primary">Level 4 Access</p>
+</div>
+<div class="h-10 w-10 rounded-full bg-surface-container-high border border-primary/20 flex items-center justify-center overflow-hidden">
+<img alt="Admin profile" data-alt="close-up portrait of a professional man with a neutral expression in a high-tech dark studio setting with subtle blue backlighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwyq3jFp1LsPstM_z7OZ7waZpUK4gZ4bm0F9f47nR_CZ8BiCYcImlnpjpcZD-7S3AWl8H0RorIceJlgDCECVMLDXMlNyFIKih0lbOL6g1hHAEFLvBF_6H8qNP5v_v6CqEcF2Vj6JEfJ9YcuCcmTZXyosbRpeKelv5IPcMrkUG9qd5LwKwKi3mpghGIpbZIOCz7dCvTQzCTj-Op4z0NnuwRMDR7ls4E7SkoAYuSXtED-s-vrb-i-BAfoY7vWtrQ1sI9UlN91bKhL2s"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 pb-12 px-8 min-h-screen">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-3xl font-extrabold text-on-surface font-headline tracking-tight">Application Review</h2>
+<p class="text-on-surface-variant mt-1">Reviewing Request <span class="text-primary font-mono">#AF-90210-PH</span></p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 rounded-full border border-outline-variant text-on-surface-variant hover:border-primary/50 hover:text-primary transition-all font-semibold text-sm">
+                    Flag for Review
+                </button>
+<button class="px-8 py-2.5 rounded-full bg-primary text-on-primary hover:brightness-110 transition-all font-bold text-sm shadow-[0_0_20px_rgba(129,236,255,0.3)]">
+                    Approve KYC
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Applicant Profile -->
+<section class="col-span-12 lg:col-span-4 space-y-6">
+<!-- KYC Identity Card -->
+<div class="glass-panel rounded-xl p-8 shadow-sm">
+<div class="flex items-center gap-4 mb-8">
+<div class="h-16 w-16 rounded-xl bg-gradient-to-br from-primary to-secondary p-[2px]">
+<div class="h-full w-full rounded-[10px] bg-surface-container-low flex items-center justify-center overflow-hidden">
+<img alt="Applicant avatar" data-alt="professional headshot of a young Southeast Asian man in a clean white shirt against a dark modern background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbG0yWhgzHXyY2Xh69TZvxk7DtxSTvcDb0eWaCrfPoenCG59polTQvrbD4ySrasYI9Br9BjScdNysVx7da3aTHWcBa03zPEzS2DCqxIcwK7AA-lI_4yo1vwHJz8ksXYj4Cg8jV0-iRKL_Cn4eqtQX_wPt5RU4BHPbIe_B1aO6NiAt4PYlVXEOMKCcGx7z69wz2tcIbwu1p0cIPFVv5J0_U4rnKpjL2_9gj_tUdmIBpuVAk3fUcOKcj4PsCVNirQUaDhTWT98qF4Q4"/>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold text-on-surface">Mateo Dela Cruz</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-xs font-medium text-tertiary">Verified Phone</span>
+</div>
+</div>
+</div>
+<div class="space-y-6">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">National ID No.</p>
+<p class="text-sm font-semibold text-on-surface">PH-2023-889-1</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">Email</p>
+<p class="text-sm font-semibold text-on-surface">m.delacruz@example.ph</p>
+</div>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">Residential Address</p>
+<p class="text-sm font-medium text-on-surface leading-relaxed">Unit 402, Highrise Tower A, BGC, Taguig City, Metro Manila</p>
+</div>
+</div>
+</div>
+<!-- ID/Selfie Verification -->
+<div class="glass-panel rounded-xl overflow-hidden shadow-sm">
+<div class="px-8 py-4 bg-surface-container-highest/50 border-b border-primary/10">
+<h4 class="text-xs font-black uppercase tracking-widest text-primary">Identity Documents</h4>
+</div>
+<div class="p-6 space-y-4">
+<div class="group relative rounded-xl overflow-hidden aspect-[16/10] bg-surface-container-low border border-outline-variant/30">
+<img alt="ID Document" class="object-cover w-full h-full opacity-80 group-hover:scale-105 transition-transform duration-500" data-alt="Macro close-up of a blurred government identification card lying on a dark textured surface with focused text details and security holographic elements" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf_wHj20mX4-eKIH-QX2qsBRgB4lJk1QoUhIRn-9wIfRgZyZpU1sGGpzxR7dpcVJUEsi-ZZGk6QQr4DGYht93D1b2TdWa-IiPKKaQAaOF5AwrE4R1j6YV1o5hhlD5zdQHLjYfEjCiQKXko8XM-mhQXcbmHQUq7i1f2fr6bW2wV09KF6bfQM1tE4NviKvaSaJy0K28WwT2ROvSKZtzlt-Qyvq4Q2wjlP1BejfE2-stx9aQiisRTPbWoQVmveeYdevRXUHkmmKymUpY"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+<button class="p-2 bg-primary rounded-full text-on-primary"><span class="material-symbols-outlined" data-icon="zoom_in">zoom_in</span></button>
+<button class="p-2 bg-surface rounded-full text-on-surface"><span class="material-symbols-outlined" data-icon="file_download">file_download</span></button>
+</div>
+<span class="absolute bottom-3 left-3 bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-on-surface">PH National ID (Front)</span>
+</div>
+<div class="group relative rounded-xl overflow-hidden aspect-[16/10] bg-surface-container-low border border-outline-variant/30">
+<img alt="Selfie with ID" class="object-cover w-full h-full opacity-80 group-hover:scale-105 transition-transform duration-500" data-alt="A person holding up their national identification card next to their face for identity verification, soft studio lighting on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAh8YyvKo_aC-LrSCPmZFgErCuiHLhE7-maIceZoTysamnsUQQXrM7VdyD6EeGZ2oWgUaxZIJcz0RLVsQeKLAvon78GfjH21-7hyVkoV-b_jqeqvT7ERSZa46NZvnc9gJ0A6UH1w-rMP-4EVq7DL5CRMzr-pTmXXGokrHIB1iNoqnR_NfJSOapbQuO9HJDdOFxwEJJ03stVIDEW72txq16oG25VmEzx_ez4XKBEfUn3eyA_17aYnJeTXd-V_tYmatQn6p1pz2d4zvw"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+<button class="p-2 bg-primary rounded-full text-on-primary"><span class="material-symbols-outlined" data-icon="zoom_in">zoom_in</span></button>
+<button class="p-2 bg-surface rounded-full text-on-surface"><span class="material-symbols-outlined" data-icon="file_download">file_download</span></button>
+</div>
+<span class="absolute bottom-3 left-3 bg-background/80 backdrop-blur px-2 py-1 rounded text-[10px] font-bold text-on-surface">Biometric Selfie Check</span>
+</div>
+</div>
+</div>
+<!-- Risk Score Card -->
+<div class="p-6 bg-surface-container-low rounded-xl border-l-4 border-secondary flex items-center justify-between">
+<div>
+<h5 class="text-xs font-bold text-on-surface-variant">KYC Confidence Score</h5>
+<p class="text-2xl font-black text-on-surface font-headline">94.2<span class="text-sm font-normal text-secondary ml-1">%</span></p>
+</div>
+<div class="h-12 w-12 rounded-full border-4 border-secondary/20 border-t-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="security" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+</div>
+</section>
+<!-- Right Column: Per Platform Review -->
+<section class="col-span-12 lg:col-span-8 space-y-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-xl font-bold text-on-surface font-headline">Platform Provisioning</h3>
+<div class="flex items-center gap-2 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/30">
+<span class="w-2 h-2 bg-error rounded-full animate-pulse"></span>
+<span class="text-[10px] font-bold text-on-surface uppercase">2 Pending Approvals</span>
+</div>
+</div>
+<!-- Platform Card: WinForLife -->
+<div class="glass-panel rounded-xl overflow-hidden shadow-lg border-l-2 border-primary">
+<div class="p-6 border-b border-outline-variant/20 flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 bg-[#FFD700]/10 rounded-lg flex items-center justify-center text-[#FFD700]">
+<span class="material-symbols-outlined" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface">WinForLife</h4>
+<p class="text-xs text-on-surface-variant font-medium">Slots &amp; Sportsbook Affiliate</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Current Status</p>
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-primary text-[10px] font-black uppercase tracking-wider">Pending</span>
+</div>
+<div class="flex gap-2">
+<button class="h-10 w-10 rounded-full flex items-center justify-center bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary transition-all"><span class="material-symbols-outlined" data-icon="check">check</span></button>
+<button class="h-10 w-10 rounded-full flex items-center justify-center bg-surface-container-high text-error hover:bg-error hover:text-on-error transition-all"><span class="material-symbols-outlined" data-icon="close">close</span></button>
+<button class="h-10 w-10 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface-variant hover:bg-on-surface-variant hover:text-surface transition-all"><span class="material-symbols-outlined" data-icon="pause">pause</span></button>
+</div>
+</div>
+</div>
+<div class="p-8 bg-surface-container-low/30">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase px-1">Agent Username</label>
+<input class="w-full bg-surface-container-high border-outline-variant rounded-xl focus:ring-primary focus:border-primary text-sm font-medium text-on-surface h-11" type="text" value="af_mateo_902"/>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase px-1">Access Token / Pass</label>
+<input class="w-full bg-surface-container-high border-outline-variant rounded-xl focus:ring-primary focus:border-primary text-sm font-medium text-on-surface h-11" type="password" value="••••••••••••"/>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase px-1">Backoffice URL</label>
+<input class="w-full bg-surface-container-high border-outline-variant rounded-xl focus:ring-primary focus:border-primary text-sm font-medium text-on-surface h-11" type="text" value="https://winforlife.ph/admin/af-portal"/>
+</div>
+</div>
+<div class="flex justify-end gap-4">
+<button class="px-5 py-2 rounded-xl text-primary font-bold text-xs hover:bg-primary/10 transition-colors">
+                                Save Platform Access
+                            </button>
+<button class="px-6 py-2 rounded-xl bg-primary text-on-primary font-bold text-xs shadow-lg shadow-primary/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="send">send</span>
+                                Push to Dashboard
+                            </button>
+</div>
+</div>
+</div>
+<!-- Platform Card: BIGWIN -->
+<div class="glass-panel rounded-xl overflow-hidden shadow-lg border-l-2 border-secondary">
+<div class="p-6 border-b border-outline-variant/20 flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="h-12 w-12 bg-secondary/10 rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="casino" style="font-variation-settings: 'FILL' 1;">casino</span>
+</div>
+<div>
+<h4 class="text-lg font-bold text-on-surface">BIGWIN</h4>
+<p class="text-xs text-on-surface-variant font-medium">Aggregator &amp; Live Games</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase mb-1">Current Status</p>
+<span class="px-3 py-1 rounded-full bg-surface-container-highest text-on-surface-variant text-[10px] font-black uppercase tracking-wider">Unprovisioned</span>
+</div>
+<div class="flex gap-2">
+<button class="h-10 w-10 rounded-full flex items-center justify-center bg-surface-container-high text-primary hover:bg-primary hover:text-on-primary transition-all"><span class="material-symbols-outlined" data-icon="check">check</span></button>
+<button class="h-10 w-10 rounded-full flex items-center justify-center bg-surface-container-high text-error hover:bg-error hover:text-on-error transition-all"><span class="material-symbols-outlined" data-icon="close">close</span></button>
+<button class="h-10 w-10 rounded-full flex items-center justify-center bg-surface-container-high text-on-surface-variant hover:bg-on-surface-variant hover:text-surface transition-all"><span class="material-symbols-outlined" data-icon="pause">pause</span></button>
+</div>
+</div>
+</div>
+<div class="p-8 bg-surface-container-low/30">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase px-1">Agent Username</label>
+<input class="w-full bg-surface-container-high border-outline-variant rounded-xl focus:ring-primary focus:border-primary text-sm font-medium text-on-surface h-11 italic opacity-60" placeholder="Pending allocation..." type="text"/>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase px-1">Access Token / Pass</label>
+<input class="w-full bg-surface-container-high border-outline-variant rounded-xl focus:ring-primary focus:border-primary text-sm font-medium text-on-surface h-11 italic opacity-60" placeholder="••••••••" type="password"/>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase px-1">Backoffice URL</label>
+<input class="w-full bg-surface-container-high border-outline-variant rounded-xl focus:ring-primary focus:border-primary text-sm font-medium text-on-surface h-11" type="text" value="https://bigwin.io/agent/login"/>
+</div>
+</div>
+<div class="flex justify-end gap-4">
+<button class="px-5 py-2 rounded-xl text-primary font-bold text-xs hover:bg-primary/10 transition-colors">
+                                Save Platform Access
+                            </button>
+<button class="px-6 py-2 rounded-xl bg-surface-container-high text-on-surface-variant font-bold text-xs cursor-not-allowed">
+                                Push to Dashboard
+                            </button>
+</div>
+</div>
+</div>
+<!-- Internal Notes Panel -->
+<div class="glass-panel rounded-xl p-8">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary" data-icon="sticky_note_2">sticky_note_2</span>
+<h4 class="text-sm font-black uppercase tracking-widest text-on-surface">Reviewer Internal Notes</h4>
+</div>
+<textarea class="w-full bg-surface-container-low border-outline-variant/30 rounded-xl focus:ring-secondary focus:border-secondary text-sm text-on-surface-variant min-h-[120px] p-4" placeholder="Add a note about this applicant's risk level or specific platform requirements..."></textarea>
+<div class="mt-4 flex items-center justify-between">
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-background overflow-hidden"><img alt="Reviewer 1" data-alt="close-up of a smiling professional man in a dark polo shirt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNCVuNvPhBmO4YjH1WuSEqKbgcgKen-ASHUgX-T0ioqSBfzIfdB-zkKqagMbLuZwVhbDPfDv8V3iFaaCDkF4auuazYPV7lGpcS9DYE2f_Wjijrz-OFD5nEQkjVRyK60lI1fSIe5XljfP91nQLFdAqxIPHSU4ZKs_ggQIaZfJYDk8xvpH_gvf6RxxXD66pFNp6-kFTXjlLZ5or2f8dIggkrgzENt9uAKhW_8MS4IpLMpKqFQAg1b2Aeguz90rXQCmBAk5gaBi72jkk"/></div>
+<div class="w-8 h-8 rounded-full border-2 border-background overflow-hidden"><img alt="Reviewer 2" data-alt="portrait of a focused professional woman with glasses in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhcqGMU6eezofhbZqrq2eiuQiUqmzGQOIqQGzWl6b3ty0MFfx8vkIKcDyyykF3pw2s2_1S9kprVWE8Umjbgmg7_ZTidbqn9hy-d7NemErSccqX215WP4iJbCL7w4AKRCX0SkrSAYXiMI30LhI7JHNympMOdJ6LfCDlAudD5OpWIMAGTDU6gZkBDQVR1VPM67ylrtnTrUlWKZajDFPbvwtJvE0CZiXEHMQrX8sl_EJMHN8JC1bHVechWOa4-STaQH631gleR9Gr0IQ"/></div>
+</div>
+<span class="text-[10px] font-medium text-on-surface-variant">Last updated by Admin_Sarah • 2h ago</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Floating Global Action Mobile (Bottom) -->
+<div class="md:hidden fixed bottom-6 left-6 right-6 z-50">
+<button class="w-full h-14 bg-primary text-on-primary rounded-full font-bold shadow-[0_10px_30px_rgba(129,236,255,0.4)] flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+            Approve All &amp; Finalize KYC
+        </button>
+</div>
+</body></html>

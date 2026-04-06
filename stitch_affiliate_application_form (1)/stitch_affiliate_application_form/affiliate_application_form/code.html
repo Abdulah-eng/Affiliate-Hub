@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Affiliate Hub PH | Multi-Step Application</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#060e20",
+                        "outline-variant": "#40485d",
+                        "inverse-surface": "#faf8ff",
+                        "on-tertiary-fixed": "#1c0055",
+                        "secondary-dim": "#0f6df3",
+                        "tertiary-dim": "#7e51ff",
+                        "surface": "#060e20",
+                        "primary": "#81ecff",
+                        "error": "#ff716c",
+                        "surface-container-low": "#091328",
+                        "on-secondary-fixed-variant": "#004baf",
+                        "tertiary-fixed": "#b8a3ff",
+                        "on-primary-fixed": "#003840",
+                        "on-tertiary": "#25006b",
+                        "surface-bright": "#1f2b49",
+                        "error-container": "#9f0519",
+                        "on-tertiary-fixed-variant": "#4000ad",
+                        "outline": "#6d758c",
+                        "surface-tint": "#81ecff",
+                        "error-dim": "#d7383b",
+                        "surface-dim": "#060e20",
+                        "surface-variant": "#192540",
+                        "secondary-fixed": "#c0d1ff",
+                        "on-error": "#490006",
+                        "primary-fixed-dim": "#00d4ec",
+                        "secondary": "#6e9bff",
+                        "primary-dim": "#00d4ec",
+                        "on-primary": "#005762",
+                        "on-tertiary-container": "#ffffff",
+                        "primary-container": "#00e3fd",
+                        "surface-container-high": "#141f38",
+                        "on-error-container": "#ffa8a3",
+                        "primary-fixed": "#00e3fd",
+                        "tertiary-container": "#7c4dff",
+                        "on-secondary": "#001d4e",
+                        "surface-container-highest": "#192540",
+                        "on-primary-fixed-variant": "#005762",
+                        "surface-container-lowest": "#000000",
+                        "on-surface-variant": "#a3aac4",
+                        "inverse-primary": "#006976",
+                        "secondary-fixed-dim": "#acc3ff",
+                        "tertiary-fixed-dim": "#ab93ff",
+                        "tertiary": "#a68cff",
+                        "on-background": "#dee5ff",
+                        "secondary-container": "#0058ca",
+                        "on-surface": "#dee5ff",
+                        "surface-container": "#0f1930",
+                        "on-primary-container": "#004d57",
+                        "on-secondary-fixed": "#003076",
+                        "inverse-on-surface": "#4d556b",
+                        "on-secondary-container": "#f7f7ff"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(15, 25, 48, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(129, 236, 255, 0.2);
+        }
+        .step-active {
+            box-shadow: 0 0 20px rgba(129, 236, 255, 0.4);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 right-0 w-full h-16 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8">
+<div class="flex items-center gap-4">
+<span class="text-lg font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+</div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-['Plus_Jakarta_Sans'] font-medium text-sm transition-all" href="#">Network</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-['Plus_Jakarta_Sans'] font-medium text-sm transition-all" href="#">Insights</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-['Plus_Jakarta_Sans'] font-medium text-sm transition-all" href="#">Help</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-[#a3aac4] hover:bg-[#141f38]/50 p-2 rounded-full transition-all">notifications</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-[#81ecff]/30">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a professional male with a neutral expression against a clean dark studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGgRZNNklw0S98iWWdNL8897PkD_uoo9eXjPjoob74HlAqWa1flUxTVlpsLMl04lwECOAA85Th75PQ_GINa0A5PAEl00zVRp8oXn7dXLInMfmtrS4zbwcgZ3w8a_DxzkpNHP_ONjJOu-zm7WZ4JsyZmPwzlCMMzMFiuhEvT9tarQramBc1qxhodj9cst90M90w7wwy3WI3zEw156IsjlkTqLPKBc-A5gPk9bPFIXyzMkzOovnQVw4CZbBM_c8bnrKT7-Sa2IIGYNU"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-4 md:px-8 max-w-6xl mx-auto">
+<!-- Progress Stepper -->
+<div class="mb-12">
+<div class="flex items-center justify-between max-w-4xl mx-auto relative">
+<!-- Progress Line -->
+<div class="absolute top-5 left-0 w-full h-1 bg-surface-variant z-0">
+<div class="h-full bg-gradient-to-r from-primary via-secondary to-surface-variant w-[50%] transition-all duration-500"></div>
+</div>
+<!-- Steps -->
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold shadow-[0_0_15px_rgba(129,236,255,0.5)]">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-xs font-medium text-primary font-headline">Account Setup</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold step-active border-2 border-primary/50">
+                        2
+                    </div>
+<span class="text-xs font-medium text-on-surface font-headline">Select Partners</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-on-surface-variant font-bold">
+                        3
+                    </div>
+<span class="text-xs font-medium text-on-surface-variant font-headline">KYC Upload</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-on-surface-variant font-bold">
+                        4
+                    </div>
+<span class="text-xs font-medium text-on-surface-variant font-headline">Review &amp; Submit</span>
+</div>
+</div>
+</div>
+<!-- Step 2: Partner Selection Section -->
+<section class="mb-24">
+<div class="mb-8 text-center">
+<h1 class="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Choose Your Alliance</h1>
+<p class="text-on-surface-variant max-w-lg mx-auto">Select the brands you wish to promote. You can multi-select to maximize your earning potential.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Brand Card 1 -->
+<div class="glass-panel p-8 rounded-xl relative group cursor-pointer border-primary/40 ring-1 ring-primary/20">
+<div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xs text-on-primary" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="mb-6 h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">account_balance</span>
+</div>
+<h3 class="text-xl font-bold font-headline mb-2 text-on-surface">WinForLife</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">High-roller focused platform with premium retention tools and exclusive VIP events for top referrers.</p>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-xs font-medium text-primary-fixed-dim">
+<span class="material-symbols-outlined text-sm">stars</span> 45% RevShare Base
+                        </li>
+<li class="flex items-center gap-2 text-xs font-medium text-primary-fixed-dim">
+<span class="material-symbols-outlined text-sm">trending_up</span> Monthly Milestone Bonuses
+                        </li>
+</ul>
+</div>
+<!-- Brand Card 2 -->
+<div class="glass-panel p-8 rounded-xl relative group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center"></div>
+<div class="mb-6 h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-3xl">casino</span>
+</div>
+<h3 class="text-xl font-bold font-headline mb-2 text-on-surface">BIGWIN</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">The fastest growing mass-market casino in the PH. Excellent conversion rates for mobile traffic.</p>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-xs font-medium text-secondary">
+<span class="material-symbols-outlined text-sm">bolt</span> 50% CPA Commissions
+                        </li>
+<li class="flex items-center gap-2 text-xs font-medium text-secondary">
+<span class="material-symbols-outlined text-sm">verified_user</span> Local G-Cash Support
+                        </li>
+</ul>
+</div>
+<!-- Brand Card 3 -->
+<div class="glass-panel p-8 rounded-xl relative group cursor-pointer hover:bg-surface-container-high transition-all">
+<div class="absolute top-4 right-4 w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center"></div>
+<div class="mb-6 h-12 w-12 rounded-lg bg-tertiary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary text-3xl">sports_esports</span>
+</div>
+<h3 class="text-xl font-bold font-headline mb-2 text-on-surface">Rollem</h3>
+<p class="text-sm text-on-surface-variant mb-6 leading-relaxed">Gen-Z focused social gaming ecosystem. High engagement metrics and community-driven rewards.</p>
+<ul class="space-y-3">
+<li class="flex items-center gap-2 text-xs font-medium text-tertiary">
+<span class="material-symbols-outlined text-sm">group</span> Social Referral Engine
+                        </li>
+<li class="flex items-center gap-2 text-xs font-medium text-tertiary">
+<span class="material-symbols-outlined text-sm">payments</span> Weekly Payouts
+                        </li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Step 3: KYC & Personal Details -->
+<section class="max-w-4xl mx-auto">
+<div class="mb-8">
+<h2 class="text-2xl font-bold font-headline text-on-surface mb-2">Vault Verification</h2>
+<p class="text-on-surface-variant">Secure your account by providing your identity documents and personal information.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+<!-- Personal Info Fields -->
+<div class="space-y-6">
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Legal Name</label>
+<input class="w-full bg-surface-container px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline" placeholder="Juan Dela Cruz" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Email Address</label>
+<input class="w-full bg-surface-container px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline" placeholder="juan@vault.ph" type="email"/>
+</div>
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Telegram Handle</label>
+<input class="w-full bg-surface-container px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline" placeholder="@juan_affiliate" type="text"/>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Location</label>
+<select class="w-full bg-surface-container px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-on-surface-variant">
+<option>Metro Manila, PH</option>
+<option>Cebu City, PH</option>
+<option>Davao City, PH</option>
+<option>Other</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Preferred Username</label>
+<input class="w-full bg-surface-container px-4 py-3 rounded-lg border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline" placeholder="VaultMaster77" type="text"/>
+</div>
+</div>
+<!-- KYC Upload Zone -->
+<div class="space-y-6">
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Government Issued ID</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-4xl text-outline group-hover:text-primary mb-3">upload_file</span>
+<span class="text-sm font-medium text-on-surface">Click to upload or drag &amp; drop</span>
+<span class="text-xs text-on-surface-variant mt-1">PNG, JPG or PDF (Max 10MB)</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold font-headline text-on-surface-variant uppercase tracking-widest mb-2">Selfie with ID</label>
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group">
+<span class="material-symbols-outlined text-4xl text-outline group-hover:text-primary mb-3">add_a_photo</span>
+<span class="text-sm font-medium text-on-surface">Capture or Upload Selfie</span>
+<span class="text-xs text-on-surface-variant mt-1">Face and ID must be clearly visible</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Form Actions -->
+<div class="mt-16 flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-outline-variant/30">
+<button class="px-8 py-3 rounded-full border border-outline-variant text-on-surface font-semibold hover:bg-surface-variant transition-all">
+                Save Draft
+            </button>
+<div class="flex items-center gap-4">
+<button class="px-8 py-3 rounded-full text-on-surface-variant font-semibold hover:text-on-surface transition-all">
+                    Back
+                </button>
+<button class="px-12 py-4 rounded-full bg-primary text-on-primary font-extrabold font-headline tracking-wide neon-glow-primary hover:scale-105 active:scale-95 transition-all">
+                    CONTINUE TO REVIEW
+                </button>
+</div>
+</div>
+</main>
+<!-- Footer Decorative Gradient -->
+<div class="fixed bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary opacity-30"></div>
+<!-- Right Side Floating Element (Contextual) -->
+<aside class="fixed right-8 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-4">
+<div class="glass-panel p-4 rounded-2xl w-56">
+<h4 class="text-xs font-bold uppercase text-primary mb-3 tracking-widest">Live Help</h4>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">support_agent</span>
+</div>
+<div>
+<p class="text-[10px] text-on-surface-variant">Dedicated Manager</p>
+<p class="text-xs font-bold text-on-surface">Aileen Santos</p>
+</div>
+</div>
+<button class="w-full mt-4 py-2 bg-surface-container-high rounded-lg text-xs font-bold text-primary hover:bg-primary hover:text-on-primary transition-all">
+                Chat on Telegram
+            </button>
+</div>
+</aside>
+</body></html>

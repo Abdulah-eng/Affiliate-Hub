@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Affiliate Hub PH - Referral Command Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#81ecff",
+                        "on-primary": "#005762",
+                        "outline-variant": "#40485d",
+                        "inverse-on-surface": "#4d556b",
+                        "on-tertiary-fixed": "#1c0055",
+                        "tertiary-container": "#7c4dff",
+                        "inverse-primary": "#006976",
+                        "on-background": "#dee5ff",
+                        "tertiary-fixed": "#b8a3ff",
+                        "on-tertiary-container": "#ffffff",
+                        "secondary-fixed-dim": "#acc3ff",
+                        "primary-container": "#00e3fd",
+                        "primary-fixed-dim": "#00d4ec",
+                        "surface": "#060e20",
+                        "on-secondary-container": "#f7f7ff",
+                        "on-tertiary": "#25006b",
+                        "on-primary-container": "#004d57",
+                        "secondary": "#6e9bff",
+                        "on-error-container": "#ffa8a3",
+                        "on-secondary": "#001d4e",
+                        "on-error": "#490006",
+                        "surface-dim": "#060e20",
+                        "surface-container-low": "#091328",
+                        "on-surface": "#dee5ff",
+                        "tertiary-fixed-dim": "#ab93ff",
+                        "on-primary-fixed": "#003840",
+                        "error-dim": "#d7383b",
+                        "error": "#ff716c",
+                        "surface-container": "#0f1930",
+                        "surface-variant": "#192540",
+                        "surface-container-lowest": "#000000",
+                        "surface-container-high": "#141f38",
+                        "primary-fixed": "#00e3fd",
+                        "tertiary": "#a68cff",
+                        "secondary-dim": "#0f6df3",
+                        "surface-tint": "#81ecff",
+                        "inverse-surface": "#faf8ff",
+                        "on-secondary-fixed-variant": "#004baf",
+                        "on-secondary-fixed": "#003076",
+                        "on-surface-variant": "#a3aac4",
+                        "on-tertiary-fixed-variant": "#4000ad",
+                        "tertiary-dim": "#7e51ff",
+                        "surface-container-highest": "#192540",
+                        "on-primary-fixed-variant": "#005762",
+                        "secondary-container": "#0058ca",
+                        "background": "#060e20",
+                        "primary-dim": "#00d4ec",
+                        "secondary-fixed": "#c0d1ff",
+                        "surface-bright": "#1f2b49",
+                        "outline": "#6d758c",
+                        "error-container": "#9f0519"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: linear-gradient(45deg, rgba(129, 236, 255, 0.05), rgba(110, 155, 255, 0.05));
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(129, 236, 255, 0.3);
+        }
+        .neon-border-primary {
+            border: 1px solid rgba(129, 236, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-surface overflow-x-hidden">
+<!-- Shared TopNavBar (Modified for theme consistency) -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-outline-variant px-6 lg:px-10 py-4 bg-surface-container-low/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-4 text-on-surface">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
+<path clip-rule="evenodd" d="M39.998 12.236C39.9944 12.2537 39.9875 12.2845 39.9748 12.3294C39.9436 12.4399 39.8949 12.5741 39.8346 12.7175C39.8168 12.7597 39.7989 12.8007 39.7813 12.8398C38.5103 13.7113 35.9788 14.9393 33.7095 15.4811C30.9875 16.131 27.6413 16.5217 24 16.5217C20.3587 16.5217 17.0125 16.131 14.2905 15.4811C12.0012 14.9346 9.44505 13.6897 8.18538 12.8168C8.17384 12.7925 8.16216 12.767 8.15052 12.7408C8.09919 12.6249 8.05721 12.5114 8.02977 12.411C8.00356 12.3152 8.00039 12.2667 8.00004 12.2612C8.00004 12.261 8 12.2607 8.00004 12.2612C8.00004 12.2359 8.0104 11.9233 8.68485 11.3686C9.34546 10.8254 10.4222 10.2469 11.9291 9.72276C14.9242 8.68098 19.1919 8 24 8C28.8081 8 33.0758 8.68098 36.0709 9.72276C37.5778 10.2469 38.6545 10.8254 39.3151 11.3686C39.9006 11.8501 39.9857 12.1489 39.998 12.236ZM4.95178 15.2312L21.4543 41.6973C22.6288 43.5809 25.3712 43.5809 26.5457 41.6973L43.0534 15.223C43.0709 15.1948 43.0878 15.1662 43.104 15.1371L41.3563 14.1648C43.104 15.1371 43.1038 15.1374 43.104 15.1371L43.1051 15.135L43.1065 15.1325L43.1101 15.1261L43.1199 15.1082C43.1276 15.094 43.1377 15.0754 43.1497 15.0527C43.1738 15.0075 43.2062 14.9455 43.244 14.8701C43.319 14.7208 43.4196 14.511 43.5217 14.2683C43.6901 13.8679 44 13.0689 44 12.2609C44 10.5573 43.003 9.22254 41.8558 8.2791C40.6947 7.32427 39.1354 6.55361 37.385 5.94477C33.8654 4.72057 29.133 4 24 4C18.867 4 14.1346 4.72057 10.615 5.94478C8.86463 6.55361 7.30529 7.32428 6.14419 8.27911C4.99695 9.22255 3.99999 10.5573 3.99999 12.2609C3.99999 13.1275 4.29264 13.9078 4.49321 14.3607C4.60375 14.6102 4.71348 14.8196 4.79687 14.9689C4.83898 15.0444 4.87547 15.1065 4.9035 15.1529C4.91754 15.1762 4.92954 15.1957 4.93916 15.2111L4.94662 15.223L4.95178 15.2312ZM35.9868 18.996L24 38.22L12.0131 18.996C12.4661 19.1391 12.9179 19.2658 13.3617 19.3718C16.4281 20.1039 20.0901 20.5217 24 20.5217C27.9099 20.5217 31.5719 20.1039 34.6383 19.3718C35.082 19.2658 35.5339 19.1391 35.9868 18.996Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="font-headline text-lg font-bold tracking-[-0.015em]">Affiliate Hub PH</h2>
+</div>
+<div class="flex flex-1 justify-end gap-4">
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-surface-variant text-on-surface">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-surface-variant text-on-surface">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-primary/20" data-alt="Close-up portrait of a young professional Filipino man with a confident smile, warm studio lighting, modern minimalist background." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDKmg5uWi9Ca6sP582zJY7lrUOp6mSyWYcmk9sll1uyRlKFSfU0DdApS5ADuLWN0xE3j7elXDGepOjEKAj0P4OKdq-hKpO1finZzPRRkKHZEf4vSHC9c76AmLOvC_MnNtjnwBKtFPtnMcK_MUnE6BtKVSiR3vg1F0aAYpi5uGLRSEODlIgnGiJnjf3FLv6BYHP_n-B_Z3IdjCs5Eoht6UouIMtcAimjJY6PQ_NzXJIstzMdSbH0iPy2lAeln2flFPaxG7PMrvlhaI4")'></div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10 lg:px-10">
+<!-- Hero Section -->
+<div class="mb-12">
+<h1 class="font-headline text-4xl lg:text-6xl font-black text-on-surface tracking-[-0.04em] mb-4">Command Center</h1>
+<p class="text-on-surface-variant text-lg max-w-2xl">Scale your affiliate network with precision. Track performance, manage referrals, and unlock elite rewards.</p>
+</div>
+<!-- Top Grid: Stats & Wallet -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+<!-- Points Wallet -->
+<div class="lg:col-span-1 glass-card rounded-xl p-8 flex flex-col justify-between overflow-hidden relative">
+<div class="absolute -top-10 -right-10 size-40 bg-primary/10 rounded-full blur-3xl"></div>
+<div>
+<div class="flex items-center gap-2 mb-6 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+<span class="text-sm font-bold tracking-widest uppercase">Total Points Balance</span>
+</div>
+<div class="flex items-baseline gap-2 mb-8">
+<span class="text-5xl font-black text-on-surface tracking-tight">24,580</span>
+<span class="text-primary font-bold">PTS</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-sm text-on-surface-variant">Referral Earnings</span>
+<span class="text-sm font-bold text-on-surface">18,200 pts</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary neon-glow-primary" style="width: 74%"></div>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="text-sm text-on-surface-variant">Chat Activity</span>
+<span class="text-sm font-bold text-on-surface">6,380 pts</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-tertiary" style="width: 26%"></div>
+</div>
+</div>
+</div>
+<button class="mt-10 w-full py-4 bg-primary text-on-primary font-bold rounded-full hover:scale-[1.02] transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">redeem</span>
+                    Redeem Points
+                </button>
+</div>
+<!-- Referral Stats & Code -->
+<div class="lg:col-span-2 glass-card rounded-xl p-8 flex flex-col">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+<div>
+<h3 class="font-headline text-2xl font-bold text-on-surface mb-1">Your Referral Engine</h3>
+<p class="text-on-surface-variant text-sm">Share your unique link to grow your squad.</p>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-variant/50 border border-outline-variant px-6 py-3 rounded-xl flex items-center gap-4">
+<span class="text-xs font-bold text-primary tracking-widest uppercase">CODE</span>
+<span class="font-mono text-xl font-bold text-on-surface">PH-HUB-2024</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+<div class="space-y-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Invite Link</label>
+<div class="flex gap-2">
+<div class="flex-1 bg-surface-container-low border border-outline-variant rounded-full px-5 flex items-center overflow-hidden">
+<span class="text-on-surface-variant text-sm truncate">affiliatehub.ph/ref/user789</span>
+</div>
+<button class="size-12 rounded-full bg-surface-variant flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined">content_copy</span>
+</button>
+<button class="size-12 rounded-full bg-surface-variant flex items-center justify-center text-secondary hover:bg-secondary hover:text-on-secondary transition-colors">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Monthly Goal Tracker</label>
+<span class="text-sm font-bold text-on-surface">18 / 25 <span class="text-on-surface-variant">Invites</span></span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden flex">
+<div class="h-full bg-gradient-to-r from-primary to-secondary neon-glow-primary" style="width: 72%"></div>
+</div>
+<p class="text-xs text-on-surface-variant mt-2 italic">7 more invites to unlock "Elite Partner" status bonus.</p>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="p-4 rounded-xl bg-surface-container-high border border-outline-variant/30">
+<p class="text-on-surface-variant text-xs mb-1">Total Referrals</p>
+<p class="text-2xl font-bold text-on-surface">142</p>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-high border border-outline-variant/30">
+<p class="text-on-surface-variant text-xs mb-1">Click-thru Rate</p>
+<p class="text-2xl font-bold text-on-surface">12.4%</p>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-high border border-outline-variant/30">
+<p class="text-on-surface-variant text-xs mb-1">Conversion</p>
+<p class="text-2xl font-bold text-on-surface">8.2%</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Lower Grid: Activity & Leaderboard -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Referral Activity Tracker -->
+<div class="lg:col-span-2 glass-card rounded-xl flex flex-col">
+<div class="p-8 border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline text-xl font-bold text-on-surface">Real-time Activity</h3>
+<button class="text-primary text-sm font-bold hover:underline">View All</button>
+</div>
+<div class="flex-1 overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-variant/30">
+<th class="px-8 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">User</th>
+<th class="px-8 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Event</th>
+<th class="px-8 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Status</th>
+<th class="px-8 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest text-right">Points</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<tr class="hover:bg-surface-variant/20 group transition-colors">
+<td class="px-8 py-5 flex items-center gap-3">
+<div class="size-10 rounded-full border-l-4 border-primary bg-surface-container-highest flex items-center justify-center font-bold text-primary">JD</div>
+<span class="font-medium text-on-surface">Juan Dela Cruz</span>
+</td>
+<td class="px-8 py-5 text-sm text-on-surface-variant">New Signup</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase border border-primary/20">Verified</span>
+</td>
+<td class="px-8 py-5 text-right font-bold text-primary">+500</td>
+</tr>
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="px-8 py-5 flex items-center gap-3">
+<div class="size-10 rounded-full border-l-4 border-tertiary bg-surface-container-highest flex items-center justify-center font-bold text-tertiary">MS</div>
+<span class="font-medium text-on-surface">Maria Santos</span>
+</td>
+<td class="px-8 py-5 text-sm text-on-surface-variant">Wallet Sync</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full bg-secondary/10 text-secondary text-[10px] font-bold uppercase border border-secondary/20">Pending</span>
+</td>
+<td class="px-8 py-5 text-right font-bold text-on-surface-variant">+200</td>
+</tr>
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="px-8 py-5 flex items-center gap-3">
+<div class="size-10 rounded-full border-l-4 border-primary bg-surface-container-highest flex items-center justify-center font-bold text-primary">RB</div>
+<span class="font-medium text-on-surface">Rico Blanco</span>
+</td>
+<td class="px-8 py-5 text-sm text-on-surface-variant">Referral Verified</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase border border-primary/20">Verified</span>
+</td>
+<td class="px-8 py-5 text-right font-bold text-primary">+1,200</td>
+</tr>
+<tr class="hover:bg-surface-variant/20 transition-colors">
+<td class="px-8 py-5 flex items-center gap-3">
+<div class="size-10 rounded-full border-l-4 border-tertiary bg-surface-container-highest flex items-center justify-center font-bold text-tertiary">AG</div>
+<span class="font-medium text-on-surface">Anne Garcia</span>
+</td>
+<td class="px-8 py-5 text-sm text-on-surface-variant">Chat Milestone</td>
+<td class="px-8 py-5">
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase border border-primary/20">Verified</span>
+</td>
+<td class="px-8 py-5 text-right font-bold text-primary">+50</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Leaderboard -->
+<div class="glass-card rounded-xl flex flex-col">
+<div class="p-8 border-b border-outline-variant/30">
+<h3 class="font-headline text-xl font-bold text-on-surface mb-4">Leaderboard</h3>
+<div class="flex gap-2 p-1 bg-surface-container-low rounded-full">
+<button class="flex-1 py-2 text-xs font-bold rounded-full bg-primary text-on-primary">Inviters</button>
+<button class="flex-1 py-2 text-xs font-bold rounded-full text-on-surface-variant hover:text-on-surface">Chatters</button>
+</div>
+</div>
+<div class="p-4 space-y-4">
+<!-- Rank 1 -->
+<div class="flex items-center gap-4 p-4 rounded-xl bg-primary/5 border border-primary/20 relative overflow-hidden">
+<div class="absolute right-[-10px] top-[-10px] opacity-10">
+<span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">trophy</span>
+</div>
+<span class="text-xl font-black text-primary italic">#1</span>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary" data-alt="Close-up profile photo of a charismatic Asian male influencer with modern hairstyle, high-end studio lighting, urban neon background." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCtbKRatpfljNMW_p06Ysp4KQUNszzwTjIwgmOK2dgPc_vNRE20sBoL12nOt7woB2tEhgSLghXR1nBGQBqJPLf6ouaeT9MvWK3DEa72v5rNytXmcHy79tcPuPxcRd5CXiU_NjCa34PRQigjBY7VOvEC6cC1wlLjL03R_uqgzUl4RC3yAMgmGb0BUkqFz05aLFn-E9IWF7PcUNr2OgA-n25bsj0v2523YT1Rnm5U2gwRclH5Jzcgf2q-xxlFyk-eRhr08Nopfhi4pd0")'></div>
+<div class="flex-1">
+<p class="font-bold text-on-surface text-sm">@CryptoPioneer</p>
+<p class="text-xs text-on-surface-variant">1,240 Invites</p>
+</div>
+<span class="material-symbols-outlined text-primary">military_tech</span>
+</div>
+<!-- Rank 2 -->
+<div class="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-variant/30 transition-colors">
+<span class="text-xl font-black text-on-surface-variant italic">#2</span>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border border-outline-variant" data-alt="Studio portrait of a young Filipina tech entrepreneur, wearing professional attire, soft cinematic lighting, gradient teal and blue background." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA9bn_WVGtK0J2NVI_O5A40pKks_iejjZUlMF9cjWEuObrPUol8HQsykgA9jqj0KfHW1JclK1OKeC01l7367hxvjnIKFpwUGW15GTLOZDleTkMTJaNqvPohd1UCQnsaioIFCz1wu2NCpZCjllWR05AD6T0smoBwXIFmWEsDXtbBY_xSkS1nxCC3KQCXM1FWRrVfEelD6iOhLXaz3CmitMeKQoOS_Ix8WNd5XIkbpzp2CLrHOBq8uq7QCE2fm3fBpkg3F94Re1eWarM")'></div>
+<div class="flex-1">
+<p class="font-bold text-on-surface text-sm">@MarketingMaverick</p>
+<p class="text-xs text-on-surface-variant">985 Invites</p>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-variant/30 transition-colors">
+<span class="text-xl font-black text-on-surface-variant italic">#3</span>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border border-outline-variant" data-alt="Dynamic shot of a young man smiling, natural outdoor daylight, blurred tech office background." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDB-Cx-6Zuor4ub67YJL3_p_Un31CNMBtRBI5JCE1NMmdEI1kOGdZXOkx63q6CXl8QKOGEIyvHcWzihFDtUX5vapHCjjbYUkgtbupMy4H35h-_f6lFdpYtGyTK9Bm2FUMoYJDkPJB0I5v4G6F94YcuDxjFLBFLhHFOmXMyOJ9HYLWja0hV6o4VrjNFSkuNwhbYCkH6RtjYq-rYBv_IH9skFfQNt4ucOyDrsVnzx5hMwoaK4EMuUEXCMcnyHMIqQkAMUbe8wMgMvtWA")'></div>
+<div class="flex-1">
+<p class="font-bold text-on-surface text-sm">@PixelPinoy</p>
+<p class="text-xs text-on-surface-variant">870 Invites</p>
+</div>
+</div>
+<!-- User Rank -->
+<div class="mt-4 pt-4 border-t border-outline-variant/30">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container-high border border-outline-variant">
+<span class="text-xl font-black text-on-surface italic">#42</span>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary/40" data-alt="Professional avatar photo of the current user." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBg1BIoJavd3TB4Y6AvC2Ko8vCQbgZT7SPOnwucgfjXLfg3j_3NHL26zrOv27B3ES68-l_JWrdpZjAmjJcSUz2wsGks6pN-cXRDCZ5ohjDVKFrj6Bx8FrB-CglknTNmcVdiIuKOYHULTfvEfu-a4hGhj-2iXI-9GhxbOAETKadRjHuAgKp28SzvQc3JazYpmjHwc2y1eWK_tXyWHuNXuyJaKNnpgW3CgL0tqfKY6tnN7m8oCDCgbZB7MG420rAQEsWX_bhmRBRRusA")'></div>
+<div class="flex-1">
+<p class="font-bold text-on-surface text-sm">You (Elite)</p>
+<p class="text-xs text-primary font-bold">128 Invites</p>
+</div>
+<span class="text-[10px] font-black bg-primary/20 text-primary px-2 py-1 rounded">LVL 4</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Shared BottomNavBar (Destination logic applies here) -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl h-16 glass-card rounded-full border border-primary/20 flex items-center justify-around px-8 z-50">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-[10px] font-bold mt-1">Dash</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">share_reviews</span>
+<span class="text-[10px] font-bold mt-1">Refer</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-[10px] font-bold mt-1">Wallet</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="text-[10px] font-bold mt-1">Stats</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold mt-1">Me</span>
+</button>
+</nav>
+</div>
+</body></html>

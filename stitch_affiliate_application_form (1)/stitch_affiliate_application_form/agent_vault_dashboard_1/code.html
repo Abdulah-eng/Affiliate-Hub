@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinetic Vault | Agent Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary": "#6e9bff",
+                        "tertiary-fixed": "#b8a3ff",
+                        "on-primary-container": "#004d57",
+                        "on-primary": "#005762",
+                        "secondary-fixed-dim": "#acc3ff",
+                        "secondary-container": "#0058ca",
+                        "on-secondary-fixed": "#003076",
+                        "primary-fixed": "#00e3fd",
+                        "outline-variant": "#40485d",
+                        "on-surface-variant": "#a3aac4",
+                        "error-container": "#9f0519",
+                        "surface-container-lowest": "#000000",
+                        "inverse-primary": "#006976",
+                        "error": "#ff716c",
+                        "on-error-container": "#ffa8a3",
+                        "on-tertiary-fixed-variant": "#4000ad",
+                        "tertiary-fixed-dim": "#ab93ff",
+                        "primary-container": "#00e3fd",
+                        "on-background": "#dee5ff",
+                        "secondary-fixed": "#c0d1ff",
+                        "on-tertiary-container": "#ffffff",
+                        "on-error": "#490006",
+                        "surface-container": "#0f1930",
+                        "surface-container-highest": "#192540",
+                        "on-secondary-container": "#f7f7ff",
+                        "on-tertiary": "#25006b",
+                        "primary-fixed-dim": "#00d4ec",
+                        "surface-container-low": "#091328",
+                        "tertiary-dim": "#7e51ff",
+                        "surface-dim": "#060e20",
+                        "on-surface": "#dee5ff",
+                        "on-primary-fixed": "#003840",
+                        "primary": "#81ecff",
+                        "surface-container-high": "#141f38",
+                        "error-dim": "#d7383b",
+                        "secondary-dim": "#0f6df3",
+                        "background": "#060e20",
+                        "on-secondary-fixed-variant": "#004baf",
+                        "on-tertiary-fixed": "#1c0055",
+                        "surface-tint": "#81ecff",
+                        "on-secondary": "#001d4e",
+                        "tertiary-container": "#7c4dff",
+                        "surface": "#060e20",
+                        "tertiary": "#a68cff",
+                        "on-primary-fixed-variant": "#005762",
+                        "outline": "#6d758c",
+                        "inverse-on-surface": "#4d556b",
+                        "primary-dim": "#00d4ec",
+                        "surface-variant": "#192540",
+                        "inverse-surface": "#faf8ff",
+                        "surface-bright": "#1f2b49"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(15, 25, 48, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow-primary {
+            box-shadow: 0 0 15px rgba(0, 227, 253, 0.15);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary/30 min-h-screen">
+<!-- Sidebar Navigation (SideNavBar Shared Component) -->
+<aside class="h-screen w-72 fixed left-0 top-0 border-r border-white/5 bg-slate-950 flex flex-col py-8 z-50">
+<div class="px-8 mb-10">
+<span class="text-2xl font-black text-cyan-400 font-headline tracking-tighter">Kinetic Vault</span>
+</div>
+<div class="flex flex-col h-full px-4 space-y-2">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-400 border-l-2 border-cyan-400 shadow-[0_0_15px_rgba(0,229,255,0.2)] transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-headline font-semibold text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+<span class="font-headline font-medium text-sm">My Applications</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">lock_open</span>
+<span class="font-headline font-medium text-sm">Partner Vault</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-headline font-medium text-sm">Leaderboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-full text-slate-400 hover:text-slate-100 hover:bg-white/5 hover:translate-x-1 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">military_tech</span>
+<span class="font-headline font-medium text-sm">Rewards</span>
+</a>
+<div class="mt-auto pt-8 border-t border-white/5 space-y-2">
+<div class="px-4 py-4 mb-4 glass-card rounded-2xl flex items-center gap-3">
+<img alt="Profile" class="w-10 h-10 rounded-full bg-primary-container/20 p-1" data-alt="close-up profile avatar of a tech-savvy agent with neon accents and futuristic accessories" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8Zw0GGcE-L4eEm0_0EM7v0BeOGgeIqG1e2eiAyoQOzdn3xMqPe1i1nnaxp1ymPhitKMPjugq_JYAhC8b6UeuPN7tFjzOwrJaj8qNDvhWpFSy0RuB80Si078J0JSNnjh_YQSTueITgj0m4dkd9RhEDrcxz3SNygxJZsH41LtCghObiVLTJiyTMn_DvNiYwv-ue4B3RsCsuOVUFIywFi3Nwn1qzmb6pbD4iEWZBZSSJ01U2aEyY0sKY0yB0VPcdBbpQ8YkOiI_RSv4"/>
+<div>
+<p class="text-xs font-bold text-on-surface">Agent Zenith</p>
+<p class="text-[10px] text-primary">Diamond Tier</p>
+</div>
+</div>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-slate-400 hover:text-slate-100 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-xs">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-full text-slate-400 hover:text-slate-100 transition-all" href="#">
+<span class="material-symbols-outlined text-xl">help_outline</span>
+<span class="text-xs">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Top AppBar (Shared Component) -->
+<header class="fixed top-0 right-0 left-72 h-20 bg-slate-950/60 backdrop-blur-xl z-40 flex items-center justify-between px-8 shadow-[0_8px_32px_0_rgba(0,229,255,0.08)]">
+<div class="flex items-center gap-6">
+<h1 class="text-xl font-headline font-bold text-on-surface">Agent Command</h1>
+<div class="h-6 w-[1px] bg-outline-variant/30"></div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-semibold text-cyan-400 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/20">Rank: Elite</span>
+<span class="text-xs font-semibold text-tertiary px-3 py-1 rounded-full bg-tertiary/10 border border-tertiary/20">24,500 pts</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/5 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary p-[2px]">
+<div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">account_circle</span>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-r from-cyan-500/20 to-transparent h-[1px] w-full bottom-0 absolute"></div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-72 pt-28 pb-12 px-10">
+<!-- Hero Section: Agent Profile HUD -->
+<section class="mb-12">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="glass-card rounded-xl p-6 relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all"></div>
+<p class="text-xs font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Performance Rate</p>
+<div class="flex items-end gap-2">
+<span class="text-4xl font-headline font-extrabold text-on-surface tracking-tight">40%</span>
+<span class="text-primary text-xs font-bold mb-1.5 flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> +5.2%
+                        </span>
+</div>
+<div class="mt-4 w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-secondary w-[40%] shadow-[0_0_8px_#81ecff]"></div>
+</div>
+</div>
+<div class="glass-card rounded-xl p-6 relative overflow-hidden">
+<p class="text-xs font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Approved Platforms</p>
+<div class="flex items-center gap-3">
+<span class="text-4xl font-headline font-extrabold text-on-surface tracking-tight">03</span>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-[10px] font-bold">BW</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-[10px] font-bold">WF</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center text-[10px] font-bold">RL</div>
+</div>
+</div>
+<p class="mt-4 text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary">verified</span> Fully Verified Hub
+                    </p>
+</div>
+<div class="glass-card rounded-xl p-6 relative overflow-hidden md:col-span-2 bg-gradient-to-br from-surface-container/60 to-surface-container-high/40">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-xs font-medium text-on-surface-variant mb-1 uppercase tracking-widest">Monthly Growth Milestone</p>
+<h3 class="text-xl font-headline font-bold text-on-surface">Target: 50,000 pts</h3>
+</div>
+<span class="text-tertiary material-symbols-outlined text-3xl">military_tech</span>
+</div>
+<div class="mt-6 flex items-center gap-4">
+<div class="flex-1 h-3 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-tertiary to-primary w-[49%]"></div>
+</div>
+<span class="text-sm font-bold text-on-surface">49%</span>
+</div>
+<p class="mt-3 text-[11px] text-on-surface-variant italic">"Keep pushing, Agent Zenith! You're only 25,500 pts away from Elite Diamond status."</p>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- Left Column: Platform Vault -->
+<div class="lg:col-span-8 space-y-8">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div>
+<h2 class="text-2xl font-headline font-bold text-on-surface">Platform Access Vault</h2>
+<p class="text-sm text-on-surface-variant">Securely manage your affiliated platform credentials</p>
+</div>
+</div>
+<button class="px-6 py-2.5 rounded-full bg-primary text-on-primary font-bold text-sm shadow-[0_0_20px_rgba(0,227,253,0.3)] hover:scale-105 transition-transform">
+                        Refresh Credentials
+                    </button>
+</div>
+<!-- Platform Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Platform Card 1 -->
+<div class="glass-card rounded-xl p-6 hover:shadow-[0_0_30px_rgba(0,227,253,0.1)] transition-all border-l-4 border-primary">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-primary text-xl">BW</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">BIGWIN</h4>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Global Affiliate</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">READY</span>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">URL</span>
+<span class="text-primary truncate ml-4">bigwin-partner.ph/login</span>
+</div>
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Username</span>
+<div class="flex items-center gap-2">
+<span class="font-mono text-on-surface">zenith_bw_01</span>
+<button class="material-symbols-outlined text-sm hover:text-primary transition-colors">content_copy</button>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Password</span>
+<div class="flex items-center gap-2">
+<span class="font-mono text-on-surface tracking-widest">••••••••</span>
+<button class="material-symbols-outlined text-sm hover:text-primary transition-colors">visibility</button>
+<button class="material-symbols-outlined text-sm hover:text-primary transition-colors">content_copy</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-white/5">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">iFrame Available</span>
+</div>
+<button class="flex items-center gap-2 text-xs font-bold text-primary group">
+                                OPEN PLATFORM
+                                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Platform Card 2 -->
+<div class="glass-card rounded-xl p-6 hover:shadow-[0_0_30px_rgba(0,227,253,0.1)] transition-all">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-secondary text-xl">WF</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">WinForLife</h4>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Premium Partner</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase">Under Review</span>
+</div>
+<div class="space-y-3 mb-6 opacity-60 grayscale">
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">URL</span>
+<span class="text-secondary truncate ml-4">wfl-agent.com/secure</span>
+</div>
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Username</span>
+<div class="flex items-center gap-2">
+<span class="font-mono text-on-surface">pending_review</span>
+<button class="material-symbols-outlined text-sm">lock</button>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Password</span>
+<div class="flex items-center gap-2">
+<span class="font-mono text-on-surface tracking-widest">••••••••</span>
+<button class="material-symbols-outlined text-sm">lock</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-white/5">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-slate-500"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">Restricted</span>
+</div>
+<button class="flex items-center gap-2 text-xs font-bold text-on-surface-variant cursor-not-allowed">
+                                LOCKED
+                                <span class="material-symbols-outlined text-sm">lock</span>
+</button>
+</div>
+</div>
+<!-- Platform Card 3 -->
+<div class="glass-card rounded-xl p-6 hover:shadow-[0_0_30px_rgba(0,227,253,0.1)] transition-all border-l-4 border-secondary">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center font-black text-tertiary text-xl">RL</div>
+<div>
+<h4 class="font-headline font-bold text-on-surface">Rollem</h4>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Growth Tier</p>
+</div>
+</div>
+<span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase">Ready</span>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">URL</span>
+<span class="text-primary truncate ml-4">rollem-partners.ph</span>
+</div>
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Username</span>
+<div class="flex items-center gap-2">
+<span class="font-mono text-on-surface">az_roll_99</span>
+<button class="material-symbols-outlined text-sm hover:text-primary transition-colors">content_copy</button>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs px-3 py-2 bg-surface-container-low rounded-lg">
+<span class="text-on-surface-variant">Password</span>
+<div class="flex items-center gap-2">
+<span class="font-mono text-on-surface tracking-widest">••••••••</span>
+<button class="material-symbols-outlined text-sm hover:text-primary transition-colors">visibility</button>
+<button class="material-symbols-outlined text-sm hover:text-primary transition-colors">content_copy</button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-white/5">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_5px_#34d399]"></div>
+<span class="text-[10px] font-bold text-on-surface-variant">iFrame Available</span>
+</div>
+<button class="flex items-center gap-2 text-xs font-bold text-primary group">
+                                OPEN PLATFORM
+                                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- Platform Add Placeholder -->
+<div class="rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center p-6 hover:border-primary/50 transition-colors cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors mb-3">
+<span class="material-symbols-outlined text-3xl">add</span>
+</div>
+<p class="font-headline font-bold text-on-surface">Apply for New Platform</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">Expansion Available</p>
+</div>
+</div>
+<!-- Application Progress Tracker -->
+<div class="glass-card rounded-xl p-8">
+<h3 class="text-lg font-headline font-bold text-on-surface mb-8 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">analytics</span>
+                        Application Progress: WinForLife
+                    </h3>
+<div class="relative flex justify-between items-start">
+<!-- Progress Line -->
+<div class="absolute top-5 left-0 right-0 h-1 bg-surface-container-highest -z-0">
+<div class="h-full bg-gradient-to-r from-primary to-secondary w-[66%]"></div>
+</div>
+<!-- Step 1 -->
+<div class="relative flex flex-col items-center z-10 w-1/4">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-[0_0_15px_rgba(0,227,253,0.5)]">
+<span class="material-symbols-outlined font-bold">check</span>
+</div>
+<span class="mt-4 text-[11px] font-bold text-on-surface text-center">Account Created</span>
+<span class="text-[9px] text-on-surface-variant mt-1">Oct 12, 2023</span>
+</div>
+<!-- Step 2 -->
+<div class="relative flex flex-col items-center z-10 w-1/4">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-[0_0_15px_rgba(0,227,253,0.5)]">
+<span class="material-symbols-outlined font-bold">check</span>
+</div>
+<span class="mt-4 text-[11px] font-bold text-on-surface text-center">KYC Submitted</span>
+<span class="text-[9px] text-on-surface-variant mt-1">Oct 14, 2023</span>
+</div>
+<!-- Step 3 -->
+<div class="relative flex flex-col items-center z-10 w-1/4">
+<div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white shadow-[0_0_15px_rgba(110,155,255,0.4)]">
+<span class="material-symbols-outlined font-bold">hourglass_empty</span>
+</div>
+<span class="mt-4 text-[11px] font-bold text-secondary text-center">CSR Review</span>
+<span class="text-[9px] text-on-surface-variant mt-1">In Progress</span>
+</div>
+<!-- Step 4 -->
+<div class="relative flex flex-col items-center z-10 w-1/4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant border border-outline-variant">
+<span class="material-symbols-outlined font-bold">rocket_launch</span>
+</div>
+<span class="mt-4 text-[11px] font-bold text-on-surface-variant text-center opacity-50">Dashboard Activated</span>
+<span class="text-[9px] text-on-surface-variant mt-1 opacity-50">Pending Review</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Updates & Side Content -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Announcement Board -->
+<div class="glass-card rounded-xl p-6 border-t-4 border-tertiary">
+<h3 class="text-sm font-headline font-bold text-on-surface mb-6 uppercase tracking-widest flex items-center justify-between">
+                        Hub Updates
+                        <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+</h3>
+<div class="space-y-5">
+<div class="group cursor-pointer">
+<p class="text-[10px] text-tertiary font-bold mb-1">NEW CAMPAIGN • 2h ago</p>
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Rollem: Double Rebate Weekend</h5>
+<p class="text-xs text-on-surface-variant mt-1 line-clamp-2">Earn 2x points for all new player registrations this Saturday and Sunday...</p>
+</div>
+<div class="h-[1px] bg-white/5"></div>
+<div class="group cursor-pointer">
+<p class="text-[10px] text-primary font-bold mb-1">SYSTEM • 5h ago</p>
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">KYC Verification System Upgrade</h5>
+<p class="text-xs text-on-surface-variant mt-1 line-clamp-2">Our new automated KYC verification is now live for BIGWIN partners...</p>
+</div>
+<div class="h-[1px] bg-white/5"></div>
+<div class="group cursor-pointer">
+<p class="text-[10px] text-on-surface-variant font-bold mb-1">NOTIF • 1d ago</p>
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">KYC Verified: BIGWIN Platform</h5>
+<p class="text-xs text-on-surface-variant mt-1 line-clamp-2">Congratulations Agent! Your identity documents have been verified...</p>
+</div>
+</div>
+<button class="w-full mt-6 py-2 border border-outline-variant hover:border-tertiary rounded-full text-[10px] font-bold text-on-surface-variant hover:text-tertiary transition-all">
+                        VIEW ALL ANNOUNCEMENTS
+                    </button>
+</div>
+<!-- Access Tips HUD -->
+<div class="glass-card rounded-xl p-6 bg-gradient-to-br from-surface-container/40 to-surface-container-high/60">
+<h3 class="text-sm font-headline font-bold text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+                        Access Intel
+                    </h3>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-8 h-8 shrink-0 rounded bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-lg">vpn_key</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Use Secure Browser</p>
+<p class="text-[11px] text-on-surface-variant mt-1">Always access partner dashboards via Chrome Incognito for better session management.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 shrink-0 rounded bg-secondary/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-lg">sync_problem</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Login Issues?</p>
+<p class="text-[11px] text-on-surface-variant mt-1">If 'Open Platform' fails, ensure your browser allows pop-ups for the specific domain.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-8 h-8 shrink-0 rounded bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-lg">shield</span>
+</div>
+<div>
+<p class="text-xs font-bold text-on-surface">Identity Safety</p>
+<p class="text-[11px] text-on-surface-variant mt-1">Never share your Kinetic Vault credentials with anyone, including Hub CSRs.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Actions Widget -->
+<div class="glass-card rounded-xl p-6 relative overflow-hidden bg-surface-container-highest">
+<img alt="Ad" class="w-full h-32 object-cover rounded-lg mb-4 opacity-80" data-alt="futuristic dark blue and neon cyan tech banner with abstract geometrical patterns and data streams" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPOpY8YsZmvxWJ8D3L9HDyFQlW1sEhqga7MV5Bzw7kXi-AMqLpZPuygfUjdS3kR5lNoLONx0Lvhiuyrikr_I0oJvZ4OFl_pc4U_ySqmL0jXZgi2hlDAbU_J6vNXgeIHMAXGI6Z8Ssxp19w6DDo5wgShzXggWBIVZpSxt2_BUghLNu0d4peKeGows9PAHVAPU57Cw5FeUmyYbHqKWmucBoP2oFW9OjfC_zRCLEmwV4auekvzCFpbaMruVdJKUw4GTIlF8D3aIrukfw"/>
+<h4 class="text-sm font-bold text-on-surface">Agent Support Hub</h4>
+<p class="text-[11px] text-on-surface-variant mt-2 mb-4">Need help with platform onboarding or commission settlements?</p>
+<button class="w-full py-2.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all border border-white/10">
+                        OPEN TICKETING SYSTEM
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for Quick Campaign Creation (Shared Component Logic) -->
+<button class="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-primary text-on-primary shadow-[0_0_30px_rgba(0,227,253,0.5)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined text-3xl font-bold group-hover:rotate-90 transition-transform">add</span>
+</button>
+</body></html>

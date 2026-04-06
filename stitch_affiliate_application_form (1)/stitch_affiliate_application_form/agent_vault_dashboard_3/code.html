@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kinetic Vault | Affiliate Hub PH</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "background": "#060e20",
+              "outline-variant": "#40485d",
+              "inverse-surface": "#faf8ff",
+              "on-tertiary-fixed": "#1c0055",
+              "secondary-dim": "#0f6df3",
+              "tertiary-dim": "#7e51ff",
+              "surface": "#060e20",
+              "primary": "#81ecff",
+              "error": "#ff716c",
+              "surface-container-low": "#091328",
+              "on-secondary-fixed-variant": "#004baf",
+              "tertiary-fixed": "#b8a3ff",
+              "on-primary-fixed": "#003840",
+              "on-tertiary": "#25006b",
+              "surface-bright": "#1f2b49",
+              "error-container": "#9f0519",
+              "on-tertiary-fixed-variant": "#4000ad",
+              "outline": "#6d758c",
+              "surface-tint": "#81ecff",
+              "error-dim": "#d7383b",
+              "surface-dim": "#060e20",
+              "surface-variant": "#192540",
+              "secondary-fixed": "#c0d1ff",
+              "on-error": "#490006",
+              "primary-fixed-dim": "#00d4ec",
+              "secondary": "#6e9bff",
+              "primary-dim": "#00d4ec",
+              "on-primary": "#005762",
+              "on-tertiary-container": "#ffffff",
+              "primary-container": "#00e3fd",
+              "surface-container-high": "#141f38",
+              "on-error-container": "#ffa8a3",
+              "primary-fixed": "#00e3fd",
+              "tertiary-container": "#7c4dff",
+              "on-secondary": "#001d4e",
+              "surface-container-highest": "#192540",
+              "on-primary-fixed-variant": "#005762",
+              "surface-container-lowest": "#000000",
+              "on-surface-variant": "#a3aac4",
+              "inverse-primary": "#006976",
+              "secondary-fixed-dim": "#acc3ff",
+              "tertiary-fixed-dim": "#ab93ff",
+              "tertiary": "#a68cff",
+              "on-background": "#dee5ff",
+              "secondary-container": "#0058ca",
+              "on-surface": "#dee5ff",
+              "surface-container": "#0f1930",
+              "on-primary-container": "#004d57",
+              "on-secondary-fixed": "#003076",
+              "inverse-on-surface": "#4d556b",
+              "on-secondary-container": "#f7f7ff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(20, 31, 56, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(129, 236, 255, 0.1);
+        }
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(129, 236, 255, 0.15);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 fixed left-0 top-0 border-r border-[#81ecff]/10 bg-[#091328] dark:bg-[#091328] flex flex-col p-4 shadow-[40px_0_60px_-15px_rgba(110,155,255,0.08)] z-50">
+<div class="flex items-center gap-3 mb-10 px-2">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary p-[1px]">
+<div class="w-full h-full rounded-[11px] bg-[#091328] flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+</div>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tighter text-[#81ecff] font-headline">Kinetic Vault</h1>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Pro Affiliate</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active: Vault -->
+<a class="flex items-center gap-3 px-4 py-3 text-[#81ecff] bg-[#141f38] rounded-xl border-l-2 border-[#81ecff] font-headline text-sm antialiased transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Vault
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_ind">assignment_ind</span>
+                Application
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="group_add">group_add</span>
+                Referral Center
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="leaderboard">leaderboard</span>
+                Leaderboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                Wallet
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+                Chat
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+                Admin Controls
+            </a>
+</nav>
+<div class="mt-auto pt-4 space-y-2 border-t border-[#81ecff]/5">
+<a class="flex items-center gap-3 px-4 py-3 text-[#a3aac4] hover:text-[#dee5ff] hover:bg-[#141f38] transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-error/80 hover:text-error hover:bg-error/5 transition-all duration-200 font-headline text-sm antialiased" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Logout
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8 shadow-sm">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-medium text-sm transition-all" href="#">Network</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-medium text-sm transition-all" href="#">Insights</a>
+<a class="text-[#a3aac4] hover:text-[#dee5ff] font-medium text-sm transition-all" href="#">Help</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined text-[#a3aac4] p-2 hover:bg-[#141f38]/50 rounded-full cursor-pointer transition-all" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-[#060e20]"></span>
+</div>
+<button class="bg-primary text-on-primary-container px-6 py-2 rounded-full font-bold text-sm hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+                    Quick Apply
+                </button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant/30">
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface">Alex Rivera</p>
+<p class="text-[10px] text-on-surface-variant">Tier 3 Agent</p>
+</div>
+<img alt="Affiliate profile image" class="w-8 h-8 rounded-full border border-primary/30" data-alt="close-up portrait of a professional man with a confident expression, soft studio lighting, high tech aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDlxqNTaeaNGVqLYsKRtHEL6d1P2_d9l0vGw-kNVFAPx6iI1ei7HFEgiSc47o0UYJzVevcFLmOE8Agt8JZcVKx9o0q_o7hOSnZHXYgbknIkEfc9mnYCyQbkVH3kWn2NUFgfjeEEvurw5v1nN463CRH4NrEKNhxvK9OPzOIQNumYMvXbxvILI88JGfD5YS9wWApc2uPcin798538NVhSYfcDG3e14N-T2g0YWozt8p_B8kP3Fv-uqgVQp6Fo-T1d5Q89YLOosoP7Ls"/>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="pt-24 px-8 pb-12">
+<!-- Hero Header Section -->
+<section class="mb-12 flex justify-between items-end">
+<div>
+<h2 class="text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-2">Platform Access Vault</h2>
+<p class="text-on-surface-variant max-w-xl">Manage your active affiliate networks, secure credentials, and pending applications in one high-performance HUD.</p>
+</div>
+<div class="flex gap-4">
+<div class="glass-card px-6 py-4 rounded-2xl flex items-center gap-4">
+<div class="bg-primary/10 p-3 rounded-xl">
+<span class="material-symbols-outlined text-primary" data-icon="security">security</span>
+</div>
+<div>
+<p class="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Vault Status</p>
+<p class="text-lg font-bold text-primary">Fully Encrypted</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Main Vault Cards (Left Column) -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-xl font-bold font-headline flex items-center gap-2">
+<span class="w-2 h-6 bg-primary rounded-full"></span>
+                            Active Platforms
+                        </h3>
+<div class="flex gap-2">
+<button class="p-2 glass-card rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+</button>
+<button class="p-2 glass-card rounded-lg text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="list">list</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Platform Card: WinForLife -->
+<div class="glass-card p-6 rounded-xl hover:shadow-[0_0_30px_-10px_rgba(129,236,255,0.2)] transition-all group border-l-4 border-l-primary">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="abstract flowing blue and gold silk textures representing luxury and high performance gaming platform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQV1lSQYE8KIMjukozYDkcSdGfCvlbTbZ4foKPl0btB0WF4rzraxIsH7cd1IHBhtjAwrB5vhczQRK_vDTd_-FPI0zpvj34ycbkLopPQitL_kvdsDAbkMZunlXfi8c1FcE6bdVSx5ff0QENf8v0zzl-GKEsIa1mhgevb39HH2wnP1pNGAA5tFN8pQJ4uVRdi6RiLbT2yyUcu057X7kbt7oNT9LiT4E7N3Xz5NLgb2LPTTPXAmIXkucj05XU106ZcnYjr25Z2Od6Po0"/>
+</div>
+<div>
+<h4 class="font-bold text-lg text-on-surface font-headline">WinForLife</h4>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+<span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+                                            Approved
+                                        </span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/10 flex justify-between items-center group/field">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Username</p>
+<p class="text-sm font-mono text-on-surface">agent_rivera_ph</p>
+</div>
+<button class="text-on-surface-variant opacity-0 group-hover/field:opacity-100 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/10 flex justify-between items-center group/field">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Password</p>
+<div class="flex items-center gap-2">
+<p class="text-sm font-mono text-on-surface tracking-widest">••••••••••••</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="text-on-surface-variant opacity-0 group-hover/field:opacity-100 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+</button>
+<button class="text-on-surface-variant opacity-0 group-hover/field:opacity-100 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full bg-surface-container-highest text-primary font-bold py-3 rounded-xl flex items-center justify-center gap-2 group-hover:bg-primary group-hover:text-on-primary transition-all border border-primary/20">
+<span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+                                Open Platform
+                            </button>
+</div>
+<!-- Platform Card: BIGWIN -->
+<div class="glass-card p-6 rounded-xl hover:shadow-[0_0_30px_-10px_rgba(110,155,255,0.2)] transition-all group border-l-4 border-l-secondary">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-80" data-alt="retro hardware components with neon lighting, glowing circuitry patterns in shades of cyan and magenta" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqtfuWJ3qgLVTvi3iHJxi7J5OVgnhSwdIOmkwDJEHVI4FWjhmspVhKfjscuz90b_1ME34R8ZmHJK97PNE4EKJju0vIsiKivBAbaVbwqUBuEbcI4ld0Aals7FGMyMtOd098nfcQT3eYmeOSNj1NhR3jN2RTcr_gxGx1GYWmnj85rAzYoENRXQqK141TxSfF-Y6xyxC9awgOyHP0Gd1WOld8sh39ELA4T0iflp7-ylzt22WRN1IGdOKVjEf7Smhyl_ix9iGN44Oz4VM"/>
+</div>
+<div>
+<h4 class="font-bold text-lg text-on-surface font-headline">BIGWIN</h4>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase">
+<span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+                                            Approved
+                                        </span>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/10 flex justify-between items-center group/field">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Username</p>
+<p class="text-sm font-mono text-on-surface">ph_topagent_01</p>
+</div>
+<button class="text-on-surface-variant opacity-0 group-hover/field:opacity-100 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+<div class="bg-surface-container-low/50 p-3 rounded-xl border border-outline-variant/10 flex justify-between items-center group/field">
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold mb-1">Password</p>
+<div class="flex items-center gap-2">
+<p class="text-sm font-mono text-on-surface tracking-widest">••••••••••••</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="text-on-surface-variant opacity-0 group-hover/field:opacity-100 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="visibility">visibility</span>
+</button>
+<button class="text-on-surface-variant opacity-0 group-hover/field:opacity-100 hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+<button class="w-full bg-surface-container-highest text-secondary font-bold py-3 rounded-xl flex items-center justify-center gap-2 group-hover:bg-secondary group-hover:text-on-primary transition-all border border-secondary/20">
+<span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+                                Open Platform
+                            </button>
+</div>
+</div>
+<!-- Application Status Section -->
+<div class="mt-12">
+<h3 class="text-xl font-bold font-headline flex items-center gap-2 mb-6">
+<span class="w-2 h-6 bg-tertiary rounded-full"></span>
+                            Application Status
+                        </h3>
+<div class="glass-card p-8 rounded-xl overflow-hidden relative">
+<!-- Background accent -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-tertiary/5 blur-[80px] -mr-32 -mt-32 rounded-full"></div>
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" data-icon="hourglass_empty">hourglass_empty</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">GalaxySpin Affiliate</h4>
+<p class="text-xs text-on-surface-variant">Submitted on Oct 24, 2023</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-surface-container-highest rounded-full text-[10px] font-bold text-tertiary uppercase tracking-wider border border-tertiary/20">Under Review</span>
+</div>
+<!-- Step Progress Tracker -->
+<div class="relative">
+<div class="absolute top-4 left-0 w-full h-0.5 bg-outline-variant/20"></div>
+<div class="absolute top-4 left-0 w-[66%] h-0.5 bg-gradient-to-r from-primary to-tertiary"></div>
+<div class="flex justify-between relative z-10">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_0_15px_rgba(129,236,255,0.4)]">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span>
+</div>
+<p class="mt-2 text-[10px] font-bold text-on-surface">Submission</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-[0_0_15px_rgba(129,236,255,0.4)]">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span>
+</div>
+<p class="mt-2 text-[10px] font-bold text-on-surface">KYC Verify</p>
+</div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-tertiary text-tertiary flex items-center justify-center animate-pulse">
+<span class="material-symbols-outlined text-sm" data-icon="history">history</span>
+</div>
+<p class="mt-2 text-[10px] font-bold text-tertiary">Reviewing</p>
+</div>
+<div class="flex flex-col items-center opacity-40">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="lock">lock</span>
+</div>
+<p class="mt-2 text-[10px] font-bold text-on-surface-variant">Access Grant</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Announcements & Secondary Stats (Right Column) -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Announcements -->
+<div class="glass-card p-6 rounded-xl border-t-2 border-t-secondary/50">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold font-headline">Latest Updates</h3>
+<a class="text-xs text-primary font-bold hover:underline" href="#">View All</a>
+</div>
+<div class="space-y-6">
+<div class="group cursor-pointer">
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-secondary/10 flex flex-col items-center justify-center text-secondary border border-secondary/20">
+<span class="text-xs font-bold leading-none">OCT</span>
+<span class="text-lg font-black leading-none">28</span>
+</div>
+<div>
+<h5 class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">Q4 Commission Multiplier</h5>
+<p class="text-xs text-on-surface-variant line-clamp-2 mt-1">Earn 1.5x on all referrals for WinForLife starting this weekend until Nov 15.</p>
+</div>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="flex gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-tertiary/10 flex flex-col items-center justify-center text-tertiary border border-tertiary/20">
+<span class="text-xs font-bold leading-none">OCT</span>
+<span class="text-lg font-black leading-none">25</span>
+</div>
+<div>
+<h5 class="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">New API Integration</h5>
+<p class="text-xs text-on-surface-variant line-clamp-2 mt-1">GalaxySpin integration is now live for testing in the Sandbox vault.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 p-4 rounded-xl bg-gradient-to-br from-secondary/20 to-transparent border border-secondary/30">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary" data-icon="campaign">campaign</span>
+<p class="text-sm font-bold text-secondary">Referral Bonus</p>
+</div>
+<p class="text-xs text-on-surface mb-3">Invite 3 pro agents and get a permanent 2% vault fee reduction.</p>
+<button class="w-full bg-secondary text-white text-xs font-bold py-2 rounded-lg hover:brightness-110 transition-all">Get Invite Link</button>
+</div>
+</div>
+<!-- Performance HUD -->
+<div class="glass-card p-6 rounded-xl">
+<h3 class="text-lg font-bold font-headline mb-6">Performance HUD</h3>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-2">
+<span class="text-on-surface-variant">Monthly Goal</span>
+<span class="text-primary">78%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary shadow-[0_0_10px_rgba(129,236,255,0.5)] rounded-full" style="width: 78%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-[10px] font-bold uppercase tracking-wider mb-2">
+<span class="text-on-surface-variant">Conversion Rate</span>
+<span class="text-secondary">12.4%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary shadow-[0_0_10px_rgba(110,155,255,0.5)] rounded-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<div class="mt-8 grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10 text-center">
+<p class="text-2xl font-black text-on-surface font-headline">1.2k</p>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Total Hits</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl border border-outline-variant/10 text-center">
+<p class="text-2xl font-black text-primary font-headline">$4.8k</p>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">Earning</p>
+</div>
+</div>
+</div>
+<!-- Security Banner -->
+<div class="rounded-xl overflow-hidden relative group cursor-pointer">
+<img class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-500" data-alt="high contrast 3d render of abstract data blocks and digital security encryption layers in deep blue and glowing cyan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlHYwc01Thzl1pe9AeK2qULE0wWsbFcil6Vrre3HZNN-H-y92ec7TtNXs6B1r8XiXpvTLe_bPGOjU0pNHN3D5cGFdOLOX0ejjbCJTxFKBYEl3NbAJwtbgsd3EWUS4C9R8RIKm74YDVeL9fYQVeY88NhBHAufQqKpxunc1Pmja7-_0P0WpS72He0w6nRN6zPPHL6u4TRKldbf1xa-VY-u2wrfm0X7ZlEQpXHj5xS9Y0TuUXmYjVhou25TjkNzbkP0no89MhPRj1x78"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background to-transparent"></div>
+<div class="absolute bottom-4 left-4">
+<p class="text-xs font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="verified_user">verified_user</span>
+                                2FA Protection Active
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual Floating Action Button -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary-container rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(129,236,255,0.3)] hover:scale-110 active:scale-95 transition-all z-50 group">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+<span class="absolute right-16 bg-surface-container-highest px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-primary/20">Add New Platform</span>
+</button>
+</body></html>

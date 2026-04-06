@@ -1,0 +1,25 @@
+🌱 Seeding Affiliate Hub PH database...
+❌ Seed error: PrismaClientInitializationError: 
+Invalid `prisma.brand.upsert()` invocation in
+D:\projects\commissionartist\Affiliate-Hub\prisma\seed.js:17:24
+
+  14 ];
+  15 
+  16 for (const brand of brands) {
+→ 17   await prisma.brand.upsert(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "mysql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at Mn.handleRequestError (D:\projects\commissionartist\Affiliate-Hub\node_modules\@prisma\client\runtime\library.js:121:8053)
+    at Mn.handleAndLogRequestError (D:\projects\commissionartist\Affiliate-Hub\node_modules\@prisma\client\runtime\library.js:121:7061)
+    at Mn.request (D:\projects\commissionartist\Affiliate-Hub\node_modules\@prisma\client\runtime\library.js:121:6745)
+    at async l (D:\projects\commissionartist\Affiliate-Hub\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async main (D:\projects\commissionartist\Affiliate-Hub\prisma\seed.js:17:5) {
+  clientVersion: '5.21.1',
+  errorCode: undefined
+}
