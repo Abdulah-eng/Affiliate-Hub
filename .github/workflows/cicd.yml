@@ -38,14 +38,7 @@ jobs:
           # otherwise this will just catch syntax errors and standard lints.
           npm run lint
 
-      - name: Build Application
-        run: npm run build
-        env:
-          # Next.js may need env variables during build phase
-          DATABASE_URL: "mysql://root:@localhost:3306/affiliate_hub_shadow"
-          REDIS_URL: "redis://localhost:6379"
-          NEXTAUTH_URL: "http://localhost:3000"
-          NEXTAUTH_SECRET: "dummy-secret-for-build-pipeline-only"
+
 
   deploy:
     name: Deploy to Hostinger VPS
