@@ -1,0 +1,75 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    name: Build & Validations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Lint Code
+        run: |
+          # Only fail if eslint is set up to fail on warnings, 
+          # otherwise this will just catch syntax errors and standard lints.
+          npm run lint
+
+      - name: Build Application
+        run: npm run build
+        env:
+          # Next.js may need env variables during build phase
+          DATABASE_URL: "mysql://root:@localhost:3306/affiliate_hub_shadow"
+          REDIS_URL: "redis://localhost:6379"
+          NEXTAUTH_URL: "http://localhost:3000"
+          NEXTAUTH_SECRET: "dummy-secret-for-build-pipeline-only"
+
+  deploy:
+    name: Deploy to Hostinger VPS
+    needs: build_and_test
+    # Only deploy when pushing to the main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_VPS_IP }}
+          username: ${{ secrets.HOSTINGER_VPS_USERNAME }}
+          key: ${{ secrets.HOSTINGER_VPS_SSH_KEY }}
+          passphrase: ${{ secrets.HOSTINGER_VPS_SSH_PASSPHRASE }} # Optional, only if your SSH key has a passphrase
+          port: ${{ secrets.HOSTINGER_VPS_PORT || 22 }}
+          script: |
+            # Navigate to your project directory. Change this to the actual path on your VPS (e.g. /var/www/Affiliate-Hub)
+            cd /root/Affiliate-Hub
+            
+            # Pull latest changes from git
+            git pull origin main
+            
+            # Make sure the container builds and restarts with new changes
+            # Note: you may need to use `sudo docker-compose` depending on your server setup
+            docker-compose up -d --build
