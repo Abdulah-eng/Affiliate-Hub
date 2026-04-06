@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import KYCReviewDetail from "./KYCReviewDetail";
 
 type Props = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export default async function ReviewDetailPage({ params }: Props) {
+  const { id } = await params;
   const user = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: {
       platforms: { include: { brand: true } }
     }

@@ -1,9 +1,9 @@
-"use server";
+﻿"use server";
 
 import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
 const CHAT_REDIS_KEY = "chat:recent_messages";
 const MAX_CACHED_MESSAGES = 100;

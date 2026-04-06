@@ -1,8 +1,8 @@
-"use server";
+﻿"use server";
 
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/authOptions";
 
 export async function updateAgentProfile(data: { name: string, telegram: string, location: string }) {
   const session = await getServerSession(authOptions);
