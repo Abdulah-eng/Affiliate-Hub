@@ -65,8 +65,14 @@ jobs:
             # Install dependencies
             npm install
             
+            # Run database migrations
+            npx prisma migrate deploy
+            
             # Generate Prisma Client
             npx prisma generate
+            
+            # Create uploads directory for CMS if it doesn't exist
+            mkdir -p public/uploads/cms
             
             # Build the Next.js application
             npm run build

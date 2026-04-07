@@ -12,7 +12,8 @@ import {
   Database,
   Lock,
   Settings,
-  History
+  History,
+  Layout
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -26,6 +27,7 @@ export const AdminSidebar = () => {
     { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands' },
     { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews' },
     { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history' },
+    { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms' },
     { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit' },
     { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings' },
   ];

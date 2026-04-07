@@ -36,7 +36,7 @@ type Props = {
     name: string;
     email: string;
     username: string;
-    telegram: string;
+    affiliateUsername: string;
     location: string;
     idPhotoUrl: string | null;
     selfieUrl: string | null;
@@ -193,8 +193,8 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
                 { icon: <Mail size={16} />, label: "Email", value: user.email },
                 {
                   icon: <MessageSquare size={16} />,
-                  label: "Telegram",
-                  value: user.telegram || "—"
+                  label: "Affiliate Hub Username",
+                  value: user.affiliateUsername || "—"
                 },
                 {
                   icon: <MapPin size={16} />,

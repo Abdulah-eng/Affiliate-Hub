@@ -10,55 +10,70 @@ export async function submitKycApplication(formData: FormData) {
   try {
     const rawData = Object.fromEntries(formData.entries());
     
-    // Extract files
-    const idPhoto = formData.get("idPhoto") as File | null;
-    const selfie = formData.get("selfie") as File | null;
-    
-    let idPhotoUrl = "/mock-id.png";
-    let selfieUrl = "/mock-selfie.png";
-
     // Handle File Storage
     const uploadDir = join(process.cwd(), "public", "uploads", "kyc");
-    
-    // Ensure directory exists (extra check)
     await mkdir(uploadDir, { recursive: true });
 
-    if (idPhoto && idPhoto.size > 0) {
-      const idBuffer = Buffer.from(await idPhoto.arrayBuffer());
-      const idFileName = `${Date.now()}-id-${idPhoto.name.replace(/\s+/g, "_")}`;
-      const idPath = join(uploadDir, idFileName);
-      await writeFile(idPath, idBuffer);
-      idPhotoUrl = `/uploads/kyc/${idFileName}`;
+    async function handleFileUpload(field: string, prefix: string) {
+      const file = formData.get(field) as File | null;
+      if (file && file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        const fileName = `${Date.now()}-${prefix}-${file.name.replace(/\s+/g, "_")}`;
+        const filePath = join(uploadDir, fileName);
+        await writeFile(filePath, buffer);
+        return `/uploads/kyc/${fileName}`;
+      }
+      return null;
     }
 
-    if (selfie && selfie.size > 0) {
-      const selfieBuffer = Buffer.from(await selfie.arrayBuffer());
-      const selfieFileName = `${Date.now()}-selfie-${selfie.name.replace(/\s+/g, "_")}`;
-      const selfiePath = join(uploadDir, selfieFileName);
-      await writeFile(selfiePath, selfieBuffer);
-      selfieUrl = `/uploads/kyc/${selfieFileName}`;
-    }
+    const idPhotoUrl = await handleFileUpload("idPhoto", "id-front") || "/mock-id.png";
+    const idBackUrl = await handleFileUpload("idBack", "id-back");
+    const kycSecondaryId1FrontUrl = await handleFileUpload("secondaryId1Front", "s1-front");
+    const kycSecondaryId1BackUrl = await handleFileUpload("secondaryId1Back", "s1-back");
+    const kycSecondaryId2FrontUrl = await handleFileUpload("secondaryId2Front", "s2-front");
+    const kycSecondaryId2BackUrl = await handleFileUpload("secondaryId2Back", "s2-back");
+    const selfieUrl = await handleFileUpload("selfie", "selfie") || "/mock-selfie.png";
 
-    // In a real scenario, you'd validate this with zod
-    const email = rawData.email as string;
-    const name = rawData.name as string;
-    const username = rawData.username as string;
-    const password = rawData.password as string;
-    
     // Hash password
+    const password = rawData.password as string;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the PENDING user
     const newUser = await prisma.user.create({
       data: {
-        email,
-        name,
-        username,
+        email: rawData.email as string,
+        name: `${rawData.firstName} ${rawData.lastName}`.trim(),
+        firstName: rawData.firstName as string,
+        lastName: rawData.lastName as string,
+        fbProfileName: rawData.fbProfileName as string,
+        mobileNumber: rawData.mobileNumber as string,
+        address: rawData.address as string,
+        city: rawData.city as string,
+        username: rawData.username as string,
         password: hashedPassword,
-        telegram: rawData.telegram as string,
-        location: rawData.location as string,
-        idPhotoUrl,
+        affiliateUsername: rawData.affiliateUsername as string,
+        location: rawData.location as string || rawData.city as string, 
+        referralSource: rawData.referralSource as string,
+        
+        // KYC Data
+        kycIdType: rawData.idType as string,
+        kycIdNumber: rawData.idNumber as string,
+        idPhotoUrl, // Front
+        idBackUrl,
+        
+        kycSecondaryId1Type: rawData.secondaryId1Type as string,
+        kycSecondaryId1Number: rawData.secondaryId1Number as string,
+        kycSecondaryId1FrontUrl,
+        kycSecondaryId1BackUrl,
+        
+        kycSecondaryId2Type: rawData.secondaryId2Type as string,
+        kycSecondaryId2Number: rawData.secondaryId2Number as string,
+        kycSecondaryId2FrontUrl,
+        kycSecondaryId2BackUrl,
+        
         selfieUrl,
+        agreedToTerms: rawData.agreedToTerms === "true",
+        
         role: "AGENT",
         kycStatus: "PENDING",
         kycSubmittedAt: new Date(),
@@ -66,7 +81,7 @@ export async function submitKycApplication(formData: FormData) {
       }
     });
 
-    // Handle initial requested brands mapping if needed
+    // Handle initial requested brands mapping
     const requestedBrandsStr = rawData.requestedBrands as string;
     if (requestedBrandsStr) {
       const brands = JSON.parse(requestedBrandsStr);

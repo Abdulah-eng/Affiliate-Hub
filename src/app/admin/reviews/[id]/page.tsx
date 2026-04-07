@@ -29,7 +29,7 @@ export default async function ReviewDetailPage({ params }: Props) {
         name: user.name || "",
         email: user.email || "",
         username: user.username || "",
-        telegram: user.telegram || "",
+        affiliateUsername: user.affiliateUsername || "",
         location: user.location || "",
         idPhotoUrl: user.idPhotoUrl,
         selfieUrl: user.selfieUrl,

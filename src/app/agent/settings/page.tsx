@@ -27,7 +27,7 @@ export default function AgentSettingsPage() {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    telegram: user?.telegram || "",
+    affiliateUsername: user?.affiliateUsername || "",
     location: user?.location || "",
   });
 
@@ -106,16 +106,16 @@ export default function AgentSettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
-                      Telegram Username
+                      Affiliate Hub Username
                     </label>
                     <div className="relative">
                       <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" size={16} />
                       <input
                         type="text"
-                        value={formData.telegram}
-                        onChange={(e) => setFormData({...formData, telegram: e.target.value})}
+                        value={formData.affiliateUsername}
+                        onChange={(e) => setFormData({...formData, affiliateUsername: e.target.value})}
                         className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary outline-none transition-all"
-                        placeholder="@username"
+                        placeholder="VaultUser123"
                       />
                     </div>
                   </div>

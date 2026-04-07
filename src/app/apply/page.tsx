@@ -29,38 +29,43 @@ import { cn } from "@/lib/utils";
 import { submitKycApplication } from "@/app/actions/auth";
 
 const STEPS = [
-  { id: 1, name: "Account Setup" },
-  { id: 2, name: "Select Partners" },
-  { id: 3, name: "KYC Details" },
-  { id: 4, name: "Review & Submit" }
+  { id: 1, name: "Account" },
+  { id: 2, name: "Profile" },
+  { id: 3, name: "Affiliate" },
+  { id: 4, name: "Verification" },
+  { id: 5, name: "Review" }
 ];
 
 const BRANDS = [
-  {
-    id: "WinForLife",
-    name: "WinForLife",
-    desc: "High-roller focused platform with premium retention tools and exclusive VIP events for top referrers.",
-    icon: <Building2 className="text-primary" size={32} />,
-    color: "primary",
-    perks: ["45% RevShare Base", "Monthly Milestone Bonuses"]
-  },
-  {
-    id: "BIGWIN",
-    name: "BIGWIN",
-    desc: "The fastest growing mass-market casino in the PH. Excellent conversion rates for mobile traffic.",
-    icon: <Dices className="text-secondary" size={32} />,
-    color: "secondary",
-    perks: ["50% CPA Commissions", "Local G-Cash Support"]
-  },
-  {
-    id: "Rollem",
-    name: "Rollem",
-    desc: "Gen-Z focused social gaming ecosystem. High engagement metrics and community-driven rewards.",
-    icon: <Gamepad2 className="text-tertiary" size={32} />,
-    color: "tertiary",
-    perks: ["Social Referral Engine", "Weekly Payouts"]
-  }
+  { id: "POTS", name: "Pearl Of The Seas (POTS)", status: "ACTIVE" },
+  { id: "WinForLife", name: "Win For Life", status: "ACTIVE" },
+  { id: "Rollem", name: "Rollem", status: "ACTIVE" },
+  { id: "TAMASA", name: "TAMASA", status: "ACTIVE" },
+  { id: "COW", name: "COW", status: "ACTIVE" },
+  { id: "MegaPerya", name: "Mega Perya", status: "COMING_SOON" },
+  { id: "BIGWIN", name: "BIGWIN", status: "UNAVAILABLE" },
+  { id: "SupremeGaming", name: "Supreme-Gaming", status: "UNAVAILABLE" },
+  { id: "PeryaPlay", name: "Perya Play", status: "COMING_SOON" },
 ];
+
+const PRIMARY_IDS = [
+  "PhilSys National ID", "Passport", "Driver’s License", 
+  "UMID (SSS / GSIS)", "PRC ID", "Postal ID (new version)", 
+  "Voter’s ID (older but still accepted)"
+];
+
+const SECONDARY_IDS = [
+  "PhilHealth ID", "TIN ID", "Barangay Clearance", 
+  "Police Clearance", "Company ID", "School ID", "Birth Certificate (PSA)"
+];
+
+const REFERRAL_SOURCES = [
+  "Facebook Page", "Facebook Group", "Facebook Ads / Sponsored Post",
+  "Messenger Community Chat", "Referral from a Friend / Family / Other Agent"
+];
+
+import { KycDisclaimer } from "@/components/kyc/KycDisclaimer";
+import { IdUploadField } from "@/components/kyc/IdUploadField";
 
 export default function ApplyPage() {
   const router = useRouter();
@@ -68,25 +73,53 @@ export default function ApplyPage() {
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [referralSource, setReferralSource] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Verification Logic State
+  const [verificationMode, setVerificationMode] = useState<"PRIMARY" | "SECONDARY">("PRIMARY");
 
   // Step 1: Account Setup
   const [accountData, setAccountData] = useState({
-    name: "",
     email: "",
     username: "",
     password: ""
   });
 
-  // Step 3: KYC Details
-  const [kycData, setKycData] = useState({
-    telegram: "",
-    location: "Metro Manila, PH"
+  // Step 2: Personal Details
+  const [profileData, setProfileData] = useState({
+    firstName: "",
+    lastName: "",
+    fbProfileName: "",
+    mobileNumber: "",
+    city: "",
+    address: "",
+    affiliateUsername: "",
+    location: ""
   });
-  const [idPhoto, setIdPhoto] = useState<File | null>(null);
-  const [selfie, setSelfie] = useState<File | null>(null);
+
+  // Step 4: Verification Data
+  const [kycFiles, setKycFiles] = useState<Record<string, File | null>>({
+    idPhoto: null,
+    idBack: null,
+    secondaryId1Front: null,
+    secondaryId1Back: null,
+    secondaryId2Front: null,
+    secondaryId2Back: null,
+    selfie: null
+  });
+
+  const [kycMetaData, setKycMetaData] = useState({
+    idType: "",
+    idNumber: "",
+    secondaryId1Type: "",
+    secondaryId1Number: "",
+    secondaryId2Type: "",
+    secondaryId2Number: ""
+  });
 
   const toggleBrand = (id: string) => {
     setSelectedBrands((prev) =>
@@ -94,45 +127,89 @@ export default function ApplyPage() {
     );
   };
 
+  const toggleReferral = (id: string) => {
+    setReferralSource((prev) =>
+      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
+    );
+  };
+
   const handleNext = () => {
-    if (currentStep === 1) {
-      if (!accountData.name || !accountData.email || !accountData.username || !accountData.password) {
-        setError("Please fill in all required fields.");
-        return;
-      }
-      if (accountData.password.length < 8) {
-        setError("Password must be at least 8 characters.");
-        return;
-      }
-    }
-    if (currentStep === 2 && selectedBrands.length === 0) {
-      setError("Please select at least one partner platform.");
-      return;
-    }
     setError(null);
-    setCurrentStep((prev) => Math.min(prev + 1, 4));
+    if (currentStep === 1) {
+      if (!accountData.email || !accountData.username || !accountData.password) {
+        setError("Account credentials are required.");
+        return;
+      }
+    }
+    if (currentStep === 2) {
+      if (!profileData.firstName || !profileData.lastName || !profileData.mobileNumber || !profileData.city || !profileData.affiliateUsername) {
+        setError("Profile details and Affiliate Hub Username are required.");
+        return;
+      }
+    }
+    if (currentStep === 3) {
+      if (selectedBrands.length === 0) {
+        setError("Please select at least one affiliate program.");
+        return;
+      }
+    }
+    if (currentStep === 4) {
+      if (verificationMode === "PRIMARY") {
+        if (!kycMetaData.idType) { setError("Please select a Primary ID Type."); return; }
+        if (!kycMetaData.idNumber) { setError("Please enter your Primary ID Number."); return; }
+        if (!kycFiles.idPhoto) { setError("Please upload the Front view of your ID."); return; }
+        if (!kycFiles.selfie) { setError("A Selfie with your ID is required for verification."); return; }
+      } else {
+        if (!kycMetaData.secondaryId1Type || !kycFiles.secondaryId1Front) { setError("The first Secondary ID and its photo are required."); return; }
+        if (!kycMetaData.secondaryId2Type || !kycFiles.secondaryId2Front) { setError("The second Secondary ID and its photo are required."); return; }
+        if (!kycFiles.selfie) { setError("A Selfie with your ID is required for verification."); return; }
+      }
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, 5));
   };
 
   const handleSubmit = () => {
-    setError(null);
+    if (!agreedToTerms) {
+      setError("You must agree to the KYC verification terms.");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("name", accountData.name);
+    // Step 1
     formData.append("email", accountData.email);
     formData.append("username", accountData.username);
     formData.append("password", accountData.password);
-    formData.append("telegram", kycData.telegram);
-    formData.append("location", kycData.location);
-    if (idPhoto) formData.append("idPhoto", idPhoto);
-    if (selfie) formData.append("selfie", selfie);
+    
+    // Step 2
+    Object.entries(profileData).forEach(([key, val]) => formData.append(key, val));
+    
+    // Step 3
     formData.append("requestedBrands", JSON.stringify(selectedBrands));
+    formData.append("referralSource", JSON.stringify(referralSource));
+    
+    // Step 4
+    formData.append("verificationMode", verificationMode);
+    formData.append("idType", kycMetaData.idType);
+    formData.append("idNumber", kycMetaData.idNumber);
+    formData.append("secondaryId1Type", kycMetaData.secondaryId1Type);
+    formData.append("secondaryId1Number", kycMetaData.secondaryId1Number);
+    formData.append("secondaryId2Type", kycMetaData.secondaryId2Type);
+    formData.append("secondaryId2Number", kycMetaData.secondaryId2Number);
+    
+    // Files
+    Object.entries(kycFiles).forEach(([key, file]) => {
+      if (file) formData.append(key, file);
+    });
+
+    formData.append("agreedToTerms", "true");
 
     startTransition(async () => {
       const result = await submitKycApplication(formData);
       if (result.success) {
         setSuccess(true);
-        setTimeout(() => router.push("/login"), 3000);
+        setTimeout(() => router.push("/login"), 5000);
       } else {
-        setError(result.error || "Submission failed. Please try again.");
+        setError(result.error || "Submission failed.");
       }
     });
   };
@@ -145,11 +222,11 @@ export default function ApplyPage() {
             <CheckCircle2 size={48} className="text-emerald-400" />
           </div>
           <h1 className="text-4xl font-black font-headline text-on-surface">
-            Application <span className="text-emerald-400">Submitted!</span>
+            Application <span className="text-emerald-400">Success!</span>
           </h1>
           <p className="text-on-surface-variant max-w-md mx-auto">
-            Your KYC application is now under review. Our CSR team will verify
-            your details within 24–48 hours. Redirecting to login...
+            Your comprehensive KYC application is being processed. 
+            Verification takes 24–48 hours. Redirecting to login...
           </p>
         </div>
       </div>
@@ -164,10 +241,7 @@ export default function ApplyPage() {
             Affiliate Hub PH
           </span>
         </Link>
-        <Link
-          href="/login"
-          className="text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
-        >
+        <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
           Already Applied? Login
         </Link>
       </header>
@@ -196,12 +270,7 @@ export default function ApplyPage() {
                 >
                   {currentStep > step.id ? <Check size={18} /> : step.id}
                 </div>
-                <span
-                  className={cn(
-                    "text-xs font-medium font-headline tracking-wide transition-colors",
-                    currentStep >= step.id ? "text-primary" : "text-on-surface-variant"
-                  )}
-                >
+                <span className={cn("text-[10px] font-bold font-headline uppercase tracking-widest transition-colors", currentStep >= step.id ? "text-primary" : "text-on-surface-variant")}>
                   {step.name}
                 </span>
               </div>
@@ -209,435 +278,441 @@ export default function ApplyPage() {
           </div>
         </div>
 
-        {/* Error Banner */}
         {error && (
-          <div className="max-w-4xl mx-auto mb-8 flex items-center gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium">
-            <AlertCircle size={16} className="shrink-0" />
+          <div className="max-w-4xl mx-auto mb-8 flex items-center gap-3 px-6 py-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium animate-shake">
+            <AlertCircle size={18} className="shrink-0" />
             {error}
           </div>
         )}
 
-        {/* Step 1: Account Setup */}
-        {currentStep === 1 && (
-          <section className="max-w-2xl mx-auto animate-vapor space-y-8">
-            <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-extrabold font-headline tracking-tight text-on-surface mb-3">
-                Create Your Vault Account
-              </h1>
-              <p className="text-on-surface-variant leading-relaxed">
-                This will be your login to the Affiliate Hub PH platform.
-              </p>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                Full Name
-              </label>
-              <input
-                type="text"
-                value={accountData.name}
-                onChange={(e) => setAccountData((d) => ({ ...d, name: e.target.value }))}
-                className="w-full bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline text-on-surface"
-                placeholder="Juan Dela Cruz"
-              />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={accountData.email}
-                  onChange={(e) => setAccountData((d) => ({ ...d, email: e.target.value }))}
-                  className="w-full bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline text-on-surface"
-                  placeholder="juan@vault.ph"
-                />
+        {/* Dynamic Step Content */}
+        <div className="max-w-4xl mx-auto">
+          {/* Step 1: Account Setup */}
+          {currentStep === 1 && (
+            <div className="animate-vapor space-y-8">
+              <div>
+                <h1 className="text-3xl font-black font-headline text-on-surface mb-2">Initialize Your Account</h1>
+                <p className="text-on-surface-variant">Step 1: Set your primary login credentials.</p>
               </div>
-              <div className="space-y-2">
-                <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={accountData.username}
-                  onChange={(e) => setAccountData((d) => ({ ...d, username: e.target.value }))}
-                  className="w-full bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline text-on-surface"
-                  placeholder="VaultMaster77"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={accountData.password}
-                  onChange={(e) => setAccountData((d) => ({ ...d, password: e.target.value }))}
-                  className="w-full bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline text-on-surface font-mono"
-                  placeholder="Min. 8 characters"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Step 2: Brand Selection */}
-        {currentStep === 2 && (
-          <section className="animate-vapor">
-            <div className="mb-12 text-center">
-              <h1 className="text-3xl md:text-5xl font-extrabold font-headline tracking-tight text-on-surface mb-4">
-                Choose Your Alliance
-              </h1>
-              <p className="text-on-surface-variant max-w-lg mx-auto text-lg leading-relaxed">
-                Select the brands you wish to promote. Multi-select to maximize
-                your earning potential.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {BRANDS.map((brand) => (
-                <div
-                  key={brand.id}
-                  onClick={() => toggleBrand(brand.id)}
-                  className={cn(
-                    "glass-panel p-8 rounded-xl relative group cursor-pointer transition-all duration-500 border-2",
-                    selectedBrands.includes(brand.id)
-                      ? "border-primary/40 ring-1 ring-primary/20 bg-primary/5"
-                      : "border-transparent hover:border-primary/20 hover:bg-surface-container-low"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
-                      selectedBrands.includes(brand.id)
-                        ? "border-primary bg-primary text-background scale-110"
-                        : "border-outline-variant"
-                    )}
-                  >
-                    {selectedBrands.includes(brand.id) && (
-                      <Check size={14} strokeWidth={4} />
-                    )}
-                  </div>
-                  <div
-                    className={cn(
-                      "mb-6 h-14 w-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 duration-500",
-                      brand.color === "primary"
-                        ? "bg-primary/10"
-                        : brand.color === "secondary"
-                        ? "bg-secondary/10"
-                        : "bg-tertiary/10"
-                    )}
-                  >
-                    {brand.icon}
-                  </div>
-                  <h3 className="text-2xl font-bold font-headline mb-3 text-on-surface">
-                    {brand.name}
-                  </h3>
-                  <p className="text-sm text-on-surface-variant mb-6 leading-relaxed">
-                    {brand.desc}
-                  </p>
-                  <ul className="space-y-3">
-                    {brand.perks.map((perk, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-center gap-3 text-sm font-medium text-primary"
-                      >
-                        {idx === 0 ? <Star size={14} /> : <TrendingUp size={14} />}
-                        {perk}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Step 3: KYC Details */}
-        {currentStep === 3 && (
-          <section className="max-w-4xl mx-auto animate-vapor">
-            <div className="mb-12">
-              <h2 className="text-3xl font-bold font-headline text-on-surface mb-3">
-                Vault Verification
-              </h2>
-              <p className="text-on-surface-variant text-lg">
-                Provide your contact info and upload your identity documents.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                    Telegram Handle
-                  </label>
+                  <label className="text-[10px] font-bold text-primary uppercase tracking-widest">Email Address</label>
+                  <input
+                    type="email"
+                    value={accountData.email}
+                    onChange={(e) => setAccountData(d => ({...d, email: e.target.value}))}
+                    className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant focus:border-primary outline-none transition-all text-on-surface"
+                    placeholder="name@email.com"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-primary uppercase tracking-widest">Username</label>
                   <input
                     type="text"
-                    value={kycData.telegram}
-                    onChange={(e) => setKycData((d) => ({ ...d, telegram: e.target.value }))}
-                    className="w-full bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline text-on-surface"
-                    placeholder="@juan_affiliate"
+                    value={accountData.username}
+                    onChange={(e) => setAccountData(d => ({...d, username: e.target.value}))}
+                    className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant focus:border-primary outline-none transition-all text-on-surface"
+                    placeholder="VaultUser123"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                    Location
-                  </label>
-                  <select
-                    value={kycData.location}
-                    onChange={(e) => setKycData((d) => ({ ...d, location: e.target.value }))}
-                    className="w-full bg-surface-container-low px-6 py-4 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-on-surface appearance-none"
-                  >
-                    <option>Metro Manila, PH</option>
-                    <option>Cebu City, PH</option>
-                    <option>Davao City, PH</option>
-                    <option>Other</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-8">
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                    Government Issued ID
-                  </label>
-                  <input 
-                    type="file" 
-                    id="id-upload" 
-                    className="hidden" 
-                    accept="image/*,.pdf"
-                    onChange={(e) => setIdPhoto(e.target.files?.[0] || null)}
-                  />
-                  <div 
-                    onClick={() => document.getElementById('id-upload')?.click()}
-                    className={cn(
-                      "border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer group",
-                      idPhoto ? "border-primary bg-primary/5" : "border-outline-variant bg-surface-container-low/50 hover:bg-surface-container-high hover:border-primary/50"
-                    )}
-                  >
-                    <UploadCloud
-                      className={cn(
-                        "mb-4 transition-colors",
-                        idPhoto ? "text-primary" : "text-on-surface-variant group-hover:text-primary"
-                      )}
-                      size={40}
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] font-bold text-primary uppercase tracking-widest">Create Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={accountData.password}
+                      onChange={(e) => setAccountData(d => ({...d, password: e.target.value}))}
+                      className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant focus:border-primary outline-none transition-all text-on-surface"
                     />
-                    <span className="text-sm font-bold text-on-surface mb-1 text-center">
-                      {idPhoto ? idPhoto.name : "Click to upload or drag & drop"}
-                    </span>
-                    <span className="text-xs text-on-surface-variant">
-                      PNG, JPG or PDF (Max 10MB)
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold font-headline text-primary uppercase tracking-[0.2em]">
-                    Selfie with ID
-                  </label>
-                  <input 
-                    type="file" 
-                    id="selfie-upload" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={(e) => setSelfie(e.target.files?.[0] || null)}
-                  />
-                  <div 
-                    onClick={() => document.getElementById('selfie-upload')?.click()}
-                    className={cn(
-                      "border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer group",
-                      selfie ? "border-primary bg-primary/5" : "border-outline-variant bg-surface-container-low/50 hover:bg-surface-container-high hover:border-primary/50"
-                    )}
-                  >
-                    <Camera
-                      className={cn(
-                        "mb-4 transition-colors",
-                        selfie ? "text-primary" : "text-on-surface-variant group-hover:text-primary"
-                      )}
-                      size={40}
-                    />
-                    <span className="text-sm font-bold text-on-surface mb-1 text-center">
-                      {selfie ? selfie.name : "Capture or Upload Selfie"}
-                    </span>
-                    <span className="text-xs text-on-surface-variant">
-                      Face and ID must be clearly visible
-                    </span>
+                    <button onClick={() => setShowPassword(!showPassword)} className="absolute right-6 top-1/2 -translate-y-1/2 text-on-surface-variant">
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          </section>
-        )}
+          )}
 
-        {/* Step 4: Review & Submit */}
-        {currentStep === 4 && (
-          <section className="max-w-3xl mx-auto animate-vapor space-y-8">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold font-headline text-on-surface mb-3">
-                Review & Confirm
-              </h2>
-              <p className="text-on-surface-variant">
-                Please review your application before submitting.
-              </p>
-            </div>
-            <GlassCard className="p-8 space-y-6 divide-y divide-white/5">
+          {/* Step 2: Personal Details */}
+          {currentStep === 2 && (
+            <div className="animate-vapor space-y-8">
               <div>
-                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">
-                  Account Details
-                </p>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-on-surface-variant">Name</span>
-                    <p className="font-bold text-on-surface">{accountData.name || "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-on-surface-variant">Email</span>
-                    <p className="font-bold text-on-surface">{accountData.email || "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-on-surface-variant">Username</span>
-                    <p className="font-bold text-on-surface">{accountData.username || "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-on-surface-variant">Telegram</span>
-                    <p className="font-bold text-on-surface">{kycData.telegram || "—"}</p>
-                  </div>
-                  <div>
-                    <span className="text-on-surface-variant">Location</span>
-                    <p className="font-bold text-on-surface">{kycData.location}</p>
-                  </div>
-                  <div className="col-span-2 space-y-1">
-                    <span className="text-on-surface-variant">Documents</span>
-                    <div className="flex gap-4">
-                      {idPhoto && (
-                        <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded">ID: {idPhoto.name}</span>
+                <h1 className="text-3xl font-black font-headline text-on-surface mb-2">Profile Information</h1>
+                <p className="text-on-surface-variant">Step 2: Tell us more about yourself for faster approval.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input
+                  type="text"
+                  placeholder="First Name *"
+                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                  value={profileData.firstName}
+                  onChange={(e) => setProfileData(d => ({...d, firstName: e.target.value}))}
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name *"
+                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                  value={profileData.lastName}
+                  onChange={(e) => setProfileData(d => ({...d, lastName: e.target.value}))}
+                />
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] ml-2">Affiliate Hub Username *</label>
+                  <input
+                    type="text"
+                    placeholder="VaultUser123"
+                    className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none focus:border-primary transition-all shadow-inner"
+                    value={profileData.affiliateUsername}
+                    onChange={(e) => setProfileData(d => ({...d, affiliateUsername: e.target.value}))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] ml-2">Mobile Number *</label>
+                  <input
+                    type="text"
+                    placeholder="0917XXXXXXX"
+                    className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none focus:border-primary"
+                    value={profileData.mobileNumber}
+                    onChange={(e) => setProfileData(d => ({...d, mobileNumber: e.target.value}))}
+                  />
+                </div>
+
+                <input
+                  type="text"
+                  placeholder="Facebook Profile Name *"
+                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none md:col-span-2"
+                  value={profileData.fbProfileName}
+                  onChange={(e) => setProfileData(d => ({...d, fbProfileName: e.target.value}))}
+                />
+                <input
+                  type="text"
+                  placeholder="City (e.g., Cebu, Davao, Quezon City) *"
+                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                  value={profileData.city}
+                  onChange={(e) => setProfileData(d => ({...d, city: e.target.value}))}
+                />
+                <input
+                  type="text"
+                  placeholder="Location / Region *"
+                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                  value={profileData.location}
+                  onChange={(e) => setProfileData(d => ({...d, location: e.target.value}))}
+                />
+                <textarea
+                  placeholder="Full Address"
+                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none md:col-span-2 min-h-[100px]"
+                  value={profileData.address}
+                  onChange={(e) => setProfileData(d => ({...d, address: e.target.value}))}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Affiliate & Referral */}
+          {currentStep === 3 && (
+            <div className="animate-vapor space-y-12">
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold font-headline text-primary border-l-4 border-primary pl-4 uppercase tracking-widest">
+                  Affiliate Programs
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {BRANDS.map(brand => (
+                    <div
+                      key={brand.id}
+                      onClick={() => brand.status === "ACTIVE" && toggleBrand(brand.name)}
+                      className={cn(
+                        "p-6 rounded-2xl border-2 transition-all cursor-pointer group flex items-start gap-4",
+                        selectedBrands.includes(brand.name) 
+                          ? "bg-primary/10 border-primary" 
+                          : "bg-surface-container-low border-outline-variant hover:border-primary/40",
+                        brand.status !== "ACTIVE" && "opacity-50 grayscale cursor-not-allowed"
                       )}
-                      {selfie && (
-                        <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-1 rounded">Selfie: {selfie.name}</span>
+                    >
+                      <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 mt-1", selectedBrands.includes(brand.name) ? "bg-primary border-primary text-background" : "border-outline-variant")}>
+                        {selectedBrands.includes(brand.name) && <Check size={14} strokeWidth={4} />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-on-surface">{brand.name}</p>
+                        {brand.status !== "ACTIVE" && <p className="text-[10px] text-red-500 font-black uppercase mt-1 tracking-tighter">{brand.status.replace("_", " ")}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <h2 className="text-xl font-bold font-headline text-secondary border-l-4 border-secondary pl-4 uppercase tracking-widest">
+                  Where did you hear about us?
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {REFERRAL_SOURCES.map(source => (
+                    <div
+                      key={source}
+                      onClick={() => toggleReferral(source)}
+                      className={cn(
+                        "p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4",
+                        referralSource.includes(source) 
+                          ? "bg-secondary/10 border-secondary" 
+                          : "bg-surface-container-low border-outline-variant hover:border-secondary/40"
                       )}
+                    >
+                      <div className={cn("w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0", referralSource.includes(source) ? "bg-secondary border-secondary text-background" : "border-outline-variant")}>
+                        {referralSource.includes(source) && <Check size={12} strokeWidth={4} />}
+                      </div>
+                      <p className="text-sm font-medium text-on-surface-variant">{source}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Verification */}
+          {currentStep === 4 && (
+            <div className="animate-vapor space-y-12">
+              <div className="flex flex-col md:flex-row gap-6 p-2 rounded-3xl bg-surface-container-low border border-outline-variant">
+                <button
+                  onClick={() => setVerificationMode("PRIMARY")}
+                  className={cn(
+                    "flex-1 py-4 rounded-2xl font-black font-headline uppercase tracking-widest transition-all",
+                    verificationMode === "PRIMARY" ? "bg-primary text-background shadow-lg" : "text-on-surface-variant hover:bg-surface-container-high"
+                  )}
+                >
+                  Primary ID
+                </button>
+                <button
+                  onClick={() => setVerificationMode("SECONDARY")}
+                  className={cn(
+                    "flex-1 py-4 rounded-2xl font-black font-headline uppercase tracking-widest transition-all",
+                    verificationMode === "SECONDARY" ? "bg-secondary text-background shadow-lg" : "text-on-surface-variant hover:bg-surface-container-high"
+                  )}
+                >
+                  Two Secondary IDs
+                </button>
+              </div>
+
+              {verificationMode === "PRIMARY" ? (
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-primary uppercase">ID Type</label>
+                      <select
+                        className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                        value={kycMetaData.idType}
+                        onChange={(e) => setKycMetaData(d => ({...d, idType: e.target.value}))}
+                      >
+                        <option value="">Select Primary ID *</option>
+                        {PRIMARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold text-primary uppercase">ID Number</label>
+                      <input
+                        type="text"
+                        placeholder="Enter ID Number *"
+                        className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                        value={kycMetaData.idNumber}
+                        onChange={(e) => setKycMetaData(d => ({...d, idNumber: e.target.value}))}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <IdUploadField 
+                      label="ID Front View" 
+                      side="FRONT" 
+                      required
+                      onFileSelect={(file) => setKycFiles(d => ({...d, idPhoto: file}))} 
+                    />
+                    <IdUploadField 
+                      label="ID Back View" 
+                      side="BACK" 
+                      onFileSelect={(file) => setKycFiles(d => ({...d, idBack: file}))} 
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-12">
+                  <div className="p-8 rounded-3xl border-2 border-dashed border-secondary/20 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <select
+                        className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                        value={kycMetaData.secondaryId1Type}
+                        onChange={(e) => setKycMetaData(d => ({...d, secondaryId1Type: e.target.value}))}
+                      >
+                        <option value="">First Secondary ID *</option>
+                        {SECONDARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="First ID Number"
+                        className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                        value={kycMetaData.secondaryId1Number}
+                        onChange={(e) => setKycMetaData(d => ({...d, secondaryId1Number: e.target.value}))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <IdUploadField label="ID 1 Front" side="FRONT" required onFileSelect={(file) => setKycFiles(d => ({...d, secondaryId1Front: file}))} />
+                      <IdUploadField label="ID 1 Back" side="BACK" onFileSelect={(file) => setKycFiles(d => ({...d, secondaryId1Back: file}))} />
+                    </div>
+                  </div>
+
+                  <div className="p-8 rounded-3xl border-2 border-dashed border-tertiary/20 space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <select
+                        className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                        value={kycMetaData.secondaryId2Type}
+                        onChange={(e) => setKycMetaData(d => ({...d, secondaryId2Type: e.target.value}))}
+                      >
+                        <option value="">Second Secondary ID *</option>
+                        {SECONDARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Second ID Number"
+                        className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none"
+                        value={kycMetaData.secondaryId2Number}
+                        onChange={(e) => setKycMetaData(d => ({...d, secondaryId2Number: e.target.value}))}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <IdUploadField label="ID 2 Front" side="FRONT" required onFileSelect={(file) => setKycFiles(d => ({...d, secondaryId2Front: file}))} />
+                      <IdUploadField label="ID 2 Back" side="BACK" onFileSelect={(file) => setKycFiles(d => ({...d, secondaryId2Back: file}))} />
                     </div>
                   </div>
                 </div>
+              )}
+
+              <div className="pt-8 border-t border-outline-variant">
+                <IdUploadField 
+                  label="Selfie with ID (Keep your face and ID visible) *" 
+                  side="SELFIE" 
+                  required
+                  onFileSelect={(file) => setKycFiles(d => ({...d, selfie: file}))} 
+                />
               </div>
-              <div className="pt-6">
-                <p className="text-xs font-bold text-primary uppercase tracking-widest mb-4">
-                  Selected Platforms ({selectedBrands.length})
-                </p>
-                {selectedBrands.length === 0 ? (
-                  <p className="text-on-surface-variant text-sm">No platforms selected.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-3">
-                    {selectedBrands.map((b) => (
-                      <span
-                        key={b}
-                        className="px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-primary/10 text-primary border border-primary/20"
-                      >
+            </div>
+          )}
+
+          {/* Step 5: Review & Disclaimer */}
+          {currentStep === 5 && (
+            <div className="animate-vapor space-y-12 pb-12">
+              <div>
+                <h1 className="text-3xl font-black font-headline text-on-surface mb-2">Final Review & Consent</h1>
+                <p className="text-on-surface-variant">Step 5: Review your data and agree to verification terms.</p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <GlassCard className="p-8 space-y-6">
+                  <h3 className="text-[10px] font-black uppercase text-primary tracking-[0.3em]">Identity Summary</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-on-surface-variant uppercase">Full Name</p>
+                      <p className="font-bold text-on-surface text-lg">{profileData.firstName} {profileData.lastName}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-on-surface-variant uppercase">Facebook Name</p>
+                      <p className="font-medium text-on-surface">{profileData.fbProfileName}</p>
+                    </div>
+                    <div className="flex gap-12">
+                      <div>
+                        <p className="text-[10px] font-bold text-on-surface-variant uppercase">Mobile</p>
+                        <p className="font-medium text-on-surface">{profileData.mobileNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-on-surface-variant uppercase">City</p>
+                        <p className="font-medium text-on-surface">{profileData.city}</p>
+                      </div>
+                    </div>
+                  </div>
+                </GlassCard>
+
+                <GlassCard className="p-8 space-y-6">
+                  <h3 className="text-[10px] font-black uppercase text-secondary tracking-[0.3em]">Programs Selection</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedBrands.map(b => (
+                      <span key={b} className="px-3 py-1.5 rounded-lg bg-secondary/10 border border-secondary/20 text-[10px] font-black text-secondary tracking-wider">
                         {b}
                       </span>
                     ))}
                   </div>
-                )}
+                </GlassCard>
               </div>
-            </GlassCard>
-            <p className="text-xs text-on-surface-variant text-center">
-              By submitting, you agree to our Terms of Service. Your application
-              will be reviewed by our CSR team within 24–48 hours.
-            </p>
-          </section>
-        )}
 
-        {/* Navigation */}
-        <div className="mt-20 flex flex-col md:flex-row items-center justify-between gap-8 pt-12 border-t border-outline-variant/20 max-w-4xl mx-auto">
-          <div />
-          <div className="flex items-center gap-6">
-            {currentStep > 1 && (
+              <KycDisclaimer />
+
+              <div 
+                onClick={() => setAgreedToTerms(!agreedToTerms)}
+                className={cn(
+                  "p-8 rounded-3xl border-2 transition-all cursor-pointer flex items-center gap-6 group",
+                  agreedToTerms ? "bg-emerald-500/10 border-emerald-500" : "bg-surface-container-low border-outline-variant hover:border-emerald-500/40"
+                )}
+              >
+                <div className={cn("w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors", agreedToTerms ? "bg-emerald-500 border-emerald-500 text-background" : "border-outline-variant group-hover:border-emerald-500")}>
+                  {agreedToTerms && <Check size={20} strokeWidth={4} />}
+                </div>
+                <p className="text-sm font-bold text-on-surface leading-snug">
+                  “I confirm that all information provided is accurate and I agree to Affiliate Hub PH’s KYC verification and data privacy terms.”
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="mt-16 flex items-center justify-between pt-12 border-t border-outline-variant/30">
+            {currentStep > 1 ? (
               <button
-                onClick={() => {
-                  setError(null);
-                  setCurrentStep((prev) => prev - 1);
-                }}
-                className="px-10 py-4 rounded-full text-on-surface-variant font-bold hover:text-on-surface transition-all flex items-center gap-2"
+                onClick={() => { setError(null); setCurrentStep((prev) => prev - 1); }}
+                className="flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-on-surface-variant hover:text-on-surface transition-all"
               >
                 <ChevronLeft size={20} /> Back
               </button>
-            )}
-            {currentStep < 4 ? (
+            ) : <div />}
+            
+            {currentStep < 5 ? (
               <button
                 onClick={handleNext}
-                className="px-12 py-5 rounded-full bg-primary text-background font-black font-headline tracking-wide shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                className="px-12 py-5 rounded-2xl bg-primary text-background font-black font-headline tracking-widest shadow-[0_0_40px_rgba(129,236,255,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3"
               >
-                Continue <ChevronRight size={20} />
+                Continue <ChevronRight size={22} />
               </button>
             ) : (
               <button
                 onClick={handleSubmit}
                 disabled={isPending}
-                className="px-12 py-5 rounded-full bg-primary text-background font-black font-headline tracking-wide shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                className="px-16 py-5 rounded-2xl bg-primary text-background font-black font-headline tracking-widest shadow-[0_0_50px_rgba(129,236,255,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 disabled:opacity-50"
               >
-                {isPending ? (
-                  <>
-                    <Loader2 size={20} className="animate-spin" />
-                    SUBMITTING...
-                  </>
-                ) : (
-                  <>
-                    SUBMIT APPLICATION <Send size={20} />
-                  </>
-                )}
+                {isPending ? <Loader2 className="animate-spin" /> : <Send size={22} />}
+                {isPending ? "PROCESSING..." : "SUBMIT APPLICATION"}
               </button>
             )}
           </div>
         </div>
       </main>
 
-      {/* Floating Help */}
-      <aside className="fixed right-12 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6 animate-vapor">
-        <GlassCard className="p-6 w-64 neon-glow-primary">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary ring-1 ring-primary/20">
+      {/* Floating Support Card */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <GlassCard className="p-6 w-72 neon-glow-primary border-primary/20 backdrop-blur-2xl">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary shadow-[0_0_15px_rgba(129,236,255,0.4)]">
               <Users size={24} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase text-primary tracking-widest">
-                Support Agent
-              </p>
+              <p className="text-[10px] font-black uppercase text-primary tracking-[0.2em]">Support Agent</p>
               <p className="text-sm font-bold text-on-surface">Aileen Santos</p>
             </div>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center gap-3 text-xs text-on-surface-variant">
-              <ShieldCheck size={14} className="text-primary" />
-              Response time: &lt; 5 mins
+            <div className="flex items-center gap-3 text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+              Response: &lt; 5 mins
             </div>
-            <button className="w-full py-3 bg-surface-container-high hover:bg-primary hover:text-background rounded-xl text-xs font-black tracking-widest uppercase transition-all duration-300 flex items-center justify-center gap-2">
-              <Send size={14} /> Telegram Help
+            <button className="w-full py-4 bg-primary text-background rounded-xl text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-[1.02]">
+              <MessageSquare size={16} /> System Support Chat
             </button>
           </div>
         </GlassCard>
-        <GlassCard className="p-6 w-64 border-secondary/20">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center text-secondary">
-              <MessageSquare size={18} />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-secondary uppercase tracking-widest">
-                Live Chat
-              </p>
-              <p className="text-xs font-medium text-on-surface-variant">
-                System Status:{" "}
-                <span className="text-green-400">Optimal</span>
-              </p>
-            </div>
-          </div>
-        </GlassCard>
-      </aside>
-
-      <div className="fixed bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-tertiary opacity-30"></div>
+      </div>
     </div>
   );
 }

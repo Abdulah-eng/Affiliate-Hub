@@ -1,10 +1,10 @@
-﻿"use server";
+"use server";
 
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 
-export async function updateAgentProfile(data: { name: string, telegram: string, location: string }) {
+export async function updateAgentProfile(data: { name: string, affiliateUsername: string, location: string }) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user) return { success: false, error: "Unauthorized" };
 
@@ -13,7 +13,7 @@ export async function updateAgentProfile(data: { name: string, telegram: string,
       where: { id: session.user.id },
       data: {
         name: data.name,
-        telegram: data.telegram,
+        affiliateUsername: data.affiliateUsername,
         location: data.location,
       }
     });

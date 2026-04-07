@@ -34,16 +34,44 @@ model User {
   username      String?   @unique
   password      String?
   
+  // Profile Details
+  firstName     String?
+  lastName      String?
+  fbProfileName String?
+  mobileNumber  String?
+  address       String?
+  city          String?
+  affiliateUsername String?
+  location      String?
+  referralSource String?
+
   // KYC Info
   kycStatus     KycStatus @default(PENDING)
   kycSubmittedAt DateTime?
   kycReviewedAt  DateTime?
   kycNotes      String?
   
-  telegram      String?
-  location      String?
-  idPhotoUrl    String?
-  selfieUrl     String?
+  // Primary ID
+  kycIdType     String?
+  kycIdNumber   String?
+  idPhotoUrl    String?   // Serving as Front URL for backwards compatibility
+  idBackUrl     String?
+  
+  // Secondary ID 1
+  kycSecondaryId1Type     String?
+  kycSecondaryId1Number   String?
+  kycSecondaryId1FrontUrl String?
+  kycSecondaryId1BackUrl  String?
+
+  // Secondary ID 2
+  kycSecondaryId2Type     String?
+  kycSecondaryId2Number   String?
+  kycSecondaryId2FrontUrl String?
+  kycSecondaryId2BackUrl  String?
+
+  // Selfie
+  selfieUrl     String?   // Selfie with ID
+  agreedToTerms Boolean   @default(false)
 
   referralCode  String?   @unique
   referrerId    String?

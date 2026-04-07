@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   Users,
-  MessageSquare
+  MessageSquare,
+  Layout
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -96,6 +97,11 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
               </div>
             </div>
             
+            {role === 'ADMIN' && (
+              <Link href="/admin/cms" className="flex items-center gap-3 px-6 py-3 rounded-full text-secondary hover:text-white transition-all text-xs font-bold uppercase tracking-widest bg-secondary/5 border border-secondary/10">
+                <Layout className="text-secondary" size={18} /> Frontend CMS
+              </Link>
+            )}
             <Link href="/agent/settings" className="flex items-center gap-3 px-6 py-3 rounded-full text-on-surface-variant hover:text-on-surface transition-all text-xs font-bold uppercase tracking-widest">
               <Settings size={18} /> Settings
             </Link>
