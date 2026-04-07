@@ -55,6 +55,8 @@ jobs:
           username: ${{ secrets.HOSTINGER_VPS_USERNAME }}
           key: ${{ secrets.HOSTINGER_VPS_SSH_KEY }}
           port: ${{ secrets.HOSTINGER_VPS_PORT || 22 }}
+          timeout: 60s
+          command_timeout: 10m
           script: |
             # Navigate to your project directory. Change this to the actual path on your VPS (e.g. /var/www/Affiliate-Hub)
             cd /root/Affiliate-Hub
