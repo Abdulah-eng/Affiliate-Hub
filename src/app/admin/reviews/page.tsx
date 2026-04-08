@@ -12,6 +12,8 @@ import {
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ReviewListPage() {
   // Fetch all KYC applicants from the database
   const [pending, approved24h, all] = await Promise.all([

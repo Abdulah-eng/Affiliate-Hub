@@ -58,7 +58,7 @@ export async function reviewApplication(
       }
     });
 
-    revalidatePath("/admin/review");
+    revalidatePath("/admin/reviews");
     revalidatePath("/admin/reviews/history");
     return { success: true };
   } catch (error) {
