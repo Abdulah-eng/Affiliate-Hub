@@ -12,7 +12,9 @@ import {
   X,
   Users,
   MessageSquare,
-  Layout
+  Layout,
+  Bomb,
+  Swords
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -32,6 +34,8 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
     { name: 'Referrals', icon: <Users size={20} />, href: '/agent/referrals' },
     { name: 'Nexus Feed', icon: <MessageSquare size={20} />, href: '/agent/chat' },
     { name: 'Raffle Arena', icon: <Trophy size={20} />, href: '/agent/raffle' },
+    { name: 'Mines Arena', icon: <Bomb size={20} />, href: '/agent/mines' },
+    { name: 'Kinetic Duels', icon: <Swords size={20} />, href: '/agent/duels' },
   ];
 
   return (

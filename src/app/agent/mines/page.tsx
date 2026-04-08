@@ -1,11 +1,11 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
-import { RaffleArenaClient } from "./RaffleArenaClient";
+import { MinesClient } from "./MinesClient";
 import { getAgentWallet } from "@/app/actions/wallet";
 
 export const dynamic = "force-dynamic";
 
-export default async function RaffleArenaPage() {
+export default async function MinesPage() {
   const session = await getServerSession(authOptions);
   
   if (!session || !session.user) {
@@ -14,12 +14,10 @@ export default async function RaffleArenaPage() {
 
   const wallet = await getAgentWallet();
   const userPoints = wallet?.totalPoints || 0;
-  const userTickets = Math.floor(userPoints / 1000);
 
   return (
-    <RaffleArenaClient 
-      userPoints={userPoints} 
-      userTickets={userTickets} 
-    />
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+      <MinesClient userPoints={userPoints} />
+    </div>
   );
 }

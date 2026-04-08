@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { ShieldCheck, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,8 @@ interface KycDisclaimerProps {
 }
 
 export function KycDisclaimer({ className }: KycDisclaimerProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <div className={cn("space-y-6", className)}>
       <div className="flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
@@ -28,7 +30,10 @@ export function KycDisclaimer({ className }: KycDisclaimerProps) {
           <Info size={120} />
         </div>
         
-        <div className="relative space-y-4 text-sm leading-relaxed text-on-surface-variant">
+        <div className={cn(
+          "relative space-y-4 text-sm leading-relaxed text-on-surface-variant transition-all duration-300",
+          !isExpanded && "line-clamp-3 overflow-hidden"
+        )}>
           <p>
             By submitting your information through this Know Your Customer (KYC) form, you agree to the following terms:
           </p>
@@ -53,6 +58,13 @@ export function KycDisclaimer({ className }: KycDisclaimerProps) {
             </li>
           </ul>
         </div>
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="relative z-10 mt-2 text-primary font-bold text-xs uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1"
+        >
+          {isExpanded ? "Show Less" : "Read More"}
+        </button>
       </div>
 
       <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/30">

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import { 
   RotateCw, 
@@ -12,10 +10,13 @@ import {
   ChevronRight,
   Star,
   ShieldCheck,
-  Loader2
+  Loader2,
+  CheckCircle2,
+  XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { spinStandardRaffle, spinGrandRaffle } from "@/app/actions/raffle";
 
 const WINNERS = [
   { name: 'User123', prize: '10,000 GCASH!', color: 'text-primary' },
@@ -27,25 +28,97 @@ const WINNERS = [
 
 export function RaffleArenaClient({ userPoints, userTickets }: { userPoints: number, userTickets: number }) {
   const [isSpinning, setIsSpinning] = useState(false);
+  const [isGrandSpinning, setIsGrandSpinning] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [grandResult, setGrandResult] = useState<string | null>(null);
+  const [standardRotation, setStandardRotation] = useState(0);
+  const [grandRotation, setGrandRotation] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
-  const startSpin = () => {
-    if (userTickets <= 0 || isSpinning) return;
-    
+  const startStandardSpin = async () => {
+    if (isSpinning || isGrandSpinning) return;
     setIsSpinning(true);
+    setError(null);
     setResult(null);
-    
-    // Mock result after 3 seconds
-    setTimeout(() => {
+
+    const res = await spinStandardRaffle();
+    if (res.success) {
+      // Calculate rotation: current + full circles + land on angle
+      // Standard wheel has 4 segments at 45, 135, 225, 315
+      // 0 deg is the "pointer" at the top (clipped polygon)
+      // The segments are offset. Segment 1 (500) is at 12 o'clock if we rotate the inner grid?
+      // Actually, standard grid has 0 at the top, but text is rotated.
+      // Arrow is at the top. We want the segment to land UNDER the arrow.
+      // So if center of segment 1 is at X deg, we need transform: rotate(-X deg).
+      // Or just rotate the wheel so the prize is at 0 deg.
+      const targetAngle = 360 - (res.angle || 0);
+      const newRotation = standardRotation - (standardRotation % 360) + (360 * 8) + targetAngle;
+      setStandardRotation(newRotation);
+
+      setTimeout(() => {
+        setIsSpinning(false);
+        setResult(res.prize!);
+      }, 3000);
+    } else {
       setIsSpinning(false);
-      const outcomes = ["500 PTS", "NO WIN", "200 PTS", "1,000 PTS"];
-      const random = outcomes[Math.floor(Math.random() * outcomes.length)];
-      setResult(random);
-    }, 3000);
+      setError(res.error || "Spin failed");
+    }
+  };
+
+  const startGrandSpin = async () => {
+    if (isSpinning || isGrandSpinning) return;
+    setIsGrandSpinning(true);
+    setError(null);
+    setGrandResult(null);
+
+    const res = await spinGrandRaffle();
+    if (res.success) {
+      const targetAngle = 360 - (res.angle || 0);
+      const newRotation = grandRotation - (grandRotation % 360) + (360 * 10) + targetAngle;
+      setGrandRotation(newRotation);
+
+      setTimeout(() => {
+        setIsGrandSpinning(false);
+        setGrandResult(res.prize!);
+      }, 5000);
+    } else {
+      setIsGrandSpinning(false);
+      setError(res.error || "Grand Spin failed");
+    }
   };
 
   return (
     <div className="animate-vapor">
+      {/* Notifications */}
+      {(error || result || grandResult) && (
+        <div className="fixed top-24 right-10 z-[100] space-y-4 animate-in fade-in slide-in-from-right-10 duration-500">
+          {error && (
+            <div className="bg-red-500 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20">
+              <XCircle size={24} />
+              <span className="font-bold uppercase tracking-widest text-xs">{error}</span>
+            </div>
+          )}
+          {result && (
+            <div className="bg-primary text-background px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-primary/40">
+              <CheckCircle2 size={24} />
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-70 leading-none mb-1">Standard Win</p>
+                <p className="font-black uppercase tracking-tight text-lg">{result}</p>
+              </div>
+            </div>
+          )}
+          {grandResult && (
+            <div className="bg-tertiary text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-tertiary/40">
+              <Trophy size={24} />
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest opacity-70 leading-none mb-1">Grand Win</p>
+                <p className="font-black uppercase tracking-tight text-xl">{grandResult}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Winner Marquee */}
       <div className="mb-10 overflow-hidden bg-surface-container-low/40 backdrop-blur-xl py-4 rounded-full border border-primary/10 flex items-center px-8 shadow-2xl relative">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5"></div>
@@ -76,18 +149,20 @@ export function RaffleArenaClient({ userPoints, userTickets }: { userPoints: num
             
             <div className="text-center mb-10 relative z-10">
               <h2 className="text-3xl font-black font-headline tracking-tighter uppercase mb-2">Standard <span className="text-primary">Spin Wheel</span></h2>
-              <p className="text-on-surface-variant text-sm font-medium">Utilize Spin-Tickets for instant PTS allocations.</p>
+              <p className="text-on-surface-variant text-sm font-medium">Utilize Spin-Tickets (1,000 PTS) for instant allocations.</p>
             </div>
 
             <div className="relative w-72 h-72 md:w-80 md:h-80 flex items-center justify-center z-10 transition-transform duration-500 hover:scale-105">
               <div className="absolute inset-0 rounded-full bg-primary/10 blur-[80px] animate-pulse"></div>
-              
               <div className="absolute inset-[-10px] rounded-full border-[10px] border-surface-container-highest shadow-[0_0_40px_rgba(129,236,255,0.15)] ring-1 ring-primary/20"></div>
               
-              <div className={cn(
-                "w-full h-full rounded-full border-4 border-primary/40 relative overflow-hidden flex items-center justify-center bg-slate-950 shadow-inner",
-                isSpinning ? "animate-[spin_1s_linear_infinite]" : "duration-700"
-              )}>
+              <div 
+                className="w-full h-full rounded-full border-4 border-primary/40 relative overflow-hidden flex items-center justify-center bg-slate-950 shadow-inner transition-transform"
+                style={{ 
+                  transform: `rotate(${standardRotation}deg)`,
+                  transition: isSpinning ? 'transform 3s cubic-bezier(0.2, 0, 0.2, 1)' : 'none'
+                }}
+              >
                 <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
                   <div className="border-r border-b border-primary/20 bg-primary/5 flex items-center justify-center pt-8">
                     <span className="text-primary font-black -rotate-[45deg] text-base tracking-tighter">500</span>
@@ -113,26 +188,22 @@ export function RaffleArenaClient({ userPoints, userTickets }: { userPoints: num
 
             <div className="mt-12 flex flex-wrap justify-center gap-4 relative z-10 w-full">
               <div className="bg-slate-950/80 border border-primary/20 px-6 py-4 rounded-2xl flex items-center gap-4">
-                <Ticket className="text-primary" size={20} />
                 <div className="text-left">
-                  <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Available Spikes</p>
-                  <p className="text-sm font-black text-on-surface">{userTickets} Tickets</p>
+                  <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Kinetic Vault</p>
+                  <p className="text-sm font-black text-on-surface">{userPoints.toLocaleString()} PTS</p>
                 </div>
               </div>
               <button 
-                onClick={startSpin}
-                disabled={isSpinning || userTickets <= 0}
-                className="flex-1 max-w-[240px] bg-primary text-background px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] hover:shadow-[0_0_40px_rgba(129,236,255,0.4)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={startStandardSpin}
+                disabled={isSpinning || isGrandSpinning || userPoints < 1000}
+                className={cn(
+                  "flex-1 max-w-[240px] px-10 py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed",
+                  isSpinning ? "bg-primary/20 text-primary animate-pulse" : "bg-primary text-background hover:shadow-[0_0_40px_rgba(129,236,255,0.4)]"
+                )}
               >
-                {isSpinning ? 'SYCHRONIZING...' : 'INITIALIZE SPIN'}
+                {isSpinning ? 'SYNCHRONIZING...' : 'INITIALIZE SPIN'}
               </button>
             </div>
-            
-            {result && (
-              <div className="mt-6 text-xl font-black text-primary animate-bounce">
-                RESULT: {result}
-              </div>
-            )}
           </GlassCard>
 
           {/* Grand Raffle Wheel */}
@@ -144,14 +215,20 @@ export function RaffleArenaClient({ userPoints, userTickets }: { userPoints: num
                  <ShieldCheck size={12} /> Premium Vault Access
                </span>
                <h2 className="text-4xl font-black font-headline tracking-tighter uppercase mb-2">Grand <span className="text-tertiary">Raffle Arena</span></h2>
-               <p className="text-on-surface-variant text-sm font-medium italic opacity-70">High-magnitude entries for legendary physical rewards.</p>
+               <p className="text-on-surface-variant text-sm font-medium italic opacity-70">5,000 PTS per entry for legendary physical rewards.</p>
              </div>
 
-             <div className="relative w-80 h-80 md:w-96 md:h-96 flex items-center justify-center z-10">
+             <div className="relative w-80 h-80 md:w-96 md:h-96 flex items-center justify-center z-10 transition-transform duration-500 hover:scale-[1.02]">
                <div className="absolute inset-0 rounded-full bg-tertiary/20 blur-[100px] animate-pulse-slow"></div>
                <div className="absolute -inset-4 rounded-full border-2 border-tertiary/20 border-dashed animate-[spin_20s_linear_infinite]"></div>
                
-               <div className="w-full h-full rounded-full border-[12px] border-slate-900 shadow-[0_0_50px_rgba(166,140,255,0.3)] relative overflow-hidden flex items-center justify-center bg-slate-950 ring-2 ring-tertiary/40">
+               <div 
+                 className="w-full h-full rounded-full border-[12px] border-slate-900 shadow-[0_0_50px_rgba(166,140,255,0.3)] relative overflow-hidden flex items-center justify-center bg-slate-950 ring-2 ring-tertiary/40 transition-transform"
+                 style={{ 
+                   transform: `rotate(${grandRotation}deg)`,
+                   transition: isGrandSpinning ? 'transform 5s cubic-bezier(0.15, 0, 0.15, 1)' : 'none'
+                 }}
+               >
                   <div className="absolute inset-0 opacity-20" style={{ 
                     background: 'conic-gradient(from 0deg, #a68cff, #6e9bff, #81ecff, #a68cff)'
                   }}></div>
@@ -174,14 +251,20 @@ export function RaffleArenaClient({ userPoints, userTickets }: { userPoints: num
 
              <div className="mt-12 flex flex-wrap justify-center gap-6 relative z-10 w-full px-4">
                 <div className="bg-slate-950/90 border border-tertiary/30 px-8 py-5 rounded-3xl flex items-center gap-5">
-                  <Ticket className="text-tertiary" size={24} />
                   <div className="text-left">
-                    <p className="text-[10px] font-black text-tertiary leading-none uppercase tracking-widest">Raffle Inputs</p>
-                    <p className="text-lg font-black text-on-surface mt-1">3 Active</p>
+                    <p className="text-[10px] font-black text-tertiary leading-none uppercase tracking-widest leading-relaxed">Active Inputs</p>
+                    <p className="text-lg font-black text-on-surface mt-1">{Math.floor(userPoints / 5000)} Entries</p>
                   </div>
                 </div>
-                <button className="flex-1 max-w-[280px] bg-gradient-to-r from-tertiary to-secondary text-white px-10 py-5 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] hover:shadow-[0_15px_40px_rgba(166,140,255,0.4)] transition-all hover:scale-[1.03] active:scale-95 shadow-xl">
-                  GRAND DEPLOYMENT
+                <button 
+                  onClick={startGrandSpin}
+                  disabled={isSpinning || isGrandSpinning || userPoints < 5000}
+                  className={cn(
+                    "flex-1 max-w-[280px] text-white px-10 py-5 rounded-3xl text-[12px] font-black uppercase tracking-[0.3em] transition-all active:scale-95 shadow-xl",
+                    isGrandSpinning ? "bg-tertiary/20 text-tertiary animate-pulse" : "bg-gradient-to-r from-tertiary to-secondary hover:shadow-[0_15px_40px_rgba(166,140,255,0.4)] hover:scale-[1.03]"
+                  )}
+                >
+                  {isGrandSpinning ? 'DEPLOYYING...' : 'GRAND DEPLOYMENT'}
                 </button>
              </div>
           </GlassCard>
@@ -212,9 +295,9 @@ export function RaffleArenaClient({ userPoints, userTickets }: { userPoints: num
             <h3 className="text-sm font-black text-on-surface uppercase tracking-[0.4em] ml-2">Prize Manifest</h3>
             <div className="grid grid-cols-1 gap-4">
               {[
-                { name: 'iPhone 15', tier: 'Grand', icon: <Smartphone size={24} />, color: 'primary' },
+                { name: 'iPhone 15+', tier: 'Grand', icon: <Smartphone size={24} />, color: 'primary' },
                 { name: '10k GCash', tier: 'Cash', icon: <Wallet size={24} />, color: 'secondary' },
-                { name: '1k PTS', tier: 'Instant', icon: <Coins size={24} />, color: 'tertiary' }
+                { name: '1000 PTS', tier: 'Instant', icon: <Coins size={24} />, color: 'tertiary' }
               ].map((prize, idx) => (
                 <GlassCard key={idx} className="p-6 flex items-center justify-between border-white/5 hover:border-primary/20 transition-all group">
                   <div className="flex items-center gap-5">
