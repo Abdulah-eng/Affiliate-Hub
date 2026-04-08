@@ -102,13 +102,22 @@ export async function submitKycApplication(formData: FormData) {
     revalidatePath("/admin/review");
     return { success: true, userId: newUser.id };
   } catch (error: any) {
-    console.error("KYC Submission error:", error);
-    let errorMessage = 'Failed to submit application. Username or email might be taken.';
-    
-    if (error.message?.includes('Can\'t reach database server')) {
-      errorMessage = 'Database connection failed. Please ensure MySQL is running in XAMPP.';
+    console.error("KYC Submission error:", JSON.stringify(error, null, 2));
+    console.error("KYC Error code:", error.code);
+
+    let errorMessage = 'Failed to submit application. Please try again.';
+
+    if (error.code === 'P2002') {
+      const field = error.meta?.target?.join(', ') || 'email or username';
+      errorMessage = `This ${field} is already registered. Please use a different one.`;
+    } else if (error.message?.includes("Can't reach database") || error.code === 'P1001') {
+      errorMessage = 'Database connection failed. Please contact support.';
+    } else if (error.message?.includes("Unknown field") || error.code === 'P2009') {
+      errorMessage = 'Schema mismatch error. Please contact support.';
+    } else if (error.message) {
+      errorMessage = `Error: ${error.message.substring(0, 120)}`;
     }
-    
+
     return { success: false, error: errorMessage };
   }
 }
