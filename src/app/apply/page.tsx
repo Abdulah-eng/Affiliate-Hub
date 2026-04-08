@@ -56,7 +56,7 @@ const PRIMARY_IDS = [
 
 const SECONDARY_IDS = [
   "PhilHealth ID", "TIN ID", "Barangay Clearance", 
-  "Police Clearance", "Company ID", "School ID", "Birth Certificate (PSA)"
+  "Police Clearance", "Birth Certificate (PSA)"
 ];
 
 const REFERRAL_SOURCES = [
