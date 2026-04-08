@@ -89,12 +89,15 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account }) {
-      // Always store the user ID on first sign-in
+      // On sign-in, copy values from user object as initial fallback
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role;
+        token.kycStatus = (user as any).kycStatus;
+        token.kycSubmittedAt = (user as any).kycSubmittedAt;
       }
 
-      // Always fetch fresh data from DB so admin changes reflect immediately
+      // Always fetch fresh data from DB so admin approval reflects immediately
       const lookupId = (token.id as string) || undefined;
       const lookupEmail = token.email || undefined;
       if (lookupId || lookupEmail) {
@@ -109,7 +112,7 @@ export const authOptions: NextAuthOptions = {
             token.kycSubmittedAt = dbUser.kycSubmittedAt;
           }
         } catch {
-          // DB unreachable — keep existing cached token values
+          // DB unreachable — keep values from user object set above
         }
       }
 
