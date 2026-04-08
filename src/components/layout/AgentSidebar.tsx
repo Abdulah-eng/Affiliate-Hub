@@ -33,8 +33,8 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/agent' },
     { name: 'Referrals', icon: <Users size={20} />, href: '/agent/referrals' },
     { name: 'Nexus Feed', icon: <MessageSquare size={20} />, href: '/agent/chat' },
-    { name: 'Raffle Arena', icon: <Trophy size={20} />, href: '/agent/raffle' },
     { name: 'Mines Arena', icon: <Bomb size={20} />, href: '/agent/mines' },
+    { name: 'Luck Arena', icon: <Sparkles size={20} />, href: '/agent/luck' },
     { name: 'Kinetic Duels', icon: <Swords size={20} />, href: '/agent/duels' },
   ];
 
