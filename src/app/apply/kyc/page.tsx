@@ -66,6 +66,7 @@ export default function GoogleKycPage() {
 
   // KYC fields
   const [kycMeta, setKycMeta] = useState({
+    verificationMode: "PRIMARY",
     idType: "", idNumber: "",
     secondaryId1Type: "", secondaryId1Number: "",
     secondaryId2Type: "", secondaryId2Number: "",
@@ -142,6 +143,44 @@ export default function GoogleKycPage() {
         setError(result.error || "Submission failed. Please try again.");
       }
     });
+  };
+
+  const handleNext = () => {
+    setError(null);
+    if (currentStep === 1) {
+      if (!profile.firstName || !profile.lastName || !profile.mobileNumber || !profile.city || !profile.username) {
+        setError("Please fill in all required profile fields.");
+        return;
+      }
+    }
+    if (currentStep === 2) {
+      if (selectedBrands.length === 0) {
+        setError("Please select at least one partner brand.");
+        return;
+      }
+    }
+    if (currentStep === 3) {
+      if (kycMeta.verificationMode === "PRIMARY") {
+        if (!kycMeta.idType || !kycMeta.idNumber || !kycFiles.idPhoto) {
+          setError("Primary ID Type, Number, and Front Photo are required.");
+          return;
+        }
+      } else {
+        if (!kycMeta.secondaryId1Type || !kycMeta.secondaryId1Number || !kycFiles.secondaryId1Front) {
+          setError("First Secondary ID Type, Number, and Front Photo are required.");
+          return;
+        }
+        if (!kycMeta.secondaryId2Type || !kycMeta.secondaryId2Number || !kycFiles.secondaryId2Front) {
+          setError("Second Secondary ID Type, Number, and Front Photo are required.");
+          return;
+        }
+      }
+      if (!kycFiles.selfie) {
+        setError("A selfie with your ID is required.");
+        return;
+      }
+    }
+    setCurrentStep(s => s + 1);
   };
 
   return (
@@ -257,44 +296,97 @@ export default function GoogleKycPage() {
             </div>
           )}
 
-          {/* ─── STEP 3: Verification ─── */}
+        {/* ─── STEP 3: Verification ─── */}
           {currentStep === 3 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-black text-on-surface uppercase tracking-tight">Identity Verification</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-primary uppercase tracking-widest mb-2">Primary ID Type *</label>
-                  <select value={kycMeta.idType} onChange={e => setKycMeta(k => ({...k, idType: e.target.value}))}
-                    className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface transition-all">
-                    <option value="">Select Primary ID</option>
-                    {PRIMARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-primary uppercase tracking-widest mb-2">Primary ID Number *</label>
-                  <input value={kycMeta.idNumber} onChange={e => setKycMeta(k => ({...k, idNumber: e.target.value}))}
-                    className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface font-mono transition-all" placeholder="ID Number" />
-                </div>
+            <div className="space-y-8 animate-vapor">
+              <h2 className="text-xl font-black text-on-surface uppercase tracking-tight mb-2">Identity Verification</h2>
+              
+              <div className="flex flex-col md:flex-row gap-4 p-2 rounded-2xl bg-surface-container/50 border border-outline-variant/30">
+                <button
+                  type="button"
+                  onClick={() => setKycMeta(k => ({...k, verificationMode: "PRIMARY"}))}
+                  className={cn(
+                    "flex-1 py-3 rounded-xl font-black font-headline uppercase tracking-widest text-sm transition-all",
+                    kycMeta.verificationMode === "PRIMARY" ? "bg-primary text-background shadow-[0_4px_20px_rgba(129,236,255,0.4)]" : "text-on-surface-variant hover:bg-white/5"
+                  )}
+                >
+                  Primary ID
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setKycMeta(k => ({...k, verificationMode: "SECONDARY"}))}
+                  className={cn(
+                    "flex-1 py-3 rounded-xl font-black font-headline uppercase tracking-widest text-sm transition-all",
+                    kycMeta.verificationMode === "SECONDARY" ? "bg-secondary text-background shadow-[0_4px_20px_rgba(110,155,255,0.4)]" : "text-on-surface-variant hover:bg-white/5"
+                  )}
+                >
+                  Two Secondary IDs
+                </button>
               </div>
-              <IdUploadField label="Government ID Front" side="FRONT" onFileSelect={setFile("idPhoto")} />
-              <IdUploadField label="Government ID Back" side="BACK" onFileSelect={setFile("idBack")} />
-              <IdUploadField label="Selfie with ID" side="SELFIE" onFileSelect={setFile("selfie")} />
 
-              <div className="border-t border-outline-variant/20 pt-6">
-                <h3 className="text-sm font-black text-on-surface uppercase tracking-tight mb-4">First Secondary ID</h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <select value={kycMeta.secondaryId1Type} onChange={e => setKycMeta(k => ({...k, secondaryId1Type: e.target.value}))}
-                      className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface transition-all">
-                      <option value="">First Secondary ID</option>
-                      {SECONDARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
-                    </select>
-                    <input value={kycMeta.secondaryId1Number} onChange={e => setKycMeta(k => ({...k, secondaryId1Number: e.target.value}))}
-                      className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface font-mono transition-all" placeholder="ID Number" />
+              {kycMeta.verificationMode === "PRIMARY" ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Primary ID Type *</label>
+                      <select value={kycMeta.idType} onChange={e => setKycMeta(k => ({...k, idType: e.target.value}))}
+                        className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface transition-all text-sm">
+                        <option value="">Select Primary ID</option>
+                        {PRIMARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Primary ID Number *</label>
+                      <input value={kycMeta.idNumber} onChange={e => setKycMeta(k => ({...k, idNumber: e.target.value}))}
+                        className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface font-mono transition-all text-sm" placeholder="e.g. 1234-5678" />
+                    </div>
                   </div>
-                  <IdUploadField label="ID 1 Front" side="FRONT" onFileSelect={setFile("secondaryId1Front")} />
-                  <IdUploadField label="ID 1 Back" side="BACK" onFileSelect={setFile("secondaryId1Back")} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <IdUploadField label="ID Front View" side="FRONT" onFileSelect={setFile("idPhoto")} />
+                    <IdUploadField label="ID Back View" side="BACK" onFileSelect={setFile("idBack")} />
+                  </div>
                 </div>
+              ) : (
+                <div className="space-y-8">
+                  <div className="p-6 rounded-2xl border-2 border-dashed border-secondary/30 space-y-5 bg-secondary/5">
+                    <h3 className="text-xs font-black text-secondary uppercase tracking-widest flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-secondary/20 flex items-center justify-center shrink-0">1</div> First Secondary ID</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <select value={kycMeta.secondaryId1Type} onChange={e => setKycMeta(k => ({...k, secondaryId1Type: e.target.value}))}
+                        className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-secondary/30 focus:border-secondary outline-none text-on-surface transition-all text-sm">
+                        <option value="">Select First ID *</option>
+                        {SECONDARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
+                      </select>
+                      <input value={kycMeta.secondaryId1Number} onChange={e => setKycMeta(k => ({...k, secondaryId1Number: e.target.value}))}
+                        className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-secondary/30 focus:border-secondary outline-none text-on-surface font-mono transition-all text-sm" placeholder="ID Number" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <IdUploadField label="ID 1 Front" side="FRONT" onFileSelect={setFile("secondaryId1Front")} />
+                      <IdUploadField label="ID 1 Back" side="BACK" onFileSelect={setFile("secondaryId1Back")} />
+                    </div>
+                  </div>
+
+                  <div className="p-6 rounded-2xl border-2 border-dashed border-tertiary/30 space-y-5 bg-tertiary/5">
+                    <h3 className="text-xs font-black text-tertiary uppercase tracking-widest flex items-center gap-2"><div className="w-6 h-6 rounded-md bg-tertiary/20 flex items-center justify-center shrink-0">2</div> Second Secondary ID</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <select value={kycMeta.secondaryId2Type} onChange={e => setKycMeta(k => ({...k, secondaryId2Type: e.target.value}))}
+                        className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-tertiary/30 focus:border-tertiary outline-none text-on-surface transition-all text-sm">
+                        <option value="">Select Second ID *</option>
+                        {SECONDARY_IDS.map(id => <option key={id} value={id}>{id}</option>)}
+                      </select>
+                      <input value={kycMeta.secondaryId2Number} onChange={e => setKycMeta(k => ({...k, secondaryId2Number: e.target.value}))}
+                        className="w-full bg-surface-container-low px-4 py-3 rounded-xl border border-tertiary/30 focus:border-tertiary outline-none text-on-surface font-mono transition-all text-sm" placeholder="ID Number" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <IdUploadField label="ID 2 Front" side="FRONT" onFileSelect={setFile("secondaryId2Front")} />
+                      <IdUploadField label="ID 2 Back" side="BACK" onFileSelect={setFile("secondaryId2Back")} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-outline-variant/30">
+                <IdUploadField label="Selfie with ID" side="SELFIE" onFileSelect={setFile("selfie")} />
+                <p className="text-[10px] text-on-surface-variant font-medium mt-2 max-w-sm">Please hold your selected ID(s) next to your face. Ensure both your face and the ID details are clear and readable.</p>
               </div>
             </div>
           )}
@@ -340,7 +432,7 @@ export default function GoogleKycPage() {
             </button>
 
             {currentStep < STEPS.length ? (
-              <button type="button" onClick={() => setCurrentStep(s => s + 1)}
+              <button type="button" onClick={handleNext}
                 className="flex items-center gap-2 px-8 py-3 bg-primary text-background rounded-xl font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all">
                 Next <ChevronRight size={16} />
               </button>
