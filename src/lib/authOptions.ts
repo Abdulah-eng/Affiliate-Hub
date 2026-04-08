@@ -1,10 +1,15 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -43,7 +48,8 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           email: user.email,
           role: user.role,
-          kycStatus: user.kycStatus
+          kycStatus: user.kycStatus,
+          kycSubmittedAt: user.kycSubmittedAt,
         };
       }
     })
@@ -53,18 +59,63 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60 // 30 Days
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      // Handle Google sign-in: find or create the user in our DB
+      if (account?.provider === "google") {
+        try {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email! }
+          });
+
+          if (!existingUser) {
+            // Create a new minimal agent account from Google
+            await prisma.user.create({
+              data: {
+                email: user.email!,
+                name: user.name,
+                image: user.image,
+                role: "AGENT",
+                // kycSubmittedAt stays null = hasn't submitted KYC yet
+              }
+            });
+          }
+          return true;
+        } catch (error) {
+          console.error("Google signIn error:", error);
+          return false;
+        }
+      }
+      return true;
+    },
+
+    async jwt({ token, user, account }) {
       if (user) {
+        // From credentials provider
         token.role = (user as any).role;
         token.kycStatus = (user as any).kycStatus;
+        token.kycSubmittedAt = (user as any).kycSubmittedAt;
         token.id = user.id;
+      }
+      // For Google provider, fetch fresh data from DB on every sign-in
+      if (account?.provider === "google" && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email }
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.kycStatus = dbUser.kycStatus;
+          token.kycSubmittedAt = dbUser.kycSubmittedAt;
+          token.id = dbUser.id;
+        }
       }
       return token;
     },
+
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).role = token.role;
         (session.user as any).kycStatus = token.kycStatus;
+        (session.user as any).kycSubmittedAt = token.kycSubmittedAt;
         (session.user as any).id = token.id;
       }
       return session;
