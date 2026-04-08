@@ -98,22 +98,25 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Always fetch fresh data from DB so admin approval reflects immediately
-      const lookupId = (token.id as string) || undefined;
+      // and to ensure we get the REAL database ID (Google passes its own ID strings)
       const lookupEmail = token.email || undefined;
-      if (lookupId || lookupEmail) {
-        try {
-          const dbUser = await prisma.user.findUnique({
-            where: lookupId ? { id: lookupId } : { email: lookupEmail }
-          });
-          if (dbUser) {
-            token.id = dbUser.id;
-            token.role = dbUser.role;
-            token.kycStatus = dbUser.kycStatus;
-            token.kycSubmittedAt = dbUser.kycSubmittedAt;
-          }
-        } catch {
-          // DB unreachable — keep values from user object set above
+      const lookupId = (token.id as string) || undefined;
+      
+      try {
+        const dbUser = lookupEmail 
+          ? await prisma.user.findUnique({ where: { email: lookupEmail } })
+          : lookupId 
+            ? await prisma.user.findUnique({ where: { id: lookupId } })
+            : null;
+            
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.kycStatus = dbUser.kycStatus;
+          token.kycSubmittedAt = dbUser.kycSubmittedAt;
         }
+      } catch (error) {
+        // DB unreachable — keep values from user object set above
       }
 
       return token;
