@@ -89,25 +89,30 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account }) {
+      // Always store the user ID on first sign-in
       if (user) {
-        // From credentials provider
-        token.role = (user as any).role;
-        token.kycStatus = (user as any).kycStatus;
-        token.kycSubmittedAt = (user as any).kycSubmittedAt;
         token.id = user.id;
       }
-      // For Google provider, fetch fresh data from DB on every sign-in
-      if (account?.provider === "google" && token.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: token.email }
-        });
-        if (dbUser) {
-          token.role = dbUser.role;
-          token.kycStatus = dbUser.kycStatus;
-          token.kycSubmittedAt = dbUser.kycSubmittedAt;
-          token.id = dbUser.id;
+
+      // Always fetch fresh data from DB so admin changes reflect immediately
+      const lookupId = (token.id as string) || undefined;
+      const lookupEmail = token.email || undefined;
+      if (lookupId || lookupEmail) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: lookupId ? { id: lookupId } : { email: lookupEmail }
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+            token.kycStatus = dbUser.kycStatus;
+            token.kycSubmittedAt = dbUser.kycSubmittedAt;
+          }
+        } catch {
+          // DB unreachable — keep existing cached token values
         }
       }
+
       return token;
     },
 
