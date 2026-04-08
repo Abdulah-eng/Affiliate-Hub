@@ -1,6 +1,8 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
+
+export const dynamic = "force-dynamic";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
   Users, 

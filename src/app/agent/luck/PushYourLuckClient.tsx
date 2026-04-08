@@ -218,6 +218,20 @@ export function PushYourLuckClient({ userPoints }: { userPoints: number }) {
                {isPending ? 'DEPLOYING...' : 'INITIATE GAME'}
              </button>
           ) : null}
+
+          {/* Floating Ticket Visual */}
+          <div className="absolute bottom-[-60px] right-[-40px] rotate-[15deg] hidden md:block">
+            <div className="bg-emerald-400 text-background px-6 py-4 rounded-xl border-2 border-dashed border-background shadow-2xl animate-pulse">
+               <div className="flex items-center gap-2">
+                 <Ticket size={24} className="fill-current" />
+                 <div>
+                   <p className="text-[10px] font-black uppercase leading-none">Free Spin</p>
+                   <p className="text-[8px] font-bold uppercase opacity-70">1 per game</p>
+                 </div>
+               </div>
+               <p className="text-[12px] font-black uppercase tracking-widest mt-2 border-t border-background/20 pt-1">SPIN RISK-FREE!</p>
+            </div>
+          </div>
         </div>
 
         {/* Right Sidebar: Status & Stats */}

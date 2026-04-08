@@ -7,19 +7,18 @@ export const dynamic = "force-dynamic";
 
 export default async function RaffleArenaPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session || !session.user) {
     return null;
   }
 
   const wallet = await getAgentWallet();
-  const userPoints = wallet?.totalPoints || 0;
+  const userPoints = wallet?.totalPoints ?? 0;
   const userTickets = Math.floor(userPoints / 1000);
 
   return (
-    <RaffleArenaClient 
-      userPoints={userPoints} 
-      userTickets={userTickets} 
-    />
+    <div className="p-4 md:p-8 max-w-7xl mx-auto">
+      <RaffleArenaClient userPoints={userPoints} userTickets={userTickets} />
+    </div>
   );
 }

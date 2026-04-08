@@ -1,6 +1,8 @@
-﻿import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
+
+export const dynamic = "force-dynamic";
 import { ChatClient } from "./ChatClient";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
@@ -59,9 +61,9 @@ export default async function NexusFeedPage() {
   });
 
   return (
-    <div className="flex h-[calc(100vh-220px)] animate-vapor -mt-4">
+    <div className="flex-1 flex min-h-0 min-w-0 animate-vapor">
       {/* Sidebar - Contacts & Groups */}
-      <div className="w-80 hidden lg:flex flex-col border-r border-white/5 pr-8 space-y-8 overflow-y-auto no-scrollbar">
+      <div className="w-72 hidden xl:flex flex-col border-r border-white/5 pr-6 space-y-8 overflow-y-auto no-scrollbar shrink-0">
         <div className="space-y-4">
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Nexus Lobby</h3>
           <div className="space-y-2">
@@ -120,8 +122,8 @@ export default async function NexusFeedPage() {
       </div>
 
       {/* Main Chat Feed */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-10 py-6 border-y lg:border-t-0 border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-3xl lg:rounded-tl-none">
+      <div className="flex-1 flex flex-col min-w-0 lg:px-6">
+        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-3xl">
           <div className="flex items-center gap-5">
             <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
               <Zap fill="currentColor" size={24} />
@@ -150,7 +152,7 @@ export default async function NexusFeedPage() {
       </div>
 
       {/* Right Sidebar - Performance Hub */}
-      <div className="w-96 hidden xl:flex flex-col border-l border-white/5 pl-8 space-y-10 overflow-y-auto no-scrollbar">
+      <div className="w-80 hidden 2xl:flex flex-col border-l border-white/5 pl-6 space-y-10 overflow-y-auto no-scrollbar shrink-0">
         <div className="space-y-6">
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Node Performance</h3>
           <GlassCard className="p-8 bg-surface-container-low/40 border-primary/10 relative overflow-hidden group shadow-2xl">

@@ -1,10 +1,11 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
+
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AgentDashboardClient from "./AgentDashboardClient";
 
-export const dynamic = "force-dynamic";
 
 export default async function AgentDashboard() {
   const session = await getServerSession(authOptions);

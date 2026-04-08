@@ -31,8 +31,8 @@ export default function AgentLayout({
       <AgentSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
       {/* Top Header */}
-      <header className="fixed top-0 inset-x-0 h-20 bg-slate-950/80 backdrop-blur-xl z-50 flex flex-col shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] lg:ml-72 transition-all">
-        <div className="flex items-center justify-between px-6 lg:px-12 h-full">
+      <header className="fixed top-0 inset-x-0 bg-slate-950/80 backdrop-blur-xl z-50 flex flex-col shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] lg:ml-72 transition-all">
+        <div className="flex items-center justify-between px-6 lg:px-12 h-20">
           <div className="flex items-center gap-6">
             <button 
               className="p-2 rounded-full hover:bg-white/5 text-primary transition-colors lg:hidden"
@@ -62,7 +62,7 @@ export default function AgentLayout({
         </div>
         
         {/* Sub-header Context Bar */}
-        <div className="bg-surface-container-low/90 backdrop-blur-lg border-y border-white/5 py-2.5 px-6 lg:px-12 flex items-center gap-8 overflow-x-auto no-scrollbar">
+        <div className="bg-surface-container-low/90 backdrop-blur-lg border-y border-white/5 py-3 px-6 lg:px-12 flex items-center gap-8 overflow-x-auto no-scrollbar">
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Rank</span>
             <span className="text-xs font-black text-cyan-400 px-4 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 shadow-[0_0_10px_rgba(0,229,255,0.1)] uppercase">
@@ -88,7 +88,7 @@ export default function AgentLayout({
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Points Value</span>
             <span className="text-xs font-black text-tertiary flex items-center gap-2">
-              <Wallet size={14} className="text-tertiary" /> 24,500 PTS
+              <Wallet size={14} className="text-tertiary" /> {points.toLocaleString()} PTS
             </span>
           </div>
           <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
@@ -102,8 +102,8 @@ export default function AgentLayout({
         </div>
       </header>
 
-      <main className="lg:ml-72 pt-40 pb-20 px-6 lg:px-12 transition-all">
-        <div className="max-w-[1400px] mx-auto">
+      <main className="lg:ml-72 pt-44 pb-10 px-6 lg:px-12 transition-all">
+        <div className="max-w-[1600px] mx-auto min-h-[calc(100vh-176px)] flex flex-col">
           {children}
         </div>
       </main>
