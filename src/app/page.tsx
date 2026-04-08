@@ -19,8 +19,13 @@ import Link from "next/link";
 import { getSystemSettings } from "@/app/actions/admin";
 
 export default async function LandingPage() {
-  const settingsData = await getSystemSettings();
-  const settings = settingsData.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
+  let settings: Record<string, string> = {};
+  try {
+    const settingsData = await getSystemSettings();
+    settings = settingsData.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
+  } catch {
+    // DB unreachable - use all defaults below
+  }
 
   // --- Dynamic Content Mapping ---
   // Hero
