@@ -20,7 +20,8 @@ import {
   Target,
   Zap,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Plus
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { getSystemSettings, updateSystemSettings, uploadCmsAsset } from '@/app/actions/admin';
@@ -68,8 +69,7 @@ const CMS_MAP: Record<string, CMSItem[]> = {
     { key: 'CMS_FEAT2_DESC', label: 'Feature 2 Description', type: 'TEXTAREA', desc: 'Body text for verification.' },
   ],
   partners: [
-    { key: 'CMS_PARTNERS_LABEL', label: 'Section Label', type: 'TEXT', desc: 'Text above the brand list.' },
-    { key: 'CMS_PARTNERS_LIST', label: 'Partner Names', type: 'TEXT', desc: 'Comma separated list of partner brands.' },
+    { key: 'CMS_PARTNERS_LABEL', label: 'Section Label', type: 'TEXT', desc: 'Text above the brand logos row.' },
   ],
   workflow: [
     { key: 'CMS_HIW_TITLE', label: 'Section Title', type: 'TEXT', desc: 'Heading for HIW section.' },
@@ -95,12 +95,24 @@ export default function AdminCmsPage() {
   const [isPending, startTransition] = useTransition();
   const [uploadingKey, setUploadingKey] = useState<string | null>(null);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [partners, setPartners] = useState<{name: string; logo: string}[]>([]);
+  const [newPartnerName, setNewPartnerName] = useState("");
 
   const fetchSettings = async () => {
     setLoading(true);
     const data = await getSystemSettings();
-    const settingsMap = data.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
+    const settingsMap = data.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
     setSettings(settingsMap);
+    // Parse partner JSON
+    try {
+      const pJson = settingsMap['CMS_PARTNERS_JSON'];
+      if (pJson) setPartners(JSON.parse(pJson));
+      else {
+        // Fallback: migrate from comma-separated list
+        const list = (settingsMap['CMS_PARTNERS_LIST'] || '').split(',').map(s => s.trim()).filter(Boolean);
+        setPartners(list.map(name => ({ name, logo: '' })));
+      }
+    } catch { setPartners([]); }
     setLoading(false);
   };
 
@@ -131,7 +143,9 @@ export default function AdminCmsPage() {
 
   const handleSaveAll = () => {
     startTransition(async () => {
-      const res = await updateSystemSettings(settings);
+      // Merge partner JSON into settings before saving
+      const merged = { ...settings, CMS_PARTNERS_JSON: JSON.stringify(partners) };
+      const res = await updateSystemSettings(merged);
       if (res.success) {
         setStatus({ type: 'success', message: 'All changes deployed to landing page.' });
         setTimeout(() => setStatus(null), 3000);
@@ -139,6 +153,31 @@ export default function AdminCmsPage() {
         setStatus({ type: 'error', message: res.error || 'Failed to save changes.' });
       }
     });
+  };
+
+  const handlePartnerLogoUpload = async (index: number, file: File) => {
+    const key = `CMS_PARTNER_LOGO_${index}`;
+    setUploadingKey(key);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("key", key);
+    const result = await uploadCmsAsset(formData);
+    if (result.success) {
+      setPartners(prev => prev.map((p, i) => i === index ? { ...p, logo: result.url! } : p));
+    } else {
+      setStatus({ type: 'error', message: 'Logo upload failed.' });
+    }
+    setUploadingKey(null);
+  };
+
+  const addPartner = () => {
+    if (!newPartnerName.trim()) return;
+    setPartners(prev => [...prev, { name: newPartnerName.trim(), logo: '' }]);
+    setNewPartnerName('');
+  };
+
+  const removePartner = (index: number) => {
+    setPartners(prev => prev.filter((_, i) => i !== index));
   };
 
   if (loading) {
@@ -276,6 +315,67 @@ export default function AdminCmsPage() {
               </GlassCard>
             ))}
           </div>
+
+          {/* Special Partners Manager */}
+          {activeSection === 'partners' && (
+            <GlassCard className="p-8 border-white/5 bg-surface-container-lowest/30">
+              <h3 className="font-black text-on-surface uppercase tracking-tight text-lg mb-1">Partner Logos</h3>
+              <p className="text-xs text-on-surface-variant font-medium mb-6">Add partner brands with logos. Each logo appears in the partner network row on the home page.</p>
+              
+              {/* Add new partner */}
+              <div className="flex gap-3 mb-6">
+                <input
+                  type="text"
+                  value={newPartnerName}
+                  onChange={(e) => setNewPartnerName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addPartner()}
+                  placeholder="Partner name (e.g. WinForLife)"
+                  className="flex-1 bg-surface-container/30 border border-outline-variant/20 rounded-xl px-4 py-3 text-sm font-bold text-on-surface outline-none focus:border-primary transition-all"
+                />
+                <button onClick={addPartner} disabled={!newPartnerName.trim()} className="flex items-center gap-2 px-5 py-3 bg-primary/20 border border-primary/30 text-primary rounded-xl font-black text-xs uppercase tracking-widest hover:bg-primary/30 transition-all disabled:opacity-40">
+                  <Plus size={14} /> Add
+                </button>
+              </div>
+
+              {/* Partners list */}
+              <div className="space-y-3">
+                {partners.length === 0 && (
+                  <p className="text-center text-on-surface-variant/40 py-8 text-sm">No partners added yet.</p>
+                )}
+                {partners.map((partner, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 bg-surface-container/30 rounded-xl border border-outline-variant/10">
+                    {/* Logo preview */}
+                    <div className="w-12 h-12 rounded-xl bg-surface-container border border-outline-variant/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {partner.logo ? (
+                        <img src={partner.logo} alt={partner.name} className="w-full h-full object-contain" />
+                      ) : (
+                        <span className="text-lg font-black text-primary/30">{partner.name[0]}</span>
+                      )}
+                    </div>
+                    {/* Name */}
+                    <input
+                      type="text"
+                      value={partner.name}
+                      onChange={(e) => setPartners(prev => prev.map((p, idx) => idx === i ? { ...p, name: e.target.value } : p))}
+                      className="flex-1 bg-transparent border-b border-outline-variant/20 focus:border-primary pb-1 text-sm font-bold text-on-surface outline-none transition-all"
+                    />
+                    {/* Logo upload */}
+                    <div className="relative flex-shrink-0">
+                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" onChange={(e) => e.target.files?.[0] && handlePartnerLogoUpload(i, e.target.files[0])} />
+                      <button className="flex items-center gap-1 px-3 py-2 bg-primary/10 border border-primary/20 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all">
+                        {uploadingKey === `CMS_PARTNER_LOGO_${i}` ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                        Logo
+                      </button>
+                    </div>
+                    {/* Delete */}
+                    <button onClick={() => removePartner(i)} className="p-2 text-red-400/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all flex-shrink-0">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          )}
         </div>
       </div>
 

@@ -89,6 +89,32 @@ export async function updateBrandStatus(brandId: string, status: string) {
   revalidatePath("/admin/brands");
 }
 
+export async function createBrand(name: string, loginUrl: string) {
+  try {
+    await prisma.brand.create({
+      data: { name, loginUrl, status: 'ONLINE' }
+    });
+    revalidatePath("/admin/brands");
+    return { success: true };
+  } catch (error) {
+    console.error("Create Brand Error:", error);
+    return { success: false, error: "Failed to create brand. Name may already exist." };
+  }
+}
+
+export async function deleteBrand(brandId: string) {
+  try {
+    // Delete related platform access records first
+    await prisma.platformAccess.deleteMany({ where: { brandId } });
+    await prisma.brand.delete({ where: { id: brandId } });
+    revalidatePath("/admin/brands");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete Brand Error:", error);
+    return { success: false, error: "Failed to delete brand." };
+  }
+}
+
 export async function getSystemSettings() {
   return prisma.systemSetting.findMany({
     orderBy: { key: "asc" }

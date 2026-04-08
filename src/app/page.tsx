@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar } from "@/components/layout/Navbar";
+import { AnimatedStats } from "@/components/home/AnimatedStats";
 import { Footer } from "@/components/layout/Footer";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
@@ -59,9 +60,17 @@ export default async function LandingPage() {
   const hiwStep3T = settings['CMS_HIW_STEP3_TITLE'] || "Submit KYC";
   const hiwStep3D = settings['CMS_HIW_STEP3_DESC'] || "Verify your identity once. Secure, fast, and globally compliant standards.";
 
-  // Partners
+  // Partners - support new JSON format (name + logo) with fallback to old list
   const partnersLabel = settings['CMS_PARTNERS_LABEL'] || "Authorized Partner Network";
-  const partnersList = (settings['CMS_PARTNERS_LIST'] || "WinForLife, BIGWIN, Rollem, AceBet, GoldenSlot").split(',').map(s => s.trim());
+  let partnersList: { name: string; logo: string }[] = [];
+  try {
+    const pJson = settings['CMS_PARTNERS_JSON'];
+    if (pJson) partnersList = JSON.parse(pJson);
+  } catch {}
+  if (partnersList.length === 0) {
+    partnersList = (settings['CMS_PARTNERS_LIST'] || "WinForLife, BIGWIN, Rollem, AceBet, GoldenSlot")
+      .split(',').map(s => ({ name: s.trim(), logo: '' }));
+  }
 
   // CTA
   const ctaTitle = settings['CMS_CTA_TITLE'] || "Ready to dominate the Affiliate Ecosystem?";
@@ -167,22 +176,13 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* Stats Section */}
+        {/* Stats Section - Animated */}
         <section className="py-24 px-4 bg-surface-container-low/50 border-y border-outline-variant/10">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 text-center space-y-2">
-              <h4 className="text-4xl md:text-5xl font-extrabold font-headline text-primary">{statVal1}</h4>
-              <p className="text-on-surface-variant font-medium tracking-wide uppercase text-sm">{statLbl1}</p>
-            </div>
-            <div className="p-8 text-center space-y-2 border-x border-outline-variant/10">
-              <h4 className="text-4xl md:text-5xl font-extrabold font-headline text-primary">{statVal2}</h4>
-              <p className="text-on-surface-variant font-medium tracking-wide uppercase text-sm">{statLbl2}</p>
-            </div>
-            <div className="p-8 text-center space-y-2">
-              <h4 className="text-4xl md:text-5xl font-extrabold font-headline text-primary">{statVal3}</h4>
-              <p className="text-on-surface-variant font-medium tracking-wide uppercase text-sm">{statLbl3}</p>
-            </div>
-          </div>
+          <AnimatedStats
+            statVal1={statVal1} statLbl1={statLbl1}
+            statVal2={statVal2} statLbl2={statLbl2}
+            statVal3={statVal3} statLbl3={statLbl3}
+          />
         </section>
 
         {/* Features Bento Grid */}
@@ -249,11 +249,17 @@ export default async function LandingPage() {
         <section className="py-24 border-y border-outline-variant/10 bg-surface-container-lowest">
           <div className="max-w-7xl mx-auto px-4 text-center">
             <p className="text-xs font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-12">{partnersLabel}</p>
-            <div className="flex flex-wrap justify-center gap-12 md:gap-24 items-center opacity-60 hover:opacity-100 transition-opacity duration-500">
-              {partnersList.map((brand) => (
-                <span key={brand} className="text-2xl font-black font-headline tracking-tighter text-on-surface hover:text-primary cursor-default transition-colors">
-                  {brand}
-                </span>
+            <div className="flex flex-wrap justify-center gap-12 md:gap-16 items-center opacity-60 hover:opacity-100 transition-opacity duration-500">
+              {partnersList.map((brand, i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  {brand.logo ? (
+                    <img src={brand.logo} alt={brand.name} className="h-10 object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all" />
+                  ) : (
+                    <span className="text-2xl font-black font-headline tracking-tighter text-on-surface hover:text-primary cursor-default transition-colors">
+                      {brand.name}
+                    </span>
+                  )}
+                </div>
               ))}
             </div>
           </div>
