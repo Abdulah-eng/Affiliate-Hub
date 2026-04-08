@@ -26,8 +26,13 @@ function LoginContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const errorParam = searchParams.get("error");
   const [error, setError] = useState<string | null>(
-    searchParams.get("error") ? "Invalid credentials. Please try again." : null
+    errorParam === "OAuthCallback" || errorParam === "OAuthSignin"
+      ? "Google sign-in failed. Please try again or contact support."
+      : errorParam
+      ? "Sign-in failed. Please check your credentials."
+      : null
   );
 
   const handleGoogleSignIn = async () => {
