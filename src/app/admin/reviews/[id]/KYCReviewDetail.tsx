@@ -306,8 +306,15 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
                 {assignments.map((a) => (
                   <div
                     key={a.brandId}
-                    className="border border-outline-variant/30 rounded-xl p-4 space-y-3 bg-surface-container/20"
+                    className="border border-outline-variant/30 rounded-xl p-4 space-y-3 bg-surface-container/20 relative group"
                   >
+                    <button
+                      onClick={() => setAssignments(assignments.filter(x => x.brandId !== a.brandId))}
+                      className="absolute top-4 right-4 p-1.5 rounded-lg text-on-surface-variant opacity-0 group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-400 transition-all"
+                      title="Remove Platform"
+                    >
+                      <XCircle size={16} />
+                    </button>
                     <p className="text-xs font-black text-primary uppercase tracking-widest">
                       {a.brandName}
                     </p>

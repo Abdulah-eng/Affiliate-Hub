@@ -216,7 +216,7 @@ export default function AgentDashboardClient({
                 <GlassCard
                   key={platform.id}
                   className={cn(
-                    "p-6 transition-all border-l-4",
+                    "p-6 transition-all duration-500 border-l-4 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.3)]",
                     isApproved
                       ? color === "primary"
                         ? "border-primary"
@@ -376,8 +376,11 @@ export default function AgentDashboardClient({
 
       {/* Right Column */}
       <div className="lg:col-span-4 space-y-10">
-        <GlassCard className="p-8 rounded-3xl border-t-[6px] border-tertiary bg-surface-container-low/40">
-          <div className="flex items-center justify-between mb-10">
+        <GlassCard className="p-8 rounded-3xl border-t-[6px] border-tertiary bg-surface-container-low/40 relative overflow-hidden group shadow-2xl hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(166,140,255,0.15)] transition-all duration-500">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 group-hover:scale-110 group-hover:text-tertiary transition-all duration-700 pointer-events-none">
+             <Activity size={80} className="text-tertiary" />
+          </div>
+          <div className="relative z-10 flex items-center justify-between mb-10">
             <h3 className="text-sm font-headline font-black text-on-surface uppercase tracking-[0.3em]">
               Hub Updates
             </h3>
@@ -386,7 +389,7 @@ export default function AgentDashboardClient({
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary shadow-[0_0_10px_#a68cff]"></span>
             </span>
           </div>
-          <div className="space-y-8">
+          <div className="relative z-10 space-y-8">
             {announcements.map((news, idx) => (
               <div key={idx} className="group cursor-pointer">
                 <p className={cn("text-[9px] font-black mb-2 uppercase tracking-[0.2em]", news.color)}>
@@ -403,8 +406,11 @@ export default function AgentDashboardClient({
           </div>
         </GlassCard>
 
-        <GlassCard className="p-8 rounded-3xl bg-gradient-to-br from-surface-container/20 to-surface-container-high/40 border-primary/5">
-          <div className="flex items-center gap-4 mb-8">
+        <GlassCard className="p-8 rounded-3xl bg-gradient-to-br from-surface-container/20 to-surface-container-high/40 border-primary/5 relative overflow-hidden group shadow-2xl hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(129,236,255,0.1)] transition-all duration-500">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:-rotate-12 group-hover:scale-110 group-hover:text-primary transition-all duration-700 pointer-events-none">
+             <Lightbulb size={80} className="text-primary" />
+          </div>
+          <div className="relative z-10 flex items-center gap-4 mb-8">
             <div className="w-10 h-10 bg-primary/10 flex items-center justify-center rounded-xl text-primary border border-primary/20">
               <Lightbulb size={20} />
             </div>
@@ -412,7 +418,7 @@ export default function AgentDashboardClient({
               Access Intel
             </h3>
           </div>
-          <div className="space-y-6">
+          <div className="relative z-10 space-y-6">
             <div className="flex gap-5">
               <div className="w-10 h-10 shrink-0 rounded-xl bg-surface-container flex items-center justify-center text-primary/40">
                 <Lock size={18} />

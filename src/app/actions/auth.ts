@@ -183,6 +183,7 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
         kycStatus: "PENDING",
         kycSubmittedAt: new Date(),
         referralCode: `REF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        role: "AGENT",
       }
     });
 

@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export default async function ReviewListPage() {
   // Fetch all KYC applicants from the database
   const [pending, approved24h, all] = await Promise.all([
-    prisma.user.count({ where: { kycStatus: "PENDING", role: "AGENT" } }),
+    prisma.user.count({ where: { kycStatus: "PENDING" } }),
     prisma.user.count({
       where: {
         kycStatus: "APPROVED",
@@ -25,7 +25,7 @@ export default async function ReviewListPage() {
       }
     }),
     prisma.user.findMany({
-      where: { role: "AGENT" },
+      where: { kycStatus: { in: ["PENDING", "APPROVED", "REJECTED"] } },
       orderBy: { kycSubmittedAt: "desc" },
       select: {
         id: true,
