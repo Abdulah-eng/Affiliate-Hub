@@ -1,8 +1,10 @@
-﻿import { getServerSession } from "next-auth/next";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import AgentDashboardClient from "./AgentDashboardClient";
+
+export const dynamic = "force-dynamic";
 
 export default async function AgentDashboard() {
   const session = await getServerSession(authOptions);
@@ -12,6 +14,16 @@ export default async function AgentDashboard() {
   }
 
   const userId = (session.user as any).id;
+
+  // Always fetch fresh user status from DB in the server component
+  // to avoid NextAuth session caching delays in the RSC payload
+  const dbUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { kycStatus: true, name: true, email: true, username: true }
+  });
+
+  const kycStatus = dbUser?.kycStatus || "PENDING";
+  const userName = dbUser?.name || dbUser?.username || dbUser?.email || "Agent";
 
   // Fetch the agent's platform access from the database
   const platforms = await prisma.platformAccess.findMany({
@@ -31,9 +43,6 @@ export default async function AgentDashboard() {
       color: "text-primary"
     }
   ];
-
-  const userName = session.user.name || session.user.email || "Agent";
-  const kycStatus = (session.user as any).kycStatus || "PENDING";
 
   return (
     <AgentDashboardClient
