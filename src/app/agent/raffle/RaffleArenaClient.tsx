@@ -154,7 +154,7 @@ export function RaffleArenaClient({
   };
 
   return (
-    <div className="animate-vapor">
+    <div className="animate-vapor overflow-x-hidden">
 
       {/* ── Toast Stack ─────────────────────────────────────────────────── */}
       <div className="fixed top-24 right-6 z-[200] flex flex-col gap-3 max-w-xs w-full pointer-events-none">
@@ -258,7 +258,7 @@ export function RaffleArenaClient({
         <div className="xl:col-span-8 space-y-10">
 
           {/* ── Standard Spin Wheel ─────────────────────────────────────── */}
-          <GlassCard className="p-10 flex flex-col items-center border-primary/20 bg-surface-container-low/40 relative overflow-hidden">
+          <GlassCard className="p-6 sm:p-10 flex flex-col items-center border-primary/20 bg-surface-container-low/40 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
               <RotateCw size={140} className="text-primary" />
             </div>
@@ -273,7 +273,7 @@ export function RaffleArenaClient({
             </div>
 
             {/* Wheel */}
-            <div className="relative w-72 h-72 md:w-80 md:h-80 flex items-center justify-center z-10">
+            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center z-10">
               {/* Glow */}
               <div className="absolute inset-0 rounded-full bg-primary/10 blur-[80px] animate-pulse" />
               {/* Outer ring */}
@@ -350,7 +350,7 @@ export function RaffleArenaClient({
           </GlassCard>
 
           {/* ── Grand Raffle Wheel ──────────────────────────────────────── */}
-          <GlassCard className="p-10 flex flex-col items-center bg-gradient-to-br from-surface-container-high/80 to-surface-container-low border-tertiary/20 relative overflow-hidden">
+          <GlassCard className="p-6 sm:p-10 flex flex-col items-center bg-gradient-to-br from-surface-container-high/80 to-surface-container-low border-tertiary/20 relative overflow-hidden">
             <div className="absolute inset-0 rounded-3xl" style={{ background: "radial-gradient(circle at 50% 50%, rgba(166,140,255,0.08), transparent 70%)" }} />
 
             <div className="text-center mb-8 relative z-10">
@@ -366,7 +366,7 @@ export function RaffleArenaClient({
             </div>
 
             {/* Grand Wheel */}
-            <div className="relative w-80 h-80 md:w-96 md:h-96 flex items-center justify-center z-10">
+            <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center z-10">
               <div className="absolute inset-0 rounded-full bg-tertiary/15 blur-[100px] animate-pulse-slow" />
               <div className="absolute -inset-4 rounded-full border-2 border-tertiary/20 border-dashed animate-[spin_20s_linear_infinite]" />
 
