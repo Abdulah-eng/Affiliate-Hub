@@ -154,7 +154,7 @@ export function RaffleArenaClient({
   };
 
   return (
-    <div className="animate-vapor overflow-x-hidden">
+    <div className="animate-vapor w-full max-w-full overflow-hidden">
 
       {/* ── Toast Stack ─────────────────────────────────────────────────── */}
       <div className="fixed top-24 right-6 z-[200] flex flex-col gap-3 max-w-xs w-full pointer-events-none">
