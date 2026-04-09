@@ -91,12 +91,20 @@ export default function AgentDashboardClient({
 
         {/* KYC Status Banner */}
         {kycStatus === "REJECTED" && (
-          <div className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400">
-            <AlertTriangle size={20} />
-            <div>
-              <p className="font-bold text-sm">Application Rejected</p>
-              <p className="text-xs opacity-80">Please contact support or re-apply with correct documents.</p>
+          <div className="flex items-center justify-between gap-4 px-6 py-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.1)]">
+            <div className="flex items-center gap-4">
+              <AlertTriangle size={24} />
+              <div>
+                <p className="font-black text-sm uppercase tracking-tight">Application Rejected / Needs Reupload</p>
+                <p className="text-[10px] uppercase font-bold tracking-widest opacity-80 mt-1">Please provide correct documents to continue.</p>
+              </div>
             </div>
+            <button 
+              onClick={() => window.location.href = '/apply'}
+              className="px-6 py-3 bg-red-500/20 hover:bg-red-500/40 text-red-300 font-black text-[10px] uppercase tracking-[0.2em] rounded-xl transition-colors border border-red-500/30 whitespace-nowrap"
+            >
+              Request Reupload
+            </button>
           </div>
         )}
 
@@ -294,7 +302,7 @@ export default function AgentDashboardClient({
                           )}
                         </div>
                       </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1 relative">
                         <p className="text-[9px] text-on-surface-variant uppercase font-black tracking-[0.2em] ml-1">
                           Password
                         </p>
@@ -332,6 +340,12 @@ export default function AgentDashboardClient({
                           )}
                           {!isApproved && <Lock size={12} className="text-on-surface-variant opacity-50" />}
                         </div>
+                        {isApproved && platform.password && (
+                          <div className="absolute top-12 left-0 mt-2 text-[8px] text-amber-500 font-bold uppercase tracking-widest leading-tight opacity-80">
+                            * One-time password.<br/>
+                            Change on partner site.
+                          </div>
+                        )}
                       </div>
                     </div>
 

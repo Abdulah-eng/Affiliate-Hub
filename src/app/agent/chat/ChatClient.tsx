@@ -93,7 +93,7 @@ export function ChatClient({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-surface-container-low/20 rounded-3xl border border-white/5 overflow-hidden shadow-2xl relative">
+    <div className="flex-1 flex flex-col bg-gradient-to-b from-[#0f172a] to-[#080d1a] rounded-3xl border border-[#1e293b] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_80px_rgba(129,236,255,0.02)] relative">
       {/* Message List */}
       <div 
         ref={scrollRef}
@@ -126,10 +126,10 @@ export function ChatClient({
                   {isSelf && <span className="text-sm font-black text-primary uppercase tracking-tight">You</span>}
                 </div>
                 <div className={cn(
-                  "p-5 rounded-2xl relative group border transition-all",
+                  "p-5 rounded-3xl relative group border transition-all backdrop-blur-md shadow-2xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)]",
                   isSelf 
-                    ? "bg-primary/10 border-primary/20 rounded-tr-none text-on-surface" 
-                    : "bg-white/[0.03] border-white/5 rounded-tl-none text-on-surface-variant/90"
+                    ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface" 
+                    : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90"
                 )}>
                   <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
                   {msg.rewardPoints > 0 && (
@@ -146,10 +146,10 @@ export function ChatClient({
       </div>
 
       {/* Input Area */}
-      <div className="p-8 bg-white/[0.01] border-t border-white/5">
+      <div className="p-8 bg-gradient-to-t from-background/40 to-transparent border-t border-white/5 relative z-10 backdrop-blur-sm">
         <form 
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="bg-surface-container-high/40 border border-white/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 transition-all shadow-xl group"
+          className="bg-surface-container-high/60 border border-white/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 focus-within:bg-surface-container-high/90 focus-within:shadow-[0_10px_40px_rgba(129,236,255,0.15)] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_2px_15px_rgba(255,255,255,0.05)] group backdrop-blur-lg"
         >
            <button type="button" onClick={() => alert("File attachment upload coming soon")} className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl">
              <Paperclip size={20} />
