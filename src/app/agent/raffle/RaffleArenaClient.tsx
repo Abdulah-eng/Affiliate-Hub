@@ -235,20 +235,22 @@ export function RaffleArenaClient({
       )}
 
       {/* ── Winner Ticker ────────────────────────────────────────────────── */}
-      <div className="mb-10 overflow-hidden bg-surface-container-low/40 backdrop-blur-xl py-3.5 rounded-full border border-primary/10 flex items-center px-6 shadow-xl relative">
+      <div className="mb-10 overflow-hidden bg-surface-container-low/40 backdrop-blur-xl py-3.5 rounded-full border border-primary/10 flex items-center px-6 shadow-xl relative w-full">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
-        <div className="flex items-center gap-3 mr-8 shrink-0 text-secondary z-10">
-          <Star size={16} fill="currentColor" className="animate-pulse" />
-          <span className="font-headline font-black text-[10px] uppercase tracking-[0.3em] whitespace-nowrap">Winner's Circle</span>
+        <div className="flex items-center gap-3 mr-6 shrink-0 text-secondary z-10 border-r border-white/5 pr-6">
+          <Star size={14} fill="currentColor" className="animate-pulse" />
+          <span className="font-headline font-black text-[9px] uppercase tracking-[0.2em] whitespace-nowrap">Winner's Circle</span>
         </div>
-        {/* Duplicate list so -50% translateX creates seamless loop */}
-        <div className="flex animate-marquee whitespace-nowrap gap-16 text-sm font-bold text-on-surface-variant z-10 overflow-hidden">
-          {[...WINNERS, ...WINNERS].map((w, i) => (
-            <span key={i} className="flex items-center gap-2 shrink-0">
-              <span className="text-white/30">●</span>
-              {w.name} won <span className={cn("font-black", w.color)}>{w.prize}</span>
-            </span>
-          ))}
+        {/* Wrapping in a flex-1 min-w-0 container prevents this from pushing the parent width */}
+        <div className="flex-1 min-w-0 overflow-hidden relative z-10">
+          <div className="flex animate-marquee whitespace-nowrap gap-16 text-xs font-bold text-on-surface-variant">
+            {[...WINNERS, ...WINNERS].map((w, i) => (
+              <span key={i} className="flex items-center gap-2 shrink-0">
+                <span className="text-white/30 text-[10px]">●</span>
+                {w.name} won <span className={cn("font-black", w.color)}>{w.prize}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -273,7 +275,7 @@ export function RaffleArenaClient({
             </div>
 
             {/* Wheel */}
-            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center z-10">
+            <div className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 flex items-center justify-center z-10">
               {/* Glow */}
               <div className="absolute inset-0 rounded-full bg-primary/10 blur-[80px] animate-pulse" />
               {/* Outer ring */}
@@ -366,7 +368,7 @@ export function RaffleArenaClient({
             </div>
 
             {/* Grand Wheel */}
-            <div className="relative w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center z-10">
+            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center z-10">
               <div className="absolute inset-0 rounded-full bg-tertiary/15 blur-[100px] animate-pulse-slow" />
               <div className="absolute -inset-4 rounded-full border-2 border-tertiary/20 border-dashed animate-[spin_20s_linear_infinite]" />
 
