@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
@@ -22,7 +22,7 @@ export async function sendMessage(content: string) {
     if (lastMsgTime && (Date.now() - parseInt(lastMsgTime)) < 3000) {
       return { success: false, error: "Please wait before sending another message." };
     }
-    await redis.set(lastMsgKey, Date.now(), "PX", 3000); // 3 seconds cooldown
+    await redis.set(lastMsgKey, Date.now().toString(), "PX", 3000); // 3 seconds cooldown
   } catch (e) {
     console.warn("Redis is unavailable for ratelimit, bypassing.", e);
   }

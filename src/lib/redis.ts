@@ -105,7 +105,7 @@ const getRedisClient = () => {
 
   const proxiedClient = new Proxy(client, handler) as unknown as Redis;
 
-  if (process.env.NODE_ENV !== 'production') {
+  if ((process.env.NODE_ENV as string) !== 'production') {
     globalForRedis.redis = proxiedClient;
   }
   
