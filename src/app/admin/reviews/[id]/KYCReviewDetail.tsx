@@ -97,6 +97,20 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
   const handleAction = (status: "APPROVED" | "REJECTED" | "REQUEST_REUPLOAD") => {
     setError(null);
     setSuccess(null);
+
+    if (status === "APPROVED") {
+      if (assignments.length === 0) {
+        setError("You must assign at least one platform credential to approve the application.");
+        return;
+      }
+      for (const a of assignments) {
+        if (!a.username.trim() || !a.password.trim()) {
+          setError(`Please provide both username and password for the assigned platform (${a.brandName}).`);
+          return;
+        }
+      }
+    }
+
     startTransition(async () => {
       const result = await reviewApplication(
         user.id,
