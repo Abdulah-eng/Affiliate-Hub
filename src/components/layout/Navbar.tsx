@@ -8,7 +8,7 @@ export const Navbar = () => {
       <div className="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center">
-            <img src="/logo.png" alt="Logo" className="h-20 w-auto object-contain scale-110" />
+            <img src="/logoone.svg" alt="Logo" className="h-20 w-auto object-contain scale-110" />
           </Link>
           <div className="hidden md:flex gap-6 items-center">
             <Link href="/" className="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 font-headline font-medium text-sm">

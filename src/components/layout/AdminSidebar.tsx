@@ -44,7 +44,7 @@ export const AdminSidebar = () => {
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-20 h-20 flex items-center justify-center mb-2">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain scale-110" />
+            <img src="/logoone.svg" alt="Logo" className="w-full h-full object-contain scale-110" />
           </div>
           <div>
             <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>

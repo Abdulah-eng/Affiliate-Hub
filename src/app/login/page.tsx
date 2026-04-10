@@ -76,7 +76,7 @@ function LoginContent() {
         {/* Logo/Brand Area */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-48 h-48 mb-8">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain scale-125" />
+            <img src="/logoone.svg" alt="Logo" className="w-full h-full object-contain scale-125" />
           </div>
           <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface">
             HUB ACCESS

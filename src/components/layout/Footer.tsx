@@ -8,7 +8,7 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
         <div className="col-span-2 space-y-6">
           <div className="flex items-center mb-8">
-            <img src="/logo.png" alt="Logo" className="h-28 w-auto object-contain scale-110" />
+            <img src="/logoone.svg" alt="Logo" className="h-28 w-auto object-contain scale-110" />
           </div>
           <p className="text-on-surface-variant max-w-sm leading-relaxed text-sm">
             The premier destination for Philippine-based digital entrepreneurs. Built on the Kinetic Vault engine for absolute performance.
