@@ -164,9 +164,20 @@ export default function AdminSettingsPage() {
                   <p className="text-sm font-black text-on-surface uppercase tracking-tight">AI Moderation</p>
                   <p className="text-xs text-on-surface-variant font-medium">Automatic Fraud Detection</p>
                 </div>
-                <div className="w-12 h-6 bg-red-500 rounded-full flex items-center px-1 shadow-[0_0_15px_rgba(239,68,68,0.4)]">
-                  <div className="w-4 h-4 bg-white rounded-full ml-auto" />
-                </div>
+                <button 
+                  onClick={() => updateVal('SENTINEL_V2_ENABLED', settings['SENTINEL_V2_ENABLED'] === 'true' ? 'false' : 'true')}
+                  className={cn(
+                    "w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-300",
+                    settings['SENTINEL_V2_ENABLED'] === 'true' 
+                      ? "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]" 
+                      : "bg-surface-container-high border border-outline-variant/30"
+                  )}
+                >
+                  <div className={cn(
+                    "w-4 h-4 bg-white rounded-full transition-all duration-300",
+                    settings['SENTINEL_V2_ENABLED'] === 'true' ? "ml-auto" : "mr-auto bg-on-surface-variant"
+                  )} />
+                </button>
               </div>
             </div>
           </GlassCard>
