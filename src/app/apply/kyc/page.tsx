@@ -236,7 +236,7 @@ export default function GoogleKycPage() {
               {[
                 ["username", "Username", "juan_trading", "font-mono"],
                 ["fbProfileName", "Facebook Profile Name", "Juan Dela Cruz", ""],
-                ["mobileNumber", "Mobile Number", "09XX XXX XXXX", ""],
+                ["mobileNumber", "GCash Number", "09XX XXX XXXX", ""],
                 ["address", "Address", "Street, Barangay", ""],
                 ["city", "City", "Manila", ""],
               ].map(([k, lbl, ph, extra]) => (
@@ -245,6 +245,11 @@ export default function GoogleKycPage() {
                   <input value={(profile as any)[k]} onChange={e => setProfile(p => ({...p, [k]: e.target.value}))}
                     className={cn("w-full bg-surface-container-low px-4 py-3 rounded-xl border border-outline-variant focus:border-primary outline-none text-on-surface transition-all", extra)}
                     placeholder={ph} />
+                  {k === "mobileNumber" && (
+                    <p className="text-[10px] sm:text-xs text-secondary mt-2 font-bold mb-1">
+                      Note: This number MUST be your registered GCash number. This will be automatically synced as your withdrawal account.
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

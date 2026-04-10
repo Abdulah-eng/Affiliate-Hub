@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
@@ -17,9 +17,15 @@ export async function getAgentWallet() {
     .filter(t => t.status === "COMPLETED")
     .reduce((sum, t) => sum + t.amount, 0);
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { mobileNumber: true }
+  });
+
   return {
     totalPoints,
-    transactions
+    transactions,
+    mobileNumber: user?.mobileNumber || ""
   };
 }
 

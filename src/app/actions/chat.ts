@@ -27,6 +27,30 @@ export async function sendMessage(content: string) {
     console.warn("Redis is unavailable for ratelimit, bypassing.", e);
   }
 
+  // --- SENTINEL V2 AI MODERATION FILTER ---
+  try {
+    const sentinelSetting = await prisma.systemSetting.findUnique({ where: { key: "SENTINEL_V2_ENABLED" }});
+    if (sentinelSetting?.value === "true") {
+      const flaggedWords = ["scam", "hack", "bot", "dump", "cheat", "exploit", "phish", "script"];
+      const lowerContent = content.toLowerCase();
+      if (flaggedWords.some(w => lowerContent.includes(w))) {
+        // Punish agent quietly or generate alert
+        await prisma.notification.create({
+          data: {
+            userId: session.user.id,
+            title: "Sentinel V2 Alert",
+            message: "Your recent network transmission was flagged for policy violation.",
+            type: "ERROR"
+          }
+        });
+        return { success: false, error: "Sentinel V2 Moderation: Message flagged as fraudulent." };
+      }
+    }
+  } catch (e) {
+    console.error("Sentinel Moderation Error:", e);
+  }
+  // --- END STRAT ---
+
   // Store in DB
   const newMessage = await prisma.chatMessage.create({
     data: {

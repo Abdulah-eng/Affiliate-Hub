@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { AgentSidebar } from "@/components/layout/AgentSidebar";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { 
-  Bell, 
   Menu, 
   UserCircle, 
   TrendingUp, 
@@ -45,10 +45,7 @@ export default function AgentLayout({
           
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-4">
-              <button className="p-2 rounded-full hover:bg-white/5 text-on-surface-variant transition-colors relative group">
-                <Bell size={20} className="group-hover:rotate-12 transition-transform" />
-                <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_#81ecff]"></span>
-              </button>
+              {user?.id && <NotificationBell userId={user.id} />}
               <Link 
                 href="/agent/settings"
                 className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-secondary p-[1px] cursor-pointer hover:shadow-[0_0_15px_rgba(129,236,255,0.3)] transition-all group"

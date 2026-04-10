@@ -56,6 +56,34 @@ export async function reviewApplication(
           });
         }
       }
+
+      // Create notification
+      let notifyTitle = "Application Updated";
+      let notifyMessage = `Your application status has been updated to ${status}.`;
+      let notifyType = "INFO";
+      
+      if (status === "APPROVED") {
+        notifyTitle = "Vault Access Approved";
+        notifyMessage = "Your KYC has been verified. Welcome. You now have access to your platforms.";
+        notifyType = "SUCCESS";
+      } else if (status === "REJECTED") {
+        notifyTitle = "Application Rejected";
+        notifyMessage = notes ? `Your application was rejected: ${notes}` : "Your KYC application was rejected.";
+        notifyType = "ERROR";
+      } else if (status === "REQUEST_REUPLOAD") {
+        notifyTitle = "Action Required: Document Reupload";
+        notifyMessage = notes ? `Please reupload documents: ${notes}` : "Please reupload your KYC documents.";
+        notifyType = "WARNING";
+      }
+
+      await tx.notification.create({
+        data: {
+          userId,
+          title: notifyTitle,
+          message: notifyMessage,
+          type: notifyType
+        }
+      });
     });
 
     revalidatePath("/admin/reviews");

@@ -13,12 +13,16 @@ import {
   MousePointer2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getLiveInsights } from "@/app/actions/analytics";
 
-export default function InsightsPage() {
+export default async function InsightsPage() {
+  const insights = await getLiveInsights();
+  const data = insights.success && insights.data ? insights.data : { totalVolume: 0, activeNodes: 0, linkedPlatforms: 0 };
+
   const stats = [
-    { label: "Total Network Volume", value: "₱14.2M", growth: "+12.4%", icon: <TrendingUp size={20} /> },
-    { label: "Active Agent Nodes", value: "5,402", growth: "+5.8%", icon: <Globe size={20} /> },
-    { label: "Conversion Velocity", value: "88.2ms", growth: "-2.1%", icon: <Zap size={20} /> },
+    { label: "Total Network Volume", value: `${data.totalVolume.toLocaleString()} PTS`, growth: "+12.4%", icon: <TrendingUp size={20} /> },
+    { label: "Active Agent Nodes", value: data.activeNodes.toLocaleString(), growth: "+5.8%", icon: <Globe size={20} /> },
+    { label: "Active Provisioning", value: data.linkedPlatforms.toLocaleString(), growth: "+2.1%", icon: <Zap size={20} /> },
     { label: "Asset Liquidity", value: "98.5%", growth: "+0.4%", icon: <Activity size={20} /> },
   ];
 

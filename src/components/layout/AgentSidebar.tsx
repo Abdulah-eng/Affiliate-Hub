@@ -17,7 +17,8 @@ import {
   Swords,
   Sparkles,
   Target,
-  Shield
+  Shield,
+  Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -34,6 +35,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
 
   const MENU_ITEMS = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/agent' },
+    { name: 'Wallet', icon: <Wallet size={20} />, href: '/agent/wallet' },
     { name: 'Referrals', icon: <Users size={20} />, href: '/agent/referrals' },
     { name: 'Nexus Feed', icon: <MessageSquare size={20} />, href: '/agent/chat' },
     { name: 'Mines Arena', icon: <Bomb size={20} />, href: '/agent/mines' },

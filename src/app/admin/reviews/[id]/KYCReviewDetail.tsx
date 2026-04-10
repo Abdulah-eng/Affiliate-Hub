@@ -94,6 +94,14 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
     ]);
   };
 
+  const autoGenerateAll = () => {
+    setAssignments(prev => prev.map(a => ({
+      ...a,
+      username: a.username || `ag_${user.username.substring(0,4)}_${Math.floor(1000 + Math.random() * 9000)}`.toLowerCase(),
+      password: a.password || Math.random().toString(36).slice(-8) + "X!"
+    })));
+  };
+
   const handleAction = (status: "APPROVED" | "REJECTED" | "REQUEST_REUPLOAD") => {
     setError(null);
     setSuccess(null);
@@ -291,6 +299,15 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
                 Platform Credentials
               </h3>
               <div className="flex items-center gap-2">
+                {assignments.length > 0 && (
+                  <button
+                    onClick={autoGenerateAll}
+                    type="button"
+                    className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all mr-2"
+                  >
+                    Auto-Gen
+                  </button>
+                )}
                 <select
                   value={newBrandId}
                   onChange={(e) => setNewBrandId(e.target.value)}
