@@ -252,11 +252,8 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-background text-on-surface font-body selection:bg-primary/30">
       <header className="fixed top-0 right-0 w-full h-16 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8">
-        <Link href="/" className="flex items-center gap-3">
-          <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
-          <span className="text-lg font-black text-primary tracking-tight font-headline">
-            Affiliate Hub PH
-          </span>
+        <Link href="/" className="flex items-center">
+          <img src="/logo.png" alt="Logo" className="h-12 w-auto object-contain" />
         </Link>
         <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
           Already Applied? Login

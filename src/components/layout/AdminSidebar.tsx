@@ -47,8 +47,8 @@ export const AdminSidebar = () => {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <p className="text-primary font-black font-headline leading-none text-sm">Vault Admin</p>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold">System Controller</p>
+            <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>
+            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold italic">Admin Level Access</p>
           </div>
         </div>
       </div>

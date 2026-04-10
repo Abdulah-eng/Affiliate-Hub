@@ -79,7 +79,7 @@ function LoginContent() {
             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface">
-            Affiliate Hub <span className="text-primary">PH</span>
+            HUB ACCESS
           </h1>
           <p className="text-on-surface-variant mt-2 font-medium">
             Access your high-performance affiliate hub
