@@ -7,7 +7,10 @@ export const Footer = () => {
     <footer className="bg-surface-container-low border-t border-outline-variant/10 py-16 px-8 mt-24">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
         <div className="col-span-2 space-y-6">
-          <span className="text-xl font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
+            <span className="text-xl font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
+          </div>
           <p className="text-on-surface-variant max-w-sm leading-relaxed text-sm">
             The premier destination for Philippine-based digital entrepreneurs. Built on the Kinetic Vault engine for absolute performance.
           </p>

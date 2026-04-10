@@ -7,8 +7,9 @@ export const Navbar = () => {
     <nav className="fixed top-0 right-0 w-full h-16 z-50 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10">
       <div className="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-lg font-black text-[#81ecff] tracking-tight font-headline">
-            Affiliate Hub PH
+          <Link href="/" className="flex items-center gap-3">
+            <img src="/logo.png" alt="Logo" className="h-10 w-auto object-contain" />
+            <span className="text-lg font-black text-[#81ecff] tracking-tight font-headline">Affiliate Hub PH</span>
           </Link>
           <div className="hidden md:flex gap-6 items-center">
             <Link href="/" className="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 font-headline font-medium text-sm">

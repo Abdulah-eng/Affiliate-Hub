@@ -75,8 +75,8 @@ function LoginContent() {
       <div className="w-full max-w-md relative z-10 animate-vapor">
         {/* Logo/Brand Area */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6 border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
-            <Shield className="text-primary" size={32} />
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-6">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface">
             Affiliate Hub <span className="text-primary">PH</span>

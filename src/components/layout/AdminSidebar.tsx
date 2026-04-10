@@ -43,8 +43,8 @@ export const AdminSidebar = () => {
     <aside className="fixed left-0 top-0 h-full w-64 z-40 bg-surface-container-low shadow-2xl flex flex-col pt-20 pb-6 hidden md:flex border-r border-primary/5">
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(129,236,255,0.1)]">
-            <ShieldCheck className="text-primary" size={18} />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <div>
             <p className="text-primary font-black font-headline leading-none text-sm">Vault Admin</p>

@@ -63,8 +63,9 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="px-8 mb-6 flex items-center justify-between shrink-0">
-          <Link href="/agent" className="text-2xl font-black text-primary font-headline tracking-tighter">
-            Kinetic Vault
+          <Link href="/agent" className="flex items-center gap-2">
+            <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+            <span className="text-2xl font-black text-primary font-headline tracking-tighter">Kinetic Vault</span>
           </Link>
           <button 
             className="p-2 text-on-surface-variant hover:text-white lg:hidden"
