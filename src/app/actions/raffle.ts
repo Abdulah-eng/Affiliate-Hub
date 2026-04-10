@@ -25,29 +25,42 @@ export async function spinStandardRaffle() {
   }
 
   // 2. Determine prize
-  // Outcomes: 500, NO WIN, 200, 1000
-  // Probability: 20% 500, 40% NO WIN, 30% 200, 10% 1000
+  // Default Probability: 20% 500, 40% NO WIN, 30% 200, 10% 1000
+  const settings = await prisma.systemSetting.findMany({
+    where: { key: { startsWith: "raffle_standard_" } }
+  });
+
+  const getProb = (key: string, def: number) => {
+    const s = settings.find(x => x.key === key);
+    return s ? parseFloat(s.value) / 100 : def;
+  };
+
+  const prob500 = getProb("raffle_standard_500", 0.2);
+  const probNoWin = getProb("raffle_standard_nowin", 0.4);
+  const prob200 = getProb("raffle_standard_200", 0.3);
+  const prob1000 = getProb("raffle_standard_1000", 0.1);
+
   const rng = Math.random();
   let prizeLabel = "";
   let prizePoints = 0;
-  let stopAngle = 0; // Angles for the specific CSS slices
+  let stopAngle = 0;
 
-  if (rng < 0.2) {
+  if (rng < prob500) {
     prizeLabel = "500 PTS";
     prizePoints = 500;
-    stopAngle = 45; // Land on segment 1
-  } else if (rng < 0.6) {
+    stopAngle = 45;
+  } else if (rng < prob500 + probNoWin) {
     prizeLabel = "NO WIN";
     prizePoints = 0;
-    stopAngle = 135; // Land on segment 2
-  } else if (rng < 0.9) {
+    stopAngle = 135;
+  } else if (rng < prob500 + probNoWin + prob200) {
     prizeLabel = "200 PTS";
     prizePoints = 200;
-    stopAngle = 225; // Land on segment 3
+    stopAngle = 225;
   } else {
     prizeLabel = "1000 PTS";
     prizePoints = 1000;
-    stopAngle = 315; // Land on segment 4
+    stopAngle = 315;
   }
 
   // 3. Record Transactions
@@ -97,18 +110,31 @@ export async function spinGrandRaffle() {
   }
 
   // Outcomes: iPhone 15+, 10k GCash, 1k Chips, 200 GCash
+  const settings = await prisma.systemSetting.findMany({
+    where: { key: { startsWith: "raffle_grand_" } }
+  });
+
+  const getProb = (key: string, def: number) => {
+    const s = settings.find(x => x.key === key);
+    return s ? parseFloat(s.value) / 100 : def;
+  };
+
+  const pIphone = getProb("raffle_grand_iphone", 0.001);
+  const p10k = getProb("raffle_grand_10kgcash", 0.01);
+  const p1k = getProb("raffle_grand_1kchips", 0.189);
+
   const rng = Math.random();
   let prizeLabel = "";
   let stopAngle = 0;
 
   // iPhone 15+ (0.1%), 10k GCash (1%), 1k Chips (18.9%), 200 GCash (80%)
-  if (rng < 0.001) {
+  if (rng < pIphone) {
     prizeLabel = "iPhone 15+";
     stopAngle = 0; // Top
-  } else if (rng < 0.011) {
+  } else if (rng < pIphone + p10k) {
     prizeLabel = "10k GCash";
     stopAngle = 90; // Right
-  } else if (rng < 0.2) {
+  } else if (rng < pIphone + p10k + p1k) {
     prizeLabel = "1k Chips";
     stopAngle = 180; // Bottom
   } else {

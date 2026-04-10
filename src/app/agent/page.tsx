@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import AgentDashboardClient from "./AgentDashboardClient";
 
 
+import { getPromos } from "@/app/actions/promos";
+
 export default async function AgentDashboard() {
   const session = await getServerSession(authOptions);
 
@@ -33,6 +35,8 @@ export default async function AgentDashboard() {
     orderBy: { brand: { name: "asc" } }
   });
 
+  const promos = await getPromos();
+
   // Fetch recent announcements from SystemSettings used as announcements
   // (in a full build you'd have an Announcements model)
   const announcements = [
@@ -51,12 +55,15 @@ export default async function AgentDashboard() {
         id: p.id,
         brandId: p.brandId,
         brandName: p.brand.name,
+        brandLogo: p.brand.logoUrl,
         loginUrl: p.brand.loginUrl || "",
+        useIframe: p.brand.useIframe,
         username: p.username || "",
         password: p.password || "",
         status: p.status
       }))}
       announcements={announcements}
+      promos={promos}
       userName={userName}
       kycStatus={kycStatus}
     />

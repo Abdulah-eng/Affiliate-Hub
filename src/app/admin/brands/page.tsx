@@ -10,21 +10,23 @@ import {
   Loader2,
   Trash2,
   Plus,
-  X
+  X,
+  Image as ImageIcon,
+  Layout,
+  Globe,
+  Check
 } from "lucide-react";
 import { cn } from '@/lib/utils';
-import { getAllBrands, updateBrandLoginUrl, updateBrandStatus, createBrand, deleteBrand } from '@/app/actions/admin';
+import { getAllBrands, updateBrand, createBrand, deleteBrand } from '@/app/actions/admin';
 
 export default function BrandManagerPage() {
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editUrl, setEditUrl] = useState("");
+  const [editingBrand, setEditingBrand] = useState<any>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newBrandName, setNewBrandName] = useState("");
-  const [newBrandUrl, setNewBrandUrl] = useState("");
+  const [newBrandForm, setNewBrandForm] = useState({ name: "", loginUrl: "", logoUrl: "" });
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   const fetchBrands = async () => {
@@ -41,19 +43,16 @@ export default function BrandManagerPage() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const handleUpdateUrl = (id: string, url: string) => {
+  const handleUpdate = (id: string, data: any) => {
     startTransition(async () => {
-      await updateBrandLoginUrl(id, url);
-      setEditingId(null);
-      await fetchBrands();
-    });
-  };
-
-  const handleToggleStatus = (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'ONLINE' ? 'MAINTENANCE' : 'ONLINE';
-    startTransition(async () => {
-      await updateBrandStatus(id, newStatus);
-      await fetchBrands();
+      const res = await updateBrand(id, data);
+      if (res.success) {
+        showFeedback('success', 'Brand updated.');
+        setEditingBrand(null);
+        await fetchBrands();
+      } else {
+        showFeedback('error', res.error || 'Update failed.');
+      }
     });
   };
 
@@ -61,24 +60,23 @@ export default function BrandManagerPage() {
     startTransition(async () => {
       const res = await deleteBrand(id);
       if (res.success) {
-        showFeedback('success', 'Brand deleted successfully.');
+        showFeedback('success', 'Brand deleted.');
         setDeleteConfirmId(null);
         await fetchBrands();
       } else {
-        showFeedback('error', res.error || 'Failed to delete.');
+        showFeedback('error', res.error || 'Delete failed.');
       }
     });
   };
 
   const handleCreate = () => {
-    if (!newBrandName.trim()) return;
+    if (!newBrandForm.name.trim()) return;
     startTransition(async () => {
-      const res = await createBrand(newBrandName.trim(), newBrandUrl.trim());
+      const res = await createBrand(newBrandForm.name, newBrandForm.loginUrl, newBrandForm.logoUrl);
       if (res.success) {
-        showFeedback('success', `Brand "${newBrandName}" added successfully.`);
+        showFeedback('success', `Brand added.`);
         setShowAddModal(false);
-        setNewBrandName("");
-        setNewBrandUrl("");
+        setNewBrandForm({ name: "", loginUrl: "", logoUrl: "" });
         await fetchBrands();
       } else {
         showFeedback('error', res.error || 'Failed to create.');
@@ -88,21 +86,119 @@ export default function BrandManagerPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex bg-background items-center justify-center min-h-[400px]">
         <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="animate-vapor">
+    <div className="animate-vapor max-w-7xl mx-auto pb-20">
       {/* Feedback Toast */}
       {feedback && (
         <div className={cn(
-          "fixed top-6 right-6 z-50 px-6 py-3 rounded-xl font-bold text-sm shadow-lg animate-vapor",
+          "fixed top-6 right-6 z-[100] px-6 py-3 rounded-xl font-bold text-sm shadow-lg animate-vapor",
           feedback.type === 'success' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"
         )}>
           {feedback.msg}
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingBrand && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
+          <GlassCard className="p-8 max-w-2xl w-full space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">Configure Gateway</h3>
+              <button onClick={() => setEditingBrand(null)} className="p-2 rounded-full hover:bg-white/5 text-on-surface-variant">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Brand Name</label>
+                 <input 
+                   className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all"
+                   value={editingBrand.name}
+                   onChange={e => setEditingBrand({...editingBrand, name: e.target.value})}
+                 />
+               </div>
+               <div className="space-y-2">
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Partner Login URL</label>
+                 <input 
+                   className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-primary font-mono text-sm outline-none focus:border-primary transition-all"
+                   value={editingBrand.loginUrl}
+                   onChange={e => setEditingBrand({...editingBrand, loginUrl: e.target.value})}
+                 />
+               </div>
+               <div className="space-y-2 md:col-span-2">
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Logo Image URL</label>
+                 <div className="flex gap-4">
+                    <input 
+                      className="flex-1 bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface text-sm outline-none focus:border-primary transition-all"
+                      value={editingBrand.logoUrl || ""}
+                      onChange={e => setEditingBrand({...editingBrand, logoUrl: e.target.value})}
+                    />
+                    {editingBrand.logoUrl && (
+                      <div className="w-14 h-14 bg-white/5 rounded-xl border border-white/10 overflow-hidden shrink-0">
+                        <img src={editingBrand.logoUrl} className="w-full h-full object-contain p-1" />
+                      </div>
+                    )}
+                 </div>
+               </div>
+               <div className="space-y-2 md:col-span-2">
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Description / Intel</label>
+                 <textarea 
+                   className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface text-sm outline-none focus:border-primary transition-all h-24"
+                   value={editingBrand.description || ""}
+                   onChange={e => setEditingBrand({...editingBrand, description: e.target.value})}
+                 />
+               </div>
+
+               <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="space-y-1">
+                    <p className="text-xs font-black text-on-surface uppercase">Iframe Access</p>
+                    <p className="text-[10px] text-on-surface-variant font-bold">Open site inside the vault</p>
+                  </div>
+                  <button 
+                    onClick={() => setEditingBrand({...editingBrand, useIframe: !editingBrand.useIframe})}
+                    className={cn("w-12 h-6 rounded-full transition-all relative", editingBrand.useIframe ? "bg-primary" : "bg-white/10")}
+                  >
+                    <div className={cn("absolute top-1 w-4 h-4 bg-white rounded-full transition-all", editingBrand.useIframe ? "left-7" : "left-1")} />
+                  </button>
+               </div>
+
+               <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <div className="space-y-1">
+                    <p className="text-xs font-black text-on-surface uppercase">Public Visibility</p>
+                    <p className="text-[10px] text-on-surface-variant font-bold">Show in application forms</p>
+                  </div>
+                  <button 
+                    onClick={() => setEditingBrand({...editingBrand, isActive: !editingBrand.isActive})}
+                    className={cn("w-12 h-6 rounded-full transition-all relative", editingBrand.isActive ? "bg-emerald-500" : "bg-red-500/40")}
+                  >
+                    <div className={cn("absolute top-1 w-4 h-4 bg-white rounded-full transition-all", editingBrand.isActive ? "left-7" : "left-1")} />
+                  </button>
+               </div>
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => setEditingBrand(null)} 
+                className="flex-1 py-4 rounded-xl border border-white/10 text-on-surface-variant font-black uppercase tracking-widest text-xs hover:bg-white/5 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleUpdate(editingBrand.id, editingBrand)} 
+                disabled={isPending} 
+                className="flex-1 py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Save Changes"}
+              </button>
+            </div>
+          </GlassCard>
         </div>
       )}
 
@@ -130,37 +226,35 @@ export default function BrandManagerPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <GlassCard className="p-8 max-w-md w-full mx-4 space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-black text-on-surface">Add New Brand</h3>
+              <h3 className="text-xl font-black text-on-surface uppercase tracking-tight">Expand Network</h3>
               <button onClick={() => setShowAddModal(false)} className="p-2 rounded-full hover:bg-white/5 transition-all text-on-surface-variant">
                 <X size={18} />
               </button>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2 block">Brand Name *</label>
                 <input
                   type="text"
-                  value={newBrandName}
-                  onChange={(e) => setNewBrandName(e.target.value)}
-                  placeholder="e.g. BIGWIN"
-                  className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary/50 transition-all font-mono"
+                  value={newBrandForm.name}
+                  onChange={(e) => setNewBrandForm({...newBrandForm, name: e.target.value})}
+                  className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-4 rounded-xl outline-none focus:border-primary transition-all font-mono"
                 />
               </div>
               <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2 block">Login URL</label>
                 <input
                   type="text"
-                  value={newBrandUrl}
-                  onChange={(e) => setNewBrandUrl(e.target.value)}
-                  placeholder="e.g. bigwin-partner.ph/login"
-                  className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary/50 transition-all font-mono"
+                  value={newBrandForm.loginUrl}
+                  onChange={(e) => setNewBrandForm({...newBrandForm, loginUrl: e.target.value})}
+                  className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-sm font-mono"
                 />
               </div>
             </div>
             <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowAddModal(false)} className="flex-1 py-3 rounded-xl border border-outline-variant/30 text-on-surface-variant font-bold hover:bg-white/5 transition-all">Cancel</button>
-              <button onClick={handleCreate} disabled={isPending || !newBrandName.trim()} className="flex-1 py-3 rounded-xl bg-primary/20 border border-primary/30 text-primary font-bold hover:bg-primary/30 transition-all disabled:opacity-50">
-                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Add Brand"}
+              <button onClick={() => setShowAddModal(false)} className="flex-1 py-4 rounded-xl border border-outline-variant/30 text-on-surface-variant font-black uppercase tracking-widest text-[10px] transition-all opacity-60">Cancel</button>
+              <button onClick={handleCreate} disabled={isPending || !newBrandForm.name.trim()} className="flex-1 py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20 transition-all">
+                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Initialize Site"}
               </button>
             </div>
           </GlassCard>
@@ -168,150 +262,120 @@ export default function BrandManagerPage() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-black font-headline tracking-tighter text-on-surface">
-            Brand Login <span className="text-primary">Manager</span>
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 pt-10 px-8">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+             <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">KYC EDITOR v2.0</span>
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
+            Gateway <span className="text-primary tracking-normal">Engineering</span>
           </h1>
           <p className="text-on-surface-variant max-w-xl text-lg font-medium">
-            Centralized gateway control for partner platforms. Update authentication endpoints and monitor infrastructure status in real-time.
+            Manage corporate partner credentials, branding assets, and secure infrastructure endpoints.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button
             onClick={fetchBrands}
-            className="flex items-center gap-2 px-6 py-4 bg-surface-container-high border border-outline-variant/30 text-on-surface rounded-full hover:bg-surface-bright transition-all active:scale-95 font-bold uppercase tracking-widest text-xs"
+            className="flex items-center justify-center w-14 h-14 bg-surface-container-high border border-outline-variant/30 text-on-surface rounded-2xl hover:bg-surface-bright transition-all active:scale-95"
           >
-            <RefreshCcw size={16} className={cn("transition-transform", isPending && "animate-spin")} />
-            Refresh
+            <RefreshCcw size={20} className={cn("transition-transform", isPending && "animate-spin")} />
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-6 py-4 bg-primary/20 border border-primary/30 text-primary rounded-full hover:bg-primary/30 transition-all active:scale-95 font-bold uppercase tracking-widest text-xs"
+            className="flex items-center gap-3 px-8 h-14 bg-primary text-background rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.95] transition-all shadow-xl shadow-primary/20"
           >
-            <Plus size={16} />
-            Add Site
+            <Plus size={18} /> Add New Partner
           </button>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <GlassCard className="p-6 flex flex-col bg-surface-container-low/40">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-1 ml-1">Total Brands</span>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-black text-primary font-headline tracking-tighter">{brands.length.toString().padStart(2, '0')}</span>
-            <span className="text-xs font-bold text-primary/60 uppercase tracking-wider">Active Platforms</span>
-          </div>
-        </GlassCard>
-        <GlassCard className="p-6 flex flex-col bg-surface-container-low/40">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-1 ml-1">System Status</span>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981] animate-pulse"></div>
-            <span className="text-2xl font-black text-on-surface font-headline tracking-tight uppercase">Optimal</span>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* Brand Table */}
-      <GlassCard className="rounded-2xl p-0 overflow-hidden mb-12 border-primary/5 bg-surface-container-low/20">
-        <div className="p-8 border-b border-outline-variant/10 bg-white/5 flex justify-between items-center">
-          <h2 className="font-headline font-black text-2xl flex items-center gap-3 text-on-surface uppercase tracking-tight">
-            <Shield className="text-primary" size={24} />
-            Brand Gateways
-          </h2>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-0">
-            <thead className="bg-surface-container-low/50">
-              <tr>
-                <th className="px-8 py-5 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.25em]">Partner Brand</th>
-                <th className="px-8 py-5 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.25em]">Gateway URL</th>
-                <th className="px-8 py-5 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.25em]">Status</th>
-                <th className="px-8 py-5 text-right pr-8 text-[10px] font-black text-on-surface-variant uppercase tracking-[0.25em]">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-outline-variant/10">
-              {brands.map((brand) => (
-                <tr key={brand.id} className="group hover:bg-white/5 transition-colors duration-500">
-                  <td className="px-8 py-7">
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 bg-surface-container rounded-2xl flex items-center justify-center border border-primary/10 group-hover:border-primary/30 transition-all">
-                        {brand.logoUrl ? (
-                          <img src={brand.logoUrl} alt={brand.name} className="w-9 h-9 object-contain" />
-                        ) : (
-                          <div className="text-2xl font-black text-primary/40">{brand.name[0]}</div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-black text-on-surface font-headline tracking-tight text-lg">{brand.name}</p>
-                        <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{brand.id.slice(0, 8)}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-7">
-                    <div className="flex items-center gap-3 max-w-sm">
-                      {editingId === brand.id ? (
-                        <div className="flex-1 flex gap-2">
-                          <input
-                            className="flex-1 bg-slate-900 border border-primary/50 text-sm py-2 px-3 rounded-lg text-primary font-mono outline-none"
-                            type="text"
-                            value={editUrl}
-                            onChange={(e) => setEditUrl(e.target.value)}
-                          />
-                          <button onClick={() => handleUpdateUrl(brand.id, editUrl)} disabled={isPending} className="bg-primary text-background p-2 rounded-lg hover:scale-105 transition-all">
-                            <Save size={16} />
-                          </button>
-                          <button onClick={() => setEditingId(null)} className="bg-surface-container p-2 rounded-lg hover:scale-105 transition-all text-on-surface-variant">
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="flex-1 relative cursor-pointer" onClick={() => { setEditingId(brand.id); setEditUrl(brand.loginUrl || ""); }}>
-                          <input readOnly className="w-full bg-surface-container-highest/20 border border-outline-variant/30 text-sm py-3 px-4 rounded-xl text-primary font-mono transition-all hover:border-primary/20 outline-none cursor-pointer" type="text" value={brand.loginUrl || "Not Configured"} />
-                          <Edit3 className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/40" size={16} />
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-8 py-7">
-                    <button
-                      onClick={() => handleToggleStatus(brand.id, brand.status)}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-1.5 rounded-full border w-fit font-black uppercase tracking-widest text-[10px] transition-all hover:scale-105",
-                        brand.status === 'ONLINE'
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                          : "bg-tertiary/10 text-tertiary border-tertiary/20"
-                      )}
+      {/* Brand Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
+        {brands.map((brand) => (
+          <GlassCard key={brand.id} className={cn(
+            "p-8 group hover:-translate-y-2 transition-all duration-500 border-l-4",
+            brand.isActive ? "border-primary" : "border-red-500/40 grayscale opacity-80"
+          )}>
+            <div className="flex flex-col h-full">
+              <div className="flex justify-between items-start mb-8">
+                 <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden p-2">
+                    {brand.logoUrl ? (
+                      <img src={brand.logoUrl} className="w-full h-full object-contain" />
+                    ) : (
+                      <Globe size={32} className="text-on-surface-variant/20" />
+                    )}
+                 </div>
+                 <div className="flex gap-2">
+                    <button 
+                      onClick={() => setEditingBrand(brand)}
+                      className="p-3 bg-white/5 hover:bg-primary hover:text-background rounded-xl text-on-surface-variant transition-all border border-white/10"
                     >
-                      <span className={cn("w-2 h-2 rounded-full", brand.status === 'ONLINE' ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-tertiary")}></span>
-                      {brand.status}
+                      <Edit3 size={18} />
                     </button>
-                  </td>
-                  <td className="px-8 py-7 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => { setEditingId(brand.id); setEditUrl(brand.loginUrl || ""); }}
-                        className="px-5 py-2.5 bg-primary/5 hover:bg-primary text-primary hover:text-background border border-primary/30 rounded-full text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
-                      >
-                        Configure
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirmId(brand.id)}
-                        className="p-2.5 bg-red-500/5 hover:bg-red-500/20 text-red-400/50 hover:text-red-400 border border-red-500/10 hover:border-red-500/30 rounded-full transition-all active:scale-95"
-                        title="Delete brand"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                    <button 
+                      onClick={() => setDeleteConfirmId(brand.id)}
+                      className="p-3 bg-red-500/5 hover:bg-red-500 hover:text-white rounded-xl text-red-400 transition-all border border-red-500/10"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                 </div>
+              </div>
+
+              <div className="grow">
+                 <div className="flex items-center gap-3 mb-2">
+                   <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight">{brand.name}</h3>
+                   {!brand.isActive && <span className="px-2 py-0.5 bg-red-500/10 text-red-500 text-[8px] font-black uppercase rounded">Hidden</span>}
+                 </div>
+                 <p className="font-mono text-[10px] text-primary mb-4 truncate italic">{brand.loginUrl || "NO_GATEWAY_CONFIGURED"}</p>
+                 <p className="text-xs text-on-surface-variant line-clamp-3 leading-relaxed mb-6 italic opacity-60">
+                    {brand.description || "No tactical intel provided for this gateway."}
+                 </p>
+              </div>
+
+              <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                 <div className="flex gap-4">
+                    <div className="flex flex-col">
+                       <span className="text-[8px] font-black uppercase text-on-surface-variant tracking-widest">Tunnel</span>
+                       <span className={cn("text-[10px] font-black uppercase", brand.useIframe ? "text-primary" : "text-amber-500")}>
+                          {brand.useIframe ? "IFRAME_SECURE" : "EXTERNAL_REDirect"}
+                       </span>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </GlassCard>
+                    <div className="w-[1px] h-6 bg-white/10" />
+                    <div className="flex flex-col">
+                       <span className="text-[8px] font-black uppercase text-on-surface-variant tracking-widest">Status</span>
+                       <span className={cn("text-[10px] font-black uppercase", brand.status === 'ONLINE' ? "text-emerald-500" : "text-tertiary")}>
+                          {brand.status}
+                       </span>
+                    </div>
+                 </div>
+                 <button 
+                  onClick={() => setEditingBrand(brand)}
+                  className="p-3 text-primary hover:scale-110 transition-transform"
+                 >
+                    <ChevronRight />
+                 </button>
+              </div>
+            </div>
+          </GlassCard>
+        ))}
+
+        {brands.length === 0 && !loading && (
+          <div className="col-span-3 py-32 text-center">
+             <Shield size={64} className="mx-auto mb-6 text-on-surface-variant opacity-10" />
+             <p className="font-black uppercase tracking-[0.4em] text-on-surface-variant opacity-40">Grid Exhausted</p>
+             <p className="text-xs text-on-surface-variant mt-2 opacity-20 italic">No partner gateways initialized in the current sector.</p>
+          </div>
+        )}
+      </div>
     </div>
+  );
+}
+
+function ChevronRight({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="m9 18 6-6-6-6"/>
+    </svg>
   );
 }

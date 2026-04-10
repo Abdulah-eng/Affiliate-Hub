@@ -39,12 +39,21 @@ export default function AdminPayoutsPage() {
 
   const handleProcess = async (id: string, action: "APPROVED" | "REJECTED") => {
     let notes = "";
+    let proofUrl = "";
+
     if (action === "REJECTED") {
       notes = prompt("Reason for rejection?") || "Failed validation.";
+      if (!notes) return;
+    } else {
+      proofUrl = prompt("Enter Payment Proof Image URL (Required for Approval):") || "";
+      if (!proofUrl) {
+        alert("Payment proof URL is required for approval.");
+        return;
+      }
     }
     
     setProcessingId(id);
-    const res = await processWithdrawal(id, action, notes);
+    const res = await processWithdrawal(id, action, notes, proofUrl);
     setProcessingId(null);
     if (res.success) {
       fetchWithdrawals();
@@ -158,9 +167,16 @@ export default function AdminPayoutsPage() {
               <div key={w.id} className="p-4 rounded-xl border border-white/5 bg-surface-container-low/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex gap-4 items-center">
                   <div className={cn("w-2 h-2 rounded-full", w.status === "APPROVED" ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-red-500 shadow-[0_0_8px_#ef4444]")}></div>
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-tight text-on-surface">{w.user.name}</p>
-                    <p className="text-[10px] text-on-surface-variant tracking-widest">{w.paymentMethod} • {new Date(w.updatedAt).toLocaleDateString()}</p>
+                  <div className="flex items-center gap-3">
+                    {w.proofUrl && (
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                        <img src={w.proofUrl} alt="Proof" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-tight text-on-surface">{w.user.name}</p>
+                      <p className="text-[10px] text-on-surface-variant tracking-widest">{w.paymentMethod} • {new Date(w.updatedAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">

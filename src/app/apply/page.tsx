@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
   Check,
@@ -21,7 +21,9 @@ import {
   AlertCircle,
   CheckCircle2,
   Eye,
-  EyeOff
+  EyeOff,
+  Rocket,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -83,6 +85,13 @@ export default function ApplyPage() {
   // Verification Logic State
   const [verificationMode, setVerificationMode] = useState<"PRIMARY" | "SECONDARY">("PRIMARY");
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showInitialAd, setShowInitialAd] = useState(false);
+
+  useEffect(() => {
+    // Show ad on initial load
+    const timer = setTimeout(() => setShowInitialAd(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleGoogleApply = async () => {
     setGoogleLoading(true);
@@ -747,6 +756,56 @@ export default function ApplyPage() {
           </div>
         </GlassCard>
       </div>
+      {/* Initial Ad Pop-up */}
+      {showInitialAd && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6">
+           <GlassCard className="max-w-2xl w-full p-8 space-y-8 animate-vapor border-primary/30 shadow-[0_0_50px_rgba(129,236,255,0.2)]">
+              <div className="flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                       <Rocket size={24} />
+                    </div>
+                    <div>
+                       <h2 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">Onboarding <span className="text-primary">Intel</span></h2>
+                       <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Protocol Briefing Required</p>
+                    </div>
+                 </div>
+                 <button onClick={() => setShowInitialAd(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors text-on-surface-variant">
+                    <X size={24} />
+                 </button>
+              </div>
+
+              <div className="aspect-video w-full rounded-2xl overflow-hidden border border-white/10 bg-black relative">
+                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-primary/10 to-transparent">
+                    <CheckCircle2 size={48} className="text-primary mb-4 animate-pulse" />
+                    <h3 className="text-xl font-black text-on-surface uppercase mb-2">How to Sign Up</h3>
+                    <p className="text-sm text-on-surface-variant max-w-sm">
+                       Ensure your GCash Name matches your ID exactly. Verification is prioritized for complete profiles with multiple IDs.
+                    </p>
+                 </div>
+                 {/* In a real scenario, this would be a video or a slider */}
+              </div>
+
+              <div className="space-y-4">
+                 <p className="text-[10px] font-black text-on-surface uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <ShieldCheck size={12} className="text-emerald-500" /> Security Protocol
+                 </p>
+                 <p className="text-sm font-medium text-on-surface-variant leading-relaxed">
+                    Welcome to the network. Before you begin the application, ensure you have your Primary ID and a stable connection for the selfie verification step. This process takes 5 minutes.
+                 </p>
+              </div>
+
+              <button 
+                onClick={() => setShowInitialAd(false)}
+                className="w-full py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20"
+              >
+                PROCEED TO INITIALIZATION
+              </button>
+           </GlassCard>
+        </div>
+      )}
     </div>
   );
 }
+
+

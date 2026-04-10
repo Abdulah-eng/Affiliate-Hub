@@ -67,7 +67,7 @@ export async function requestWithdrawal(amount: number, paymentMethod: string, p
   }
 }
 
-export async function processWithdrawal(id: string, action: "APPROVED" | "REJECTED", notes?: string) {
+export async function processWithdrawal(id: string, action: "APPROVED" | "REJECTED", notes?: string, proofUrl?: string) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
 
@@ -85,7 +85,8 @@ export async function processWithdrawal(id: string, action: "APPROVED" | "REJECT
         where: { id },
         data: {
           status: action,
-          notes
+          notes,
+          proofUrl
         }
       });
 

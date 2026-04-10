@@ -117,16 +117,38 @@ export async function updateBrandStatus(brandId: string, status: string) {
   revalidatePath("/admin/brands");
 }
 
-export async function createBrand(name: string, loginUrl: string) {
+export async function createBrand(name: string, loginUrl: string, logoUrl?: string) {
   try {
     await prisma.brand.create({
-      data: { name, loginUrl, status: 'ONLINE' }
+      data: { name, loginUrl, logoUrl, status: 'ONLINE', isActive: true }
     });
     revalidatePath("/admin/brands");
     return { success: true };
   } catch (error) {
     console.error("Create Brand Error:", error);
     return { success: false, error: "Failed to create brand. Name may already exist." };
+  }
+}
+
+export async function updateBrand(brandId: string, data: {
+  name?: string,
+  loginUrl?: string,
+  logoUrl?: string,
+  description?: string,
+  status?: string,
+  useIframe?: boolean,
+  isActive?: boolean
+}) {
+  try {
+    await prisma.brand.update({
+      where: { id: brandId },
+      data
+    });
+    revalidatePath("/admin/brands");
+    revalidatePath("/agent");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }
 

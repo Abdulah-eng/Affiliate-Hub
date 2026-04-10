@@ -17,7 +17,9 @@ import {
   ChevronRight,
   Activity,
   Search,
-  AlertTriangle
+  AlertTriangle,
+  MonitorPlay,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,10 +27,19 @@ type Platform = {
   id: string;
   brandId: string;
   brandName: string;
+  brandLogo: string | null;
   loginUrl: string;
+  useIframe: boolean;
   username: string;
   password: string;
   status: string;
+};
+
+type Promo = {
+  id: string;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
 };
 
 type Announcement = {
@@ -42,6 +53,7 @@ type Announcement = {
 type Props = {
   platforms: Platform[];
   announcements: Announcement[];
+  promos: Promo[];
   userName: string;
   kycStatus: string;
 };
@@ -49,11 +61,14 @@ type Props = {
 export default function AgentDashboardClient({
   platforms,
   announcements,
+  promos,
   userName,
   kycStatus
 }: Props) {
   const [revealedPasswords, setRevealedPasswords] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [launchPlatform, setLaunchPlatform] = useState<Platform | null>(null);
+  const [activePromo, setActivePromo] = useState<Promo | null>(null);
 
   const toggleReveal = (id: string) => {
     setRevealedPasswords((prev) => {
@@ -238,15 +253,23 @@ export default function AgentDashboardClient({
                     <div className="flex items-center gap-5 min-w-[200px]">
                       <div
                         className={cn(
-                          "w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner border border-white/5",
+                          "w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden border border-white/5 shadow-inner",
                           color === "primary"
-                            ? "text-primary bg-primary/10"
+                            ? "bg-primary/10"
                             : color === "secondary"
-                            ? "text-secondary bg-secondary/10"
-                            : "text-tertiary bg-tertiary/10"
+                            ? "bg-secondary/10"
+                            : "bg-tertiary/10"
                         )}
                       >
-                        {platform.brandName.slice(0, 2).toUpperCase()}
+                        {platform.brandLogo ? (
+                          <img src={platform.brandLogo} alt={platform.brandName} className="w-full h-full object-contain p-2" />
+                        ) : (
+                          <span className={cn("text-xl font-black uppercase", 
+                            color === "primary" ? "text-primary" : color === "secondary" ? "text-secondary" : "text-tertiary"
+                          )}>
+                            {platform.brandName.slice(0, 2)}
+                          </span>
+                        )}
                       </div>
                       <div>
                         <h4 className="font-headline font-black text-on-surface text-lg uppercase tracking-tight">
@@ -352,7 +375,14 @@ export default function AgentDashboardClient({
                     <div className="shrink-0 flex items-center justify-end">
                       <button
                         disabled={!isApproved || !platform.loginUrl}
-                        onClick={() => isApproved && platform.loginUrl && window.open(`https://${platform.loginUrl}`, "_blank")}
+                        onClick={() => {
+                          if (!isApproved || !platform.loginUrl) return;
+                          if (platform.useIframe) {
+                            setLaunchPlatform(platform);
+                          } else {
+                            window.open(`https://${platform.loginUrl}`, "_blank");
+                          }
+                        }}
                         className={cn(
                           "px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all duration-300",
                           isApproved && platform.loginUrl
@@ -390,6 +420,37 @@ export default function AgentDashboardClient({
 
       {/* Right Column */}
       <div className="lg:col-span-4 space-y-10">
+        {/* Promos Section */}
+        {promos.length > 0 && (
+          <div className="space-y-6">
+             <h3 className="text-sm font-headline font-black text-on-surface-variant uppercase tracking-[0.3em] ml-1">
+              Active Promos
+            </h3>
+            {promos.map(promo => (
+              <GlassCard 
+                key={promo.id} 
+                className="group cursor-pointer p-0 overflow-hidden border-primary/10 hover:border-primary/40 transition-all"
+                onClick={() => setActivePromo(promo)}
+              >
+                <div className="aspect-[16/9] relative overflow-hidden">
+                   {promo.imageUrl ? (
+                     <img src={promo.imageUrl} alt={promo.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                   ) : (
+                     <div className="w-full h-full bg-slate-900 flex items-center justify-center text-primary/20">
+                       <MonitorPlay size={48} />
+                     </div>
+                   )}
+                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+                </div>
+                <div className="p-5">
+                   <h4 className="font-black text-on-surface uppercase tracking-tight text-sm group-hover:text-primary transition-colors">{promo.title}</h4>
+                   <p className="text-[10px] text-on-surface-variant mt-1 font-bold uppercase tracking-widest">Click for instructions</p>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        )}
+
         <GlassCard className="p-8 rounded-3xl border-t-[6px] border-tertiary bg-surface-container-low/40 relative overflow-hidden group shadow-2xl hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(166,140,255,0.15)] transition-all duration-500">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 group-hover:scale-110 group-hover:text-tertiary transition-all duration-700 pointer-events-none">
              <Activity size={80} className="text-tertiary" />
@@ -462,6 +523,69 @@ export default function AgentDashboardClient({
           </div>
         </GlassCard>
       </div>
+
+
+      {/* Iframe Modal */}
+      {launchPlatform && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex flex-col p-4 md:p-8">
+           <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                    <MonitorPlay size={24} />
+                 </div>
+                 <div>
+                    <h2 className="text-xl font-black text-on-surface uppercase tracking-tight">{launchPlatform.brandName} Portal</h2>
+                    <p className="text-[10px] text-primary font-bold uppercase tracking-widest">Secure Terminal Session Active</p>
+                 </div>
+              </div>
+              <button 
+                onClick={() => setLaunchPlatform(null)}
+                className="p-3 bg-white/5 hover:bg-white/10 rounded-full transition-all text-on-surface-variant"
+              >
+                <X size={24} />
+              </button>
+           </div>
+           <GlassCard className="flex-1 p-0 overflow-hidden border-primary/20 bg-black">
+              <iframe 
+                src={`https://${launchPlatform.loginUrl}`} 
+                className="w-full h-full border-none"
+                title={launchPlatform.brandName}
+              />
+           </GlassCard>
+        </div>
+      )}
+
+      {/* Promo Instructions Detail Modal */}
+      {activePromo && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6">
+           <GlassCard className="max-w-xl w-full p-8 space-y-6 animate-vapor">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden mb-6 border border-white/10">
+                 {activePromo.imageUrl ? (
+                   <img src={activePromo.imageUrl} alt={activePromo.title} className="w-full h-full object-cover" />
+                 ) : (
+                   <div className="w-full h-full bg-slate-900 flex items-center justify-center text-primary/20">
+                     <MonitorPlay size={64} />
+                   </div>
+                 )}
+              </div>
+              <h2 className="text-3xl font-black font-headline text-on-surface uppercase tracking-tight">{activePromo.title}</h2>
+              <div className="p-6 bg-surface-container-low rounded-2xl border border-white/5 space-y-3">
+                 <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                    <Lightbulb size={12} /> Poster Instructions
+                 </p>
+                 <p className="text-sm font-medium text-on-surface-variant leading-relaxed whitespace-pre-line">
+                    {activePromo.description || "No specific instructions provided. Please consult support if needed."}
+                 </p>
+              </div>
+              <button 
+                onClick={() => setActivePromo(null)}
+                className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                Understood
+              </button>
+           </GlassCard>
+        </div>
+      )}
 
       {/* FAB */}
       <button className="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-primary text-background shadow-[0_10px_40px_rgba(129,236,255,0.5)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[70] group">
