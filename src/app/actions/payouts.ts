@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
 
 export async function requestWithdrawal(amount: number, paymentMethod: string, paymentDetails: string) {
   const session = await getServerSession(authOptions);
@@ -153,4 +155,31 @@ export async function getWithdrawalsAdmin() {
     },
     orderBy: { createdAt: "desc" }
   });
+}
+export async function uploadPayoutProof(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    const file = formData.get("file") as File;
+    if (!file) return { success: false, error: "No file provided" };
+
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    const filename = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const uploadDir = join(process.cwd(), "public", "uploads", "payouts");
+    await mkdir(uploadDir, { recursive: true });
+    
+    const filePath = join(uploadDir, filename);
+    await writeFile(filePath, buffer);
+
+    return { 
+      success: true, 
+      url: `/uploads/payouts/${filename}` 
+    };
+  } catch (error: any) {
+    console.error("Upload Proof Error:", error);
+    return { success: false, error: "Failed to upload file." };
+  }
 }

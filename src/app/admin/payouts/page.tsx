@@ -11,7 +11,8 @@ import {
   Loader2 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { processWithdrawal } from "@/app/actions/payouts";
+import { processWithdrawal, uploadPayoutProof } from "@/app/actions/payouts";
+import { Upload, Camera, AlertCircle } from "lucide-react";
 
 // For realistic UI we would fetch from a new admin action `getPendingWithdrawals`
 // But we will quickly make a call to fetch them.
@@ -25,6 +26,13 @@ export default function AdminPayoutsPage() {
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedWithdrawal, setSelectedWithdrawal] = useState<any>(null);
+  const [actionType, setActionType] = useState<"APPROVED" | "REJECTED" | null>(null);
+  const [notes, setNotes] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const fetchWithdrawals = async () => {
     setLoading(true);
@@ -37,25 +45,56 @@ export default function AdminPayoutsPage() {
     fetchWithdrawals();
   }, []);
 
-  const handleProcess = async (id: string, action: "APPROVED" | "REJECTED") => {
-    let notes = "";
-    let proofUrl = "";
+  const handleProcess = (withdrawal: any, action: "APPROVED" | "REJECTED") => {
+    setSelectedWithdrawal(withdrawal);
+    setActionType(action);
+    setNotes("");
+    setFile(null);
+    setPreview(null);
+    setModalOpen(true);
+  };
 
-    if (action === "REJECTED") {
-      notes = prompt("Reason for rejection?") || "Failed validation.";
-      if (!notes) return;
-    } else {
-      proofUrl = prompt("Enter Payment Proof Image URL (Required for Approval):") || "";
-      if (!proofUrl) {
-        alert("Payment proof URL is required for approval.");
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result as string);
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleConfirmProcess = async () => {
+    if (!selectedWithdrawal || !actionType) return;
+    
+    let proofUrl = "";
+    
+    setUploading(true);
+    if (actionType === "APPROVED") {
+      if (!file) {
+        alert("Payment proof image is required for approval.");
+        setUploading(false);
         return;
       }
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      const uploadRes = await uploadPayoutProof(formData);
+      if (!uploadRes.success) {
+        alert("Upload failed: " + uploadRes.error);
+        setUploading(false);
+        return;
+      }
+      proofUrl = uploadRes.url!;
     }
-    
-    setProcessingId(id);
-    const res = await processWithdrawal(id, action, notes, proofUrl);
+
+    setProcessingId(selectedWithdrawal.id);
+    const res = await processWithdrawal(selectedWithdrawal.id, actionType, notes, proofUrl);
     setProcessingId(null);
+    setUploading(false);
+    
     if (res.success) {
+      setModalOpen(false);
       fetchWithdrawals();
     } else {
       alert("Error: " + (res as any).error);
@@ -132,14 +171,14 @@ export default function AdminPayoutsPage() {
                     
                     <div className="flex gap-3">
                       <button 
-                        onClick={() => handleProcess(w.id, "APPROVED")}
+                        onClick={() => handleProcess(w, "APPROVED")}
                         className="p-3 bg-emerald-500/10 hover:bg-emerald-500 hover:text-slate-950 text-emerald-500 rounded-xl transition-colors border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
                         title="Approve & Send"
                       >
                         <Check size={20} />
                       </button>
                       <button 
-                        onClick={() => handleProcess(w.id, "REJECTED")}
+                        onClick={() => handleProcess(w, "REJECTED")}
                         className="p-3 bg-red-500/10 hover:bg-red-500 hover:text-slate-950 text-red-500 rounded-xl transition-colors border border-red-500/20"
                         title="Reject & Refund"
                       >
@@ -190,6 +229,113 @@ export default function AdminPayoutsPage() {
           )}
         </div>
       </div>
+
+      {modalOpen && selectedWithdrawal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 overflow-y-auto">
+          <GlassCard className="w-full max-w-lg p-10 space-y-8 animate-vapor border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+            <div className="space-y-2">
+               <h2 className={cn(
+                 "text-3xl font-black font-headline uppercase tracking-tight",
+                 actionType === "APPROVED" ? "text-emerald-400" : "text-red-400"
+               )}>
+                 {actionType === "APPROVED" ? "Authorize Payout" : "Refuse Request"}
+               </h2>
+               <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">
+                 Processing request for <span className="text-on-surface">{selectedWithdrawal.user.name}</span>
+               </p>
+            </div>
+
+            <div className="p-6 bg-surface-container-low rounded-2xl border border-white/5 space-y-4">
+               <div className="flex justify-between items-end border-b border-white/5 pb-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Amount</p>
+                    <p className="text-3xl font-black font-mono text-primary">{selectedWithdrawal.amount} PTS</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Method</p>
+                    <p className="text-sm font-bold text-on-surface">{selectedWithdrawal.paymentMethod}</p>
+                  </div>
+               </div>
+               <div>
+                  <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1">Account Info</p>
+                  <p className="text-xs font-mono text-on-surface">{selectedWithdrawal.paymentDetails}</p>
+               </div>
+            </div>
+
+            <div className="space-y-6">
+              {actionType === "APPROVED" ? (
+                <div className="space-y-4">
+                  <label className="block text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em]">Upload Payment Proof (Receipt/Screenshot)</label>
+                  <div 
+                    className={cn(
+                      "relative aspect-video rounded-3xl border-2 border-dashed flex flex-col items-center justify-center overflow-hidden transition-all group",
+                      file ? "border-emerald-500/50 bg-emerald-500/5" : "border-white/10 hover:border-primary/50 bg-white/[0.02]"
+                    )}
+                  >
+                    {preview ? (
+                      <div className="relative w-full h-full">
+                         <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                         <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <button 
+                              onClick={() => {setFile(null); setPreview(null);}}
+                              className="px-4 py-2 bg-red-500 text-white rounded-lg text-[10px] font-black uppercase"
+                            >
+                              Remove Image
+                            </button>
+                         </div>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload size={40} className="text-primary/20 mb-4 group-hover:scale-110 group-hover:text-primary transition-all" />
+                        <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Drop receipt or click to browse</p>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <label className="block text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em]">Rejection Intel (Reason)</label>
+                  <textarea 
+                    className="w-full bg-slate-950/50 border border-white/10 p-5 rounded-3xl text-on-surface outline-none focus:border-red-400 transition-all h-32 text-sm font-medium"
+                    placeholder="Briefly explain the reason for denial..."
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <button 
+                onClick={() => setModalOpen(false)}
+                className="flex-1 py-5 border border-white/10 rounded-2xl font-black uppercase tracking-widest text-[10px] text-on-surface-variant hover:bg-white/5 transition-all"
+              >
+                Abort
+              </button>
+              <button 
+                disabled={uploading || processingId !== null || (actionType === 'APPROVED' && !file) || (actionType === 'REJECTED' && !notes)}
+                onClick={handleConfirmProcess}
+                className={cn(
+                  "flex-1 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all shadow-xl flex items-center justify-center gap-3",
+                  actionType === "APPROVED" 
+                    ? "bg-emerald-500 text-slate-950 hover:scale-[1.02]" 
+                    : "bg-red-500 text-slate-950 hover:scale-[1.02]",
+                  (uploading || (actionType === 'APPROVED' && !file) || (actionType === 'REJECTED' && !notes)) && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                {uploading ? <Loader2 className="animate-spin" size={18} /> : actionType === "APPROVED" ? <Check size={18} /> : <X size={18} />}
+                {uploading ? "Uploading..." : actionType === "APPROVED" ? "Deploy Funds" : "Finalize Denial"}
+              </button>
+            </div>
+          </GlassCard>
+        </div>
+      )}
     </div>
   );
 }
