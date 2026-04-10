@@ -64,7 +64,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
       )}>
         <div className="px-8 mb-6 flex items-center justify-between shrink-0">
           <Link href="/agent" className="flex items-center mb-4">
-            <img src="/logoone.svg" alt="Logo" className="w-32 h-32 object-contain scale-110" />
+            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="w-32 h-32 object-contain scale-125" />
           </Link>
           <button 
             className="p-2 text-on-surface-variant hover:text-white lg:hidden"
