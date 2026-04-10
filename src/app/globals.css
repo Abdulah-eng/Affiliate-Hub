@@ -86,4 +86,22 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Custom Sleek Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full transition-all;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/40;
+  }
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(129, 236, 255, 0.2) transparent;
+  }
 }

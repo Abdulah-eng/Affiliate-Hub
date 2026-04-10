@@ -7,8 +7,8 @@ export const Footer = () => {
     <footer className="bg-surface-container-low border-t border-outline-variant/10 py-16 px-8 mt-24">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
         <div className="col-span-2 space-y-6">
-          <div className="flex items-center mb-8">
-            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="h-28 w-auto object-contain scale-125" />
+          <div className="flex items-center mb-12 overflow-visible">
+            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="h-40 w-auto object-contain scale-[2]" />
           </div>
           <p className="text-on-surface-variant max-w-sm leading-relaxed text-sm">
             The premier destination for Philippine-based digital entrepreneurs. Built on the Kinetic Vault engine for absolute performance.

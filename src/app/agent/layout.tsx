@@ -40,7 +40,13 @@ export default function AgentLayout({
             >
               <Menu size={24} />
             </button>
-            <h1 className="text-xl font-headline font-bold text-on-surface hidden sm:block">Agent Command</h1>
+            <Link href="/" className="relative h-12 w-32 flex items-center justify-center -ml-4">
+              <img 
+                src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
+                alt="Logo" 
+                className="absolute max-w-none h-20 w-auto object-contain scale-[1.75]" 
+              />
+            </Link>
           </div>
           
           <div className="flex items-center gap-6">

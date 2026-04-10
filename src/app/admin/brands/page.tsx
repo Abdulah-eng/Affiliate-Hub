@@ -17,7 +17,13 @@ import {
   Check
 } from "lucide-react";
 import { cn } from '@/lib/utils';
-import { getAllBrands, updateBrand, createBrand, deleteBrand } from '@/app/actions/admin';
+import { 
+  getAllBrands, 
+  updateBrand, 
+  createBrand, 
+  deleteBrand,
+  uploadBrandLogo 
+} from '@/app/actions/admin';
 
 export default function BrandManagerPage() {
   const [brands, setBrands] = useState<any[]>([]);
@@ -28,6 +34,14 @@ export default function BrandManagerPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newBrandForm, setNewBrandForm] = useState({ name: "", loginUrl: "", logoUrl: "" });
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  
+  // File states for Add
+  const [addFile, setAddFile] = useState<File | null>(null);
+  const [addPreview, setAddPreview] = useState<string | null>(null);
+  
+  // File states for Edit
+  const [editFile, setEditFile] = useState<File | null>(null);
+  const [editPreview, setEditPreview] = useState<string | null>(null);
 
   const fetchBrands = async () => {
     setLoading(true);
@@ -45,10 +59,26 @@ export default function BrandManagerPage() {
 
   const handleUpdate = (id: string, data: any) => {
     startTransition(async () => {
-      const res = await updateBrand(id, data);
+      let finalLogoUrl = data.logoUrl;
+
+      if (editFile) {
+        const formData = new FormData();
+        formData.append("file", editFile);
+        const uploadRes = await uploadBrandLogo(formData);
+        if (uploadRes.success) {
+          finalLogoUrl = uploadRes.url || "";
+        } else {
+          showFeedback('error', 'Logo upload failed: ' + uploadRes.error);
+          return;
+        }
+      }
+
+      const res = await updateBrand(id, { ...data, logoUrl: finalLogoUrl });
       if (res.success) {
         showFeedback('success', 'Brand updated.');
         setEditingBrand(null);
+        setEditFile(null);
+        setEditPreview(null);
         await fetchBrands();
       } else {
         showFeedback('error', res.error || 'Update failed.');
@@ -72,11 +102,27 @@ export default function BrandManagerPage() {
   const handleCreate = () => {
     if (!newBrandForm.name.trim()) return;
     startTransition(async () => {
-      const res = await createBrand(newBrandForm.name, newBrandForm.loginUrl, newBrandForm.logoUrl);
+      let finalLogoUrl = newBrandForm.logoUrl;
+
+      if (addFile) {
+        const formData = new FormData();
+        formData.append("file", addFile);
+        const uploadRes = await uploadBrandLogo(formData);
+        if (uploadRes.success) {
+          finalLogoUrl = uploadRes.url || "";
+        } else {
+          showFeedback('error', 'Logo upload failed: ' + uploadRes.error);
+          return;
+        }
+      }
+
+      const res = await createBrand(newBrandForm.name, newBrandForm.loginUrl, finalLogoUrl);
       if (res.success) {
         showFeedback('success', `Brand added.`);
         setShowAddModal(false);
         setNewBrandForm({ name: "", loginUrl: "", logoUrl: "" });
+        setAddFile(null);
+        setAddPreview(null);
         await fetchBrands();
       } else {
         showFeedback('error', res.error || 'Failed to create.');
@@ -133,18 +179,42 @@ export default function BrandManagerPage() {
                  />
                </div>
                <div className="space-y-2 md:col-span-2">
-                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Logo Image URL</label>
-                 <div className="flex gap-4">
-                    <input 
-                      className="flex-1 bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface text-sm outline-none focus:border-primary transition-all"
-                      value={editingBrand.logoUrl || ""}
-                      onChange={e => setEditingBrand({...editingBrand, logoUrl: e.target.value})}
-                    />
-                    {editingBrand.logoUrl && (
-                      <div className="w-14 h-14 bg-white/5 rounded-xl border border-white/10 overflow-hidden shrink-0">
-                        <img src={editingBrand.logoUrl} className="w-full h-full object-contain p-1" />
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Brand Branding (URL or Upload)</label>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-4">
+                      <input 
+                        className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface text-sm outline-none focus:border-primary transition-all"
+                        value={editingBrand.logoUrl || ""}
+                        onChange={e => setEditingBrand({...editingBrand, logoUrl: e.target.value})}
+                        placeholder="External Logo URL..."
+                      />
+                      <div className="relative group">
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setEditFile(file);
+                              setEditPreview(URL.createObjectURL(file));
+                            }
+                          }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                        <div className="w-full bg-slate-950/50 border border-dashed border-white/20 p-4 rounded-xl text-on-surface-variant group-hover:border-primary/50 transition-all flex items-center justify-center gap-2 text-xs font-bold uppercase">
+                          {editFile ? <span className="text-primary truncate">{editFile.name}</span> : <><ImageIcon size={16} /> Upload Logo</>}
+                        </div>
                       </div>
-                    )}
+                    </div>
+                    
+                    <div className="aspect-square rounded-xl bg-slate-950/50 border border-white/5 overflow-hidden flex items-center justify-center relative p-4">
+                      {(editPreview || editingBrand.logoUrl) ? (
+                        <img src={editPreview || editingBrand.logoUrl} alt="Preview" className="w-full h-full object-contain" />
+                      ) : (
+                        <ImageIcon size={32} className="opacity-10" />
+                      )}
+                      <div className="absolute top-2 left-2 bg-slate-950/80 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest text-primary">Preview</div>
+                    </div>
                  </div>
                </div>
                <div className="space-y-2 md:col-span-2">
@@ -232,23 +302,61 @@ export default function BrandManagerPage() {
               </button>
             </div>
             <div className="space-y-4">
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2 block">Brand Name *</label>
-                <input
-                  type="text"
-                  value={newBrandForm.name}
-                  onChange={(e) => setNewBrandForm({...newBrandForm, name: e.target.value})}
-                  className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-4 rounded-xl outline-none focus:border-primary transition-all font-mono"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1 block">Brand Name *</label>
+                  <input
+                    type="text"
+                    value={newBrandForm.name}
+                    onChange={(e) => setNewBrandForm({...newBrandForm, name: e.target.value})}
+                    placeholder="e.g. OKBET"
+                    className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-sm font-bold"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1 block">Login URL</label>
+                  <input
+                    type="text"
+                    value={newBrandForm.loginUrl}
+                    onChange={(e) => setNewBrandForm({...newBrandForm, loginUrl: e.target.value})}
+                    placeholder="partner.ph/login"
+                    className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-xs font-mono"
+                  />
+                </div>
               </div>
               <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2 block">Login URL</label>
-                <input
-                  type="text"
-                  value={newBrandForm.loginUrl}
-                  onChange={(e) => setNewBrandForm({...newBrandForm, loginUrl: e.target.value})}
-                  className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-sm font-mono"
-                />
+                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2 block">Logo Configuration</label>
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    value={newBrandForm.logoUrl}
+                    onChange={(e) => setNewBrandForm({...newBrandForm, logoUrl: e.target.value})}
+                    placeholder="External URL (Optional)"
+                    className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-sm font-mono"
+                  />
+                  <div className="relative group">
+                    <input 
+                      type="file" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setAddFile(file);
+                          setAddPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="w-full bg-surface-container border border-dashed border-outline-variant/30 p-3 rounded-xl text-on-surface-variant group-hover:border-primary/50 transition-all flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                      {addFile ? <span className="text-primary truncate">{addFile.name}</span> : <><ImageIcon size={14} /> Upload Device Asset</>}
+                    </div>
+                  </div>
+                  {(addPreview || newBrandForm.logoUrl) && (
+                    <div className="h-20 w-full bg-black/20 rounded-xl border border-white/5 overflow-hidden flex items-center justify-center p-2">
+                       <img src={addPreview || newBrandForm.logoUrl || ""} className="h-full object-contain" alt="Preview" />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             <div className="flex gap-3 pt-2">

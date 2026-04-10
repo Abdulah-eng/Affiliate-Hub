@@ -238,3 +238,25 @@ export async function uploadCmsAsset(formData: FormData) {
     return { success: false, error: "Failed to upload asset." };
   }
 }
+
+export async function uploadBrandLogo(formData: FormData) {
+  try {
+    const file = formData.get("file") as File;
+    if (!file) return { success: false, error: "No file provided" };
+
+    const uploadDir = join(process.cwd(), "public", "uploads", "brands");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    
+    await writeFile(filePath, buffer);
+    const url = `/uploads/brands/${fileName}`;
+
+    return { success: true, url };
+  } catch (error: any) {
+    console.error("Brand Logo Upload Error:", error);
+    return { success: false, error: "Failed to upload brand logo." };
+  }
+}

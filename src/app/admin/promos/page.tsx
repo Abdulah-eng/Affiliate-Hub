@@ -15,7 +15,12 @@ import {
   EyeOff
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { adminCreatePromo, adminDeletePromo, getPromos } from "@/app/actions/promos";
+import { 
+  adminCreatePromo, 
+  adminDeletePromo, 
+  getPromos,
+  uploadPromoImage 
+} from "@/app/actions/promos";
 
 export default function AdminPromosPage() {
   const [promos, setPromos] = useState<any[]>([]);
@@ -29,6 +34,8 @@ export default function AdminPromosPage() {
     imageUrl: "",
     active: true
   });
+  const [promoFile, setPromoFile] = useState<File | null>(null);
+  const [promoPreview, setPromoPreview] = useState<string | null>(null);
 
   const fetchPromos = async () => {
     setLoading(true);
@@ -50,15 +57,35 @@ export default function AdminPromosPage() {
   const handleCreate = () => {
     if (!form.title) return;
     startTransition(async () => {
-      await adminCreatePromo(form);
-      setShowAddModal(false);
-      setForm({
-        title: "",
-        description: "",
-        imageUrl: "",
-        active: true
-      });
-      fetchPromos();
+      let finalImageUrl = form.imageUrl;
+
+      if (promoFile) {
+        const formData = new FormData();
+        formData.append("file", promoFile);
+        const uploadRes = await uploadPromoImage(formData);
+        if (uploadRes.success) {
+          finalImageUrl = uploadRes.url || "";
+        } else {
+          alert("Failed to upload image: " + uploadRes.error);
+          return;
+        }
+      }
+
+      const res = await adminCreatePromo({ ...form, imageUrl: finalImageUrl });
+      if (res.success) {
+        setShowAddModal(false);
+        setForm({
+          title: "",
+          description: "",
+          imageUrl: "",
+          active: true
+        });
+        setPromoFile(null);
+        setPromoPreview(null);
+        fetchPromos();
+      } else {
+        alert("Creation failed: " + res.error);
+      }
     });
   };
 
@@ -113,14 +140,47 @@ export default function AdminPromosPage() {
                   placeholder="How can they participate?"
                 />
               </div>
-              <div>
-                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Poster Image URL</label>
-                <input 
-                  className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all font-mono text-sm"
-                  value={form.imageUrl}
-                  onChange={e => setForm({...form, imageUrl: e.target.value})}
-                  placeholder="https://imgur.com/..."
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Poster Image URL</label>
+                    <input 
+                      className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all font-mono text-sm"
+                      value={form.imageUrl}
+                      onChange={e => setForm({...form, imageUrl: e.target.value})}
+                      placeholder="https://imgur.com/..."
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Or Direct Upload</label>
+                    <div className="relative group">
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setPromoFile(file);
+                            setPromoPreview(URL.createObjectURL(file));
+                          }
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      <div className="w-full bg-slate-950/50 border border-dashed border-white/20 p-4 rounded-xl text-on-surface-variant group-hover:border-primary/50 transition-all flex items-center justify-center gap-2 text-xs font-bold uppercase">
+                        {promoFile ? <span className="text-primary truncate">{promoFile.name}</span> : <><ImageIcon size={16} /> Select File</>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="aspect-video rounded-xl bg-slate-950/50 border border-white/5 overflow-hidden flex items-center justify-center relative">
+                  {(promoPreview || form.imageUrl) ? (
+                    <img src={promoPreview || form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <ImageIcon size={32} className="opacity-10" />
+                  )}
+                  <div className="absolute top-2 left-2 bg-slate-950/80 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest text-primary">Preview</div>
+                </div>
               </div>
               <div 
                 className="flex items-center gap-3 cursor-pointer p-2"

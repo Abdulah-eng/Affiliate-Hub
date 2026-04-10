@@ -18,7 +18,8 @@ import {
   Sparkles,
   Target,
   Shield,
-  Wallet
+  Wallet,
+  Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -35,6 +36,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
 
   const MENU_ITEMS = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/agent' },
+    { name: 'Brand Nexus', icon: <Rocket size={20} />, href: '/agent/platforms' },
     { name: 'Wallet', icon: <Wallet size={20} />, href: '/agent/wallet' },
     { name: 'Referrals', icon: <Users size={20} />, href: '/agent/referrals' },
     { name: 'Nexus Feed', icon: <MessageSquare size={20} />, href: '/agent/chat' },
@@ -63,9 +65,10 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="px-8 mb-6 flex items-center justify-between shrink-0">
-          <Link href="/agent" className="flex items-center mb-4">
-            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="w-32 h-32 object-contain scale-125" />
-          </Link>
+          <div className="flex flex-col">
+            <p className="text-primary font-black font-headline text-lg tracking-tighter uppercase leading-none">Vault Node</p>
+            <p className="text-[10px] text-on-surface-variant font-bold tracking-widest uppercase mt-1">Agent Interface</p>
+          </div>
           <button 
             className="p-2 text-on-surface-variant hover:text-white lg:hidden"
             onClick={() => setIsOpen(false)}

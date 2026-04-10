@@ -6,11 +6,15 @@ export const Navbar = () => {
   return (
     <nav className="fixed top-0 right-0 w-full h-24 z-50 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10">
       <div className="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="flex items-center">
-            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="h-20 w-auto object-contain scale-125" />
+        <div className="flex items-center gap-4">
+          <Link href="/" className="relative h-20 w-48 flex items-center justify-center ml-12">
+            <img 
+              src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
+              alt="Logo" 
+              className="absolute max-w-none h-32 w-auto object-contain scale-[2.25] -translate-x-4" 
+            />
           </Link>
-          <div className="hidden md:flex gap-6 items-center">
+          <div className="hidden md:flex gap-10 items-center">
             <Link href="/" className="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 font-headline font-medium text-sm">
               Network
             </Link>

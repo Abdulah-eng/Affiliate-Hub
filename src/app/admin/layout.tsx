@@ -16,8 +16,12 @@ export default function AdminLayout({
       {/* Admin Navbar */}
       <header className="fixed top-0 w-full z-50 bg-[#060e20]/80 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_40px_rgba(110,155,255,0.08)] flex justify-between items-center h-16 px-6">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-xl font-bold tracking-tighter text-primary font-headline">
-            Affiliate Hub <span className="text-on-surface">PH</span>
+          <Link href="/" className="relative h-12 w-32 flex items-center justify-center -ml-4">
+            <img 
+              src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
+              alt="Logo" 
+              className="absolute max-w-none h-20 w-auto object-contain scale-[1.75]" 
+            />
           </Link>
         </div>
         

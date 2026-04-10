@@ -252,9 +252,15 @@ export default function ApplyPage() {
   return (
     <div className="min-h-screen bg-background text-on-surface font-body selection:bg-primary/30">
       <header className="fixed top-0 right-0 w-full h-24 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8">
-        <Link href="/" className="flex items-center">
-          <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="h-20 w-auto object-contain scale-125" />
-        </Link>
+        <div className="flex items-center gap-20">
+          <Link href="/" className="relative h-20 w-48 flex items-center justify-center ml-12">
+            <img 
+              src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
+              alt="Logo" 
+              className="absolute max-w-none h-32 w-auto object-contain scale-[2.25] -translate-x-4" 
+            />
+          </Link>
+        </div>
         <Link href="/login" className="text-xs font-bold uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors">
           Already Applied? Login
         </Link>

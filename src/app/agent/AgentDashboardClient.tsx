@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
   BarChart3,
@@ -399,7 +400,7 @@ export default function AgentDashboardClient({
               );
             })}
 
-            <div className="rounded-3xl border-2 border-dashed border-outline-variant/30 flex items-center justify-center p-10 hover:border-primary/50 transition-all cursor-pointer group bg-white/[0.01] hover:bg-primary/5">
+            <Link href="/agent/platforms" className="rounded-3xl border-2 border-dashed border-outline-variant/30 flex items-center justify-center p-10 hover:border-primary/50 transition-all cursor-pointer group bg-white/[0.01] hover:bg-primary/5">
               <div className="flex items-center gap-6">
                 <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-background transition-all duration-500">
                   <Plus size={24} />
@@ -413,7 +414,7 @@ export default function AgentDashboardClient({
                   </p>
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </section>
       </div>
@@ -588,9 +589,9 @@ export default function AgentDashboardClient({
       )}
 
       {/* FAB */}
-      <button className="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-primary text-background shadow-[0_10px_40px_rgba(129,236,255,0.5)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[70] group">
+      <Link href="/agent/platforms" className="fixed bottom-10 right-10 w-16 h-16 rounded-full bg-primary text-background shadow-[0_10px_40px_rgba(129,236,255,0.5)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-[70] group">
         <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
-      </button>
+      </Link>
     </div>
   );
 }

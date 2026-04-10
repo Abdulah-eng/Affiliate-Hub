@@ -76,7 +76,7 @@ function LoginContent() {
         {/* Logo/Brand Area */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-48 h-48 mb-8">
-            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="w-full h-full object-contain scale-150 transition-transform hover:scale-[1.6]" />
+            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="w-full h-full object-contain scale-[2.5] animate-float" />
           </div>
           <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface">
             HUB ACCESS
