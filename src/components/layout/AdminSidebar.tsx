@@ -43,8 +43,8 @@ export const AdminSidebar = () => {
     <aside className="fixed left-0 top-0 h-full w-64 z-40 bg-surface-container-low shadow-2xl flex flex-col pt-20 pb-6 hidden md:flex border-r border-primary/5">
       <div className="px-6 mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 flex items-center justify-center">
-            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+          <div className="w-20 h-20 flex items-center justify-center mb-2">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain scale-110" />
           </div>
           <div>
             <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>

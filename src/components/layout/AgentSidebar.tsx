@@ -63,8 +63,8 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="px-8 mb-6 flex items-center justify-between shrink-0">
-          <Link href="/agent" className="flex items-center">
-            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain" />
+          <Link href="/agent" className="flex items-center mb-4">
+            <img src="/logo.png" alt="Logo" className="w-32 h-32 object-contain scale-110" />
           </Link>
           <button 
             className="p-2 text-on-surface-variant hover:text-white lg:hidden"
