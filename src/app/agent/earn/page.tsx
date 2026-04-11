@@ -217,63 +217,94 @@ export default function EarnPage() {
             /* MISSIONS TAB */
             <div className="space-y-8 animate-vapor">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {activeTasks.map((task) => (
-                    <GlassCard 
-                      key={task.id} 
-                      className={cn(
-                        "p-8 group cursor-pointer hover:border-primary/50 transition-all relative overflow-hidden",
-                        selectedTask?.id === task.id ? "border-primary ring-2 ring-primary/20" : "",
-                        task.taskType === "PROMO" ? "border-tertiary/20" : ""
-                      )}
-                      onClick={() => {
-                        setSelectedTask(task);
-                        setVideoEnded(false);
-                        setProofFile(null);
-                        setProofPreview(null);
-                      }}
-                    >
-                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        {task.taskType === "PROMO" ? <Megaphone size={80} /> : <MonitorPlay size={80} />}
-                      </div>
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-6">
-                          <div className={cn(
-                            "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
-                            task.taskType === "PROMO" 
-                              ? "bg-tertiary/10 text-tertiary group-hover:bg-tertiary group-hover:text-white" 
-                              : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-background"
-                          )}>
-                            {task.taskType === "PROMO" ? <Megaphone size={24} /> : <Play size={24} />}
-                          </div>
-                          <span className={cn("text-2xl font-black font-mono", task.taskType === "PROMO" ? "text-tertiary" : "text-primary")}>
-                             +{task.points}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-black text-on-surface uppercase tracking-tight mb-2">{task.title}</h3>
-                        <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-6 line-clamp-2">
-                          {task.description}
-                        </p>
-                        
-                        {task.taskType === "PROMO" && task.submissionStatus === "PENDING" && (
-                          <div className="mb-4 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full w-fit">
-                            Verification Pending
-                          </div>
-                        )}
+                 {activeTasks.map((task) => {
+                    const getThumbnail = (url: string) => {
+                      if (!url) return null;
+                      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        const id = url.includes('watch?v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
+                        return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+                      }
+                      return task.imageUrl || null;
+                    };
+                    const thumbnail = getThumbnail(task.taskType === "PROMO" ? task.imageUrl : task.videoUrl);
 
-                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                            {task.taskType === "PROMO" ? (
-                               task.requiresVerification ? <ImageIcon size={12} /> : <Zap size={12} />
-                            ) : (
-                               <Clock size={12} />
-                            )}
-                            {task.taskType === "PROMO" ? (task.requiresVerification ? "SS Required" : "Instant") : "~2 min"}
-                          </span>
-                          <ArrowRight size={18} className={cn("transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-1", task.taskType === "PROMO" ? "text-tertiary" : "text-primary")} />
+                    return (
+                      <GlassCard 
+                        key={task.id} 
+                        className={cn(
+                          "p-0 group cursor-pointer hover:border-primary/50 transition-all relative overflow-hidden flex flex-col min-h-[220px]",
+                          selectedTask?.id === task.id ? "border-primary ring-2 ring-primary/20" : "",
+                          task.taskType === "PROMO" ? "border-tertiary/20" : ""
+                        )}
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setVideoEnded(false);
+                          setProofFile(null);
+                          setProofPreview(null);
+                        }}
+                      >
+                        {/* Background Thumbnail */}
+                        <div className="absolute inset-0 z-0">
+                          {thumbnail ? (
+                            <img src={thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                          ) : (
+                            <div className="w-full h-full bg-slate-900 flex items-center justify-center opacity-40">
+                               {task.taskType === "PROMO" ? <Megaphone size={60} /> : <MonitorPlay size={60} />}
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent z-0" />
+                          <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0" />
                         </div>
-                      </div>
-                    </GlassCard>
-                 ))}
+
+                        <div className="relative z-10 p-8 flex-1 flex flex-col justify-between">
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className={cn(
+                                "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                                task.taskType === "PROMO" 
+                                  ? "bg-tertiary/20 text-tertiary group-hover:bg-tertiary group-hover:text-white" 
+                                  : "bg-primary/20 text-primary group-hover:bg-primary group-hover:text-background"
+                              )}>
+                                {task.taskType === "PROMO" ? <Megaphone size={20} /> : <Play size={20} />}
+                              </div>
+                              <span className={cn("text-2xl font-black font-mono drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]", task.taskType === "PROMO" ? "text-tertiary" : "text-primary")}>
+                                +{task.points}
+                              </span>
+                            </div>
+                            
+                            <div>
+                              <h3 className="text-xl font-black text-on-surface uppercase tracking-tight mb-2 drop-shadow-md">{task.title}</h3>
+                              <p className="text-xs text-on-surface-variant font-medium leading-relaxed line-clamp-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                {task.description}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="pt-4 mt-4 border-t border-white/10">
+                            {task.taskType === "PROMO" && task.submissionStatus === "PENDING" && (
+                              <div className="mb-4 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full w-fit">
+                                Verification Pending
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                                {task.taskType === "PROMO" ? (
+                                  task.requiresVerification ? <ImageIcon size={12} /> : <Zap size={12} />
+                                ) : (
+                                  <Clock size={12} />
+                                )}
+                                {task.taskType === "PROMO" ? (task.requiresVerification ? "SS Required" : "Instant") : "~2 min"}
+                              </span>
+                              <div className="flex items-center gap-2 text-primary opacity-0 group-hover:opacity-100 transition-all font-black text-[10px] uppercase tracking-widest translate-x-4 group-hover:translate-x-0">
+                                Launch Mission <ArrowRight size={14} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </GlassCard>
+                    );
+                 })}
 
                  {activeTasks.length === 0 && (
                     <div className="col-span-full py-20 text-center glass-card border-dashed">
