@@ -191,7 +191,8 @@ export function ChatClient({
                         ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface ml-auto" 
                         : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90 mr-auto"
                     )}
-                    onContextMenu={(e) => {
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDoubleClick={(e) => {
                       e.preventDefault();
                       setContextMenu({ msgId: msg.id });
                     }}
@@ -235,7 +236,7 @@ export function ChatClient({
                     {contextMenu?.msgId === msg.id && (
                       <div 
                         className={cn(
-                          "absolute z-[120] bg-[#0f172a] border border-white/10 rounded-2xl shadow-2xl p-2 min-w-[190px] animate-in fade-in zoom-in duration-200 context-menu-container top-0",
+                          "absolute z-[120] bg-[#0f172a] border border-white/10 rounded-2xl shadow-2xl p-2 min-w-[190px] animate-in fade-in zoom-in duration-200 context-menu-container top-1/2 -translate-y-1/2",
                           isSelf ? "right-full mr-4" : "left-full ml-4"
                         )}
                       >

@@ -143,14 +143,44 @@ export async function spinGrandRaffle() {
   }
 
   // Record transaction
-  await prisma.pointTransaction.create({
-    data: {
+  const winTransactions = [];
+  if (prizeLabel === "10k GCash") {
+    winTransactions.push({
       userId,
-      amount: -5000,
+      amount: 10000,
+      currency: "GCASH",
       type: "REDEMPTION",
-      description: `Grand Raffle Spin Entry - Won ${prizeLabel}`
-    }
-  });
+      description: "Grand Raffle Win: 10k GCash"
+    });
+  } else if (prizeLabel === "200 GCash") {
+    winTransactions.push({
+      userId,
+      amount: 200,
+      currency: "GCASH",
+      type: "REDEMPTION",
+      description: "Grand Raffle Win: 200 GCash"
+    });
+  } else if (prizeLabel === "1k Chips") {
+    winTransactions.push({
+      userId,
+      amount: 1000,
+      currency: "PTS",
+      type: "REDEMPTION",
+      description: "Grand Raffle Win: 1k Chips"
+    });
+  }
+
+  await prisma.$transaction([
+    prisma.pointTransaction.create({
+      data: {
+        userId,
+        amount: -5000,
+        type: "REDEMPTION",
+        description: `Grand Raffle Spin Entry - Won ${prizeLabel}`
+      }
+    }),
+    ...winTransactions.map(tx => prisma.pointTransaction.create({ data: tx as any }))
+  ]);
 
   revalidatePath("/agent/raffle");
   return { success: true, prize: prizeLabel, angle: stopAngle };
