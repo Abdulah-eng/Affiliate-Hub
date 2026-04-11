@@ -48,11 +48,11 @@ export async function spinStandardRaffle() {
   if (rng < prob500) {
     prizeLabel = "500 PTS";
     prizePoints = 500;
-    stopAngle = 45;
+    stopAngle = 315;
   } else if (rng < prob500 + probNoWin) {
     prizeLabel = "NO WIN";
     prizePoints = 0;
-    stopAngle = 135;
+    stopAngle = 45;
   } else if (rng < prob500 + probNoWin + prob200) {
     prizeLabel = "200 PTS";
     prizePoints = 200;
@@ -60,7 +60,7 @@ export async function spinStandardRaffle() {
   } else {
     prizeLabel = "1000 PTS";
     prizePoints = 1000;
-    stopAngle = 315;
+    stopAngle = 135;
   }
 
   // 3. Record Transactions

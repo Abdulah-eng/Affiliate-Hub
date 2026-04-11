@@ -58,11 +58,11 @@ export function ChatClient({
         if (res.ok) {
           const data = await res.json();
           // Merge and deduplicate (assuming data is sorted by date)
+          // Merge and deduplicate
           setMessages(prev => {
-            const existingIds = new Set(prev.map(m => m.id));
-            const newOnes = data.filter((m: Message) => !existingIds.has(m.id));
-            if (newOnes.length === 0) return prev;
-            return [...prev, ...newOnes].sort((a, b) => 
+            const combined = [...prev, ...data];
+            const unique = Array.from(new Map(combined.map(m => [m.id, m])).values());
+            return unique.sort((a, b) => 
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
             );
           });
@@ -84,15 +84,23 @@ export function ChatClient({
       if (result.success && result.message) {
         setInput("");
         // Optimistic update handled by polling or manual append
-        setMessages(prev => [...prev, {
-          id: result.message.id,
-          content: result.message.content,
-          userId: currentUserId,
-          userName: "You",
-          userRole: "AGENT", // Default
-          createdAt: new Date().toISOString(),
-          rewardPoints: result.message.rewardPoints
-        }]);
+        // Safe append: only add if not already present (due to polling race)
+        setMessages(prev => {
+          if (prev.some(m => m.id === result.message.id)) return prev;
+          const createdAt = result.message.createdAt instanceof Date 
+            ? result.message.createdAt.toISOString() 
+            : (result.message.createdAt || new Date().toISOString());
+            
+          return [...prev, {
+            id: result.message.id,
+            content: result.message.content,
+            userId: currentUserId,
+            userName: "You",
+            userRole: "AGENT", // Default
+            createdAt,
+            rewardPoints: result.message.rewardPoints
+          }];
+        });
       }
     } catch (e) {
       console.error("Send error:", e);
