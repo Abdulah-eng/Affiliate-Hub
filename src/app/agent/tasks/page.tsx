@@ -11,10 +11,17 @@ import {
   Trophy,
   ArrowRight,
   MonitorPlay,
-  Lock
+  Lock,
+  X,
+  Megaphone,
+  Image as ImageIcon,
+  Upload,
+  AlertTriangle,
+  Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getTasks, completeTask } from "@/app/actions/tasks";
+import { submitPromoProof, claimSimplePromo } from "@/app/actions/promos";
 
 export default function AgentTasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -24,10 +31,18 @@ export default function AgentTasksPage() {
   const [videoEnded, setVideoEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Promo specific states
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string | null>(null);
+
   const fetchTasks = async () => {
     setLoading(true);
-    const data = await getTasks();
-    setTasks(data);
+    const res = await getTasks();
+    if (res && res.items) {
+      setTasks(res.items);
+    } else if (Array.isArray(res)) {
+      setTasks(res);
+    }
     setLoading(false);
   };
 
@@ -43,6 +58,38 @@ export default function AgentTasksPage() {
         fetchTasks();
       } else {
         alert(res.error);
+      }
+    });
+  };
+
+  const handlePromoSubmit = () => {
+    if (!selectedTask) return;
+    startTransition(async () => {
+      if (selectedTask.requiresVerification) {
+        if (!proofFile) {
+          alert("Please select a screenshot first.");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("promoId", selectedTask.id);
+        formData.append("file", proofFile);
+        const res = await submitPromoProof(formData);
+        if (res.success) {
+          setSelectedTask(null);
+          setProofFile(null);
+          setProofPreview(null);
+          fetchTasks();
+        } else {
+          alert(res.error);
+        }
+      } else {
+        const res = await claimSimplePromo(selectedTask.id);
+        if (res.success) {
+          setSelectedTask(null);
+          fetchTasks();
+        } else {
+          alert(res.error);
+        }
       }
     });
   };
@@ -75,7 +122,7 @@ export default function AgentTasksPage() {
             Mission <span className="text-primary tracking-normal">Control</span>
           </h1>
           <p className="text-on-surface-variant max-w-2xl text-lg font-medium mt-4">
-            Watch content, learn protocol, and extract point rewards into your vault.
+            Watch content, participate in propaganda, and extract point rewards into your vault.
           </p>
         </div>
       </div>
@@ -89,32 +136,59 @@ export default function AgentTasksPage() {
                 key={task.id} 
                 className={cn(
                   "p-8 group cursor-pointer hover:border-primary/50 transition-all relative overflow-hidden",
-                  selectedTask?.id === task.id ? "border-primary ring-2 ring-primary/20" : ""
+                  selectedTask?.id === task.id ? "border-primary ring-2 ring-primary/20" : "",
+                  task.taskType === "PROMO" ? "border-tertiary/20" : ""
                 )}
                 onClick={() => {
                   setSelectedTask(task);
                   setVideoEnded(false);
+                  setProofFile(null);
+                  setProofPreview(null);
                 }}
               >
                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                  <MonitorPlay size={80} />
+                  {task.taskType === "PROMO" ? <Megaphone size={80} /> : <MonitorPlay size={80} />}
                 </div>
                 <div className="relative z-10">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-background transition-all">
-                      <Play size={24} />
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl flex items-center justify-center transition-all",
+                      task.taskType === "PROMO" 
+                        ? "bg-tertiary/10 text-tertiary group-hover:bg-tertiary group-hover:text-white" 
+                        : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-background"
+                    )}>
+                      {task.taskType === "PROMO" ? <Megaphone size={24} /> : <Play size={24} />}
                     </div>
-                    <span className="text-2xl font-black text-primary font-mono">+{task.points}</span>
+                    <span className={cn("text-2xl font-black font-mono", task.taskType === "PROMO" ? "text-tertiary" : "text-primary")}>
+                       +{task.points}
+                    </span>
                   </div>
                   <h3 className="text-xl font-black text-on-surface uppercase tracking-tight mb-2">{task.title}</h3>
                   <p className="text-xs text-on-surface-variant font-medium leading-relaxed mb-6 line-clamp-2">
                     {task.description}
                   </p>
+                  
+                  {task.taskType === "PROMO" && task.submissionStatus === "PENDING" && (
+                    <div className="mb-4 px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full w-fit">
+                      Verification Pending
+                    </div>
+                  )}
+
+                  {task.taskType === "PROMO" && task.submissionStatus === "REJECTED" && (
+                     <div className="mb-4 px-3 py-1 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-full w-fit">
+                        Rejected - Reupload Proof
+                     </div>
+                  )}
+
                   <div className="flex items-center justify-between pt-4 border-t border-white/5">
                     <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
-                      <Clock size={12} /> ~2 min video
+                      {task.taskType === "PROMO" ? (
+                         task.requiresVerification ? <><ImageIcon size={12} /> SS Proof Required</> : <><Zap size={12} /> Instant Claim</>
+                      ) : (
+                         <><Clock size={12} /> ~2 min video</>
+                      )}
                     </span>
-                    <ArrowRight size={18} className="text-primary opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ArrowRight size={18} className={cn("transition-all opacity-0 group-hover:opacity-100 group-hover:translate-x-1", task.taskType === "PROMO" ? "text-tertiary" : "text-primary")} />
                   </div>
                 </div>
               </GlassCard>
@@ -130,89 +204,173 @@ export default function AgentTasksPage() {
           </div>
         </div>
 
-        {/* Video Player Modal/Overlay if selected */}
+        {/* Action Modal */}
         {selectedTask && (
           <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl p-4 md:p-10 flex items-center justify-center overflow-y-auto">
             <div className="w-full max-w-5xl animate-vapor">
               <div className="flex items-center justify-between mb-6">
                 <div>
                    <h2 className="text-2xl font-black text-on-surface uppercase tracking-tight">{selectedTask.title}</h2>
-                   <p className="text-xs text-primary font-bold uppercase tracking-widest mt-1">Reward: {selectedTask.points} Kinetic points</p>
+                   <p className={cn("text-xs font-bold uppercase tracking-widest mt-1", selectedTask.taskType === "PROMO" ? "text-tertiary" : "text-primary")}>
+                     Reward: {selectedTask.points} Kinetic points
+                   </p>
                 </div>
                 <button 
-                  onClick={() => setSelectedTask(null)}
+                  onClick={() => {
+                    setSelectedTask(null);
+                    setProofFile(null);
+                    setProofPreview(null);
+                  }}
                   className="p-3 rounded-full hover:bg-white/10 text-on-surface-variant transition-all"
                 >
                   <X size={24} />
                 </button>
               </div>
 
-              <GlassCard className="p-2 border-primary/20 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
-                <div className="aspect-video bg-black relative rounded-2xl overflow-hidden">
-                   {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
-                     <iframe 
-                       className="w-full h-full"
-                       src={`${selectedTask.videoUrl.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
-                       title={selectedTask.title}
-                       allowFullScreen
-                       // Note: Tracking conclusion of YouTube iframes requires YouTube IFrame API
-                       // For simplicity here, we assume HTML5 or use a simple timer/button if it's an embed
-                     ></iframe>
-                   ) : (
-                     <video 
-                       ref={videoRef}
-                       className="w-full h-full"
-                       src={selectedTask.videoUrl} 
-                       controls 
-                       autoPlay
-                       onEnded={onVideoEnd}
-                     />
-                   )}
-                </div>
-              </GlassCard>
-
-              <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                 <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500",
-                      videoEnded ? "bg-emerald-500 text-slate-950 scale-110 shadow-[0_0_20px_#10b981]" : "bg-white/5 text-on-surface-variant"
-                    )}>
-                       {videoEnded ? <CheckCircle2 size={24} /> : <Clock size={24} className="animate-pulse" />}
+              {selectedTask.taskType === "VIDEO" ? (
+                /* VIDEO TASK UI */
+                <>
+                  <GlassCard className="p-2 border-primary/20 shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                    <div className="aspect-video bg-black relative rounded-2xl overflow-hidden">
+                       {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
+                         <iframe 
+                           className="w-full h-full"
+                           src={`${selectedTask.videoUrl.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
+                           title={selectedTask.title}
+                           allowFullScreen
+                         ></iframe>
+                       ) : (
+                         <video 
+                           ref={videoRef}
+                           className="w-full h-full"
+                           src={selectedTask.videoUrl} 
+                           controls 
+                           autoPlay
+                           onEnded={onVideoEnd}
+                         />
+                       )}
                     </div>
-                    <div>
-                      <p className="text-sm font-black text-on-surface uppercase">Completion Status</p>
-                      <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
-                        {videoEnded ? "Protocol Concluded - Extract Rewards" : "Mission In Progress - Watch to conclude"}
-                      </p>
-                    </div>
-                 </div>
+                  </GlassCard>
 
-                 <div className="flex gap-4 w-full md:w-auto">
-                    {!videoEnded && selectedTask.videoUrl?.includes('embed') && (
-                       /* Fallback for YouTube embeds if API isn't fully wired: manual claim after 30s? No, user said watch & end. */
-                       /* For now, for YouTube, we will allow manual claim after selection since we can't easily detect end without API */
-                       <button 
-                        onClick={() => setVideoEnded(true)}
-                        className="px-8 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10"
-                       >
-                         I've finished watching
-                       </button>
-                    )}
-                    <button 
-                      disabled={!videoEnded || isPending}
-                      onClick={handleClaimPoints}
-                      className={cn(
-                        "flex-1 md:flex-none px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-2xl flex items-center justify-center gap-3",
-                        videoEnded 
-                          ? "bg-primary text-background hover:scale-105 active:scale-95 shadow-primary/20" 
-                          : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed border border-white/5"
+                  <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500",
+                          videoEnded ? "bg-emerald-500 text-slate-950 scale-110 shadow-[0_0_20px_#10b981]" : "bg-white/5 text-on-surface-variant"
+                        )}>
+                          {videoEnded ? <CheckCircle2 size={24} /> : <Clock size={24} className="animate-pulse" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-on-surface uppercase">Completion Status</p>
+                          <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
+                            {videoEnded ? "Protocol Concluded - Extract Rewards" : "Mission In Progress - Watch to conclude"}
+                          </p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4 w-full md:w-auto">
+                        {!videoEnded && selectedTask.videoUrl?.includes('embed') && (
+                          <button 
+                            onClick={() => setVideoEnded(true)}
+                            className="px-8 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10"
+                          >
+                            I've finished watching
+                          </button>
+                        )}
+                        <button 
+                          disabled={!videoEnded || isPending}
+                          onClick={handleClaimPoints}
+                          className={cn(
+                            "flex-1 md:flex-none px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-2xl flex items-center justify-center gap-3",
+                            videoEnded 
+                              ? "bg-primary text-background hover:scale-105 active:scale-95 shadow-primary/20" 
+                              : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed border border-white/5"
+                          )}
+                        >
+                          {isPending ? <Loader2 size={20} className="animate-spin" /> : <Trophy size={20} />}
+                          {isPending ? "EXTRACTING..." : "EXTRACT REWARD"}
+                        </button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* PROMO UI */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                   <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative">
+                      {selectedTask.imageUrl ? (
+                        <img src={selectedTask.imageUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-tertiary/20">
+                           <Megaphone size={120} />
+                        </div>
                       )}
-                    >
-                      {isPending ? <Loader2 size={20} className="animate-spin" /> : <Trophy size={20} />}
-                      {isPending ? "EXTRACTING..." : "EXTRACT REWARD"}
-                    </button>
-                 </div>
-              </div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent flex items-end p-8">
+                         <p className="text-sm font-medium italic opacity-80">{selectedTask.description}</p>
+                      </div>
+                   </GlassCard>
+
+                   <div className="space-y-8 flex flex-col justify-center">
+                      {selectedTask.requiresVerification ? (
+                        <div className="space-y-6">
+                           <div className="flex items-center gap-3 mb-2">
+                              <Upload size={20} className="text-tertiary" />
+                              <h3 className="text-xl font-black uppercase tracking-tight">Proof Required</h3>
+                           </div>
+                           <p className="text-xs text-on-surface-variant font-medium">Please upload a screenshot showing your participation/support for this campaign to receive points.</p>
+                           
+                           <div className="relative group rounded-2xl overflow-hidden aspect-video bg-white/5 border-2 border-dashed border-white/10 hover:border-tertiary/50 transition-all">
+                              {proofPreview ? (
+                                <img src={proofPreview} alt="Proof" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-40">
+                                   <ImageIcon size={40} />
+                                   <span className="text-[10px] font-black uppercase tracking-[0.2em]">Select Screenshot</span>
+                                </div>
+                              )}
+                              <input 
+                                type="file" 
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    setProofFile(file);
+                                    setProofPreview(URL.createObjectURL(file));
+                                  }
+                                }}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                              />
+                           </div>
+
+                           <button 
+                             onClick={handlePromoSubmit}
+                             disabled={isPending || !proofFile}
+                             className="w-full py-5 bg-tertiary text-white rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-tertiary/20 flex items-center justify-center gap-3"
+                           >
+                             {isPending ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                             {isPending ? "DEPLOING PROOF..." : "SUBMIT FOR REVIEW"}
+                           </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-6 text-center">
+                           <div className="w-24 h-24 rounded-full bg-tertiary/10 border-2 border-tertiary mx-auto flex items-center justify-center text-tertiary shadow-[0_0_30px_rgba(166,140,255,0.2)]">
+                              <Trophy size={48} />
+                           </div>
+                           <div>
+                              <h3 className="text-2xl font-black uppercase tracking-tight mb-2">Instant Extraction</h3>
+                              <p className="text-xs text-on-surface-variant max-w-xs mx-auto italic">No verification required for this transmission. Extraction will credit points immediately.</p>
+                           </div>
+                           <button 
+                             onClick={handlePromoSubmit}
+                             disabled={isPending}
+                             className="w-full py-5 bg-tertiary text-white rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-tertiary/20"
+                           >
+                             {isPending ? "PROCESSING..." : "EXTRACT REWARD"}
+                           </button>
+                        </div>
+                      )}
+                   </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -241,7 +399,7 @@ export default function AgentTasksPage() {
   );
 }
 
-function X({ size, className }: { size?: number, className?: string }) {
+function XIcon({ size, className }: { size?: number, className?: string }) {
   return (
     <svg 
       width={size || 24} 

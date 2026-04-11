@@ -152,9 +152,15 @@ export default function ReviewHistoryPage() {
                       {row.kycStatus}
                     </span>
                   </td>
-                  <td className="px-10 py-6 text-right">
-                    <button className="text-primary hover:text-white transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 float-right group-hover:translate-x-1">
-                      Deep Audit <ArrowUpRight size={14} />
+                  <td className="px-10 py-6 text-right flex items-center justify-end gap-4">
+                    <Link 
+                      href={`/admin/reviews/${row.id}`}
+                      className="text-primary hover:text-white transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 group-hover:-translate-x-1"
+                    >
+                      View Info <ArrowUpRight size={14} />
+                    </Link>
+                    <button className="text-on-surface-variant hover:text-white transition-all font-black text-[10px] uppercase tracking-[0.2em] flex items-center gap-2 group-hover:translate-x-1 opacity-40 hover:opacity-100">
+                      Deep Audit <Zap size={14} />
                     </button>
                   </td>
                 </tr>

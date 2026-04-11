@@ -38,7 +38,8 @@ export default function RaffleSettingsPage() {
       "raffle_standard_1000": "10",
       "raffle_grand_iphone": "0.1",
       "raffle_grand_10kgcash": "1",
-      "raffle_grand_1kchips": "18.9"
+      "raffle_grand_1kchips": "18.9",
+      "raffle_grand_200gcash": "80"
     };
 
     Object.keys(defaults).forEach(k => {
@@ -143,7 +144,8 @@ export default function RaffleSettingsPage() {
               {[
                 { key: "raffle_grand_iphone", label: "iPhone 15+ Jackpot", icon: "📱" },
                 { key: "raffle_grand_10kgcash", label: "10k GCash Prize", icon: "💸" },
-                { key: "raffle_grand_1kchips", label: "1k Chips Reward", icon: "🎫" }
+                { key: "raffle_grand_1kchips", label: "1k Chips Reward", icon: "🎫" },
+                { key: "raffle_grand_200gcash", label: "200 GCash Base", icon: "🎁" }
               ].map(item => (
                 <div key={item.key} className="space-y-2">
                   <div className="flex justify-between items-center">
@@ -167,9 +169,17 @@ export default function RaffleSettingsPage() {
                  <p className="text-[10px] text-tertiary font-black uppercase tracking-widest flex items-center gap-2 mb-2">
                    <AlertCircle size={12} /> Auto-Balance logic
                  </p>
-                 <p className="text-[10px] text-on-surface-variant font-medium leading-relaxed">
-                   Remaining probability is automatically assigned to the "200 GCash" base prize (Currently {Math.max(0, 100 - parseFloat(settings.raffle_grand_iphone || "0") - parseFloat(settings.raffle_grand_10kgcash || "0") - parseFloat(settings.raffle_grand_1kchips || "0")).toFixed(2)}%).
-                 </p>
+                  <p className="text-[10px] text-on-surface-variant font-medium leading-relaxed">
+                    Total Allocation: {(
+                      parseFloat(settings.raffle_grand_iphone || "0") + 
+                      parseFloat(settings.raffle_grand_10kgcash || "0") + 
+                      parseFloat(settings.raffle_grand_1kchips || "0") + 
+                      parseFloat(settings.raffle_grand_200gcash || "0")
+                    ).toFixed(2)}%
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant font-medium leading-relaxed mt-1 italic opacity-60">
+                    * Ensure total equals 100% for precise RNG distribution.
+                  </p>
               </div>
            </GlassCard>
         </section>

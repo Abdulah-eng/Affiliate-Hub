@@ -176,3 +176,101 @@ export async function adminReviewSubmission(submissionId: string, status: "APPRO
     return { success: false, error: error.message };
   }
 }
+export async function claimSimplePromo(promoId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const userId = session.user.id;
+    const promo = await prisma.promo.findUnique({ where: { id: promoId } });
+    
+    if (!promo) return { success: false, error: "Promo not found" };
+    if (promo.requiresVerification) return { success: false, error: "This promo requires verification" };
+
+    // Check if already submitted/claimed
+    const existing = await prisma.promoSubmission.findFirst({
+      where: { promoId, userId }
+    });
+    if (existing) return { success: false, error: "Already claimed" };
+
+    await prisma.$transaction(async (tx) => {
+      // Create a submission record as "APPROVED" immediately
+      await tx.promoSubmission.create({
+        data: {
+          promoId,
+          userId,
+          screenshotUrl: "SYSTEM_CLAIM",
+          status: "APPROVED",
+          reviewedAt: new Date()
+        }
+      });
+
+      // Award points
+      await tx.pointTransaction.create({
+        data: {
+          userId,
+          amount: promo.pointsAward,
+          currency: promo.currency,
+          type: "PROMO",
+          description: `Promo Claim: ${promo.title}`,
+          status: "COMPLETED"
+        }
+      });
+
+      // --- Daily Mission Bonus Logic ---
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let dailyTask = await tx.userDailyTask.findUnique({
+        where: { userId_taskKey: { userId, taskKey: "DAILY_MISSIONS" } }
+      });
+
+      if (dailyTask && dailyTask.lastResetAt < today) {
+        dailyTask = await tx.userDailyTask.update({
+          where: { id: dailyTask.id },
+          data: { count: 0, lastResetAt: new Date() }
+        });
+      }
+
+      if (!dailyTask) {
+        dailyTask = await tx.userDailyTask.create({
+          data: { userId, taskKey: "DAILY_MISSIONS", count: 0, lastResetAt: new Date() }
+        });
+      }
+
+      const newCount = dailyTask.count + 1;
+      await tx.userDailyTask.update({
+        where: { id: dailyTask.id },
+        data: { count: newCount }
+      });
+
+      if (newCount === 3) {
+        await tx.pointTransaction.create({
+          data: {
+            userId,
+            amount: 200,
+            type: "DAILY_BONUS",
+            description: "Daily Mission Milestone: 3 Missions Completed",
+            status: "COMPLETED"
+          }
+        });
+
+        await tx.notification.create({
+          data: {
+            userId,
+            title: "Daily Goal Achieved!",
+            message: "You've earned a +200 PTS bonus for completing 3 missions today!",
+            type: "SUCCESS"
+          }
+        });
+      }
+      // ---------------------------------
+    });
+
+    revalidatePath("/agent/tasks");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Simple Promo Claim Error:", error);
+    return { success: false, error: error.message };
+  }
+}

@@ -7,23 +7,60 @@ import { revalidatePath } from "next/cache";
 
 export async function getTasks() {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user) return [];
+  if (!session || !session.user) return { items: [], dailyCount: 0 };
 
   const userId = (session.user as any).id;
 
-  const tasks = await prisma.task.findMany({
-    include: {
-      userProgress: {
-        where: { userId }
-      }
-    },
-    orderBy: { createdAt: "desc" }
+  const [tasks, promos, submissions, dailyTask] = await Promise.all([
+    prisma.task.findMany({
+      include: {
+        userProgress: {
+          where: { userId }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    }),
+    prisma.promo.findMany({
+      where: { active: true },
+      orderBy: { createdAt: "desc" }
+    }),
+    prisma.promoSubmission.findMany({
+      where: { userId }
+    }),
+    prisma.userDailyTask.findUnique({
+      where: { userId_taskKey: { userId, taskKey: "DAILY_MISSIONS" } }
+    })
+  ]);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dailyCount = (dailyTask && dailyTask.lastResetAt >= today) ? dailyTask.count : 0;
+
+  const mappedTasks = tasks.map(t => ({
+    ...t,
+    completed: t.userProgress.length > 0,
+    taskType: "VIDEO"
+  }));
+
+  const mappedPromos = promos.map(p => {
+    const sub = submissions.find(s => s.promoId === p.id);
+    return {
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      points: p.pointsAward,
+      imageUrl: p.imageUrl,
+      completed: sub?.status === "APPROVED",
+      submissionStatus: sub?.status, // PENDING, APPROVED, REJECTED
+      requiresVerification: p.requiresVerification,
+      taskType: "PROMO"
+    };
   });
 
-  return tasks.map(t => ({
-    ...t,
-    completed: t.userProgress.length > 0
-  }));
+  return {
+    items: [...mappedTasks, ...mappedPromos],
+    dailyCount
+  };
 }
 
 export async function completeTask(taskId: string) {
@@ -59,6 +96,58 @@ export async function completeTask(taskId: string) {
           status: "COMPLETED"
         }
       });
+
+      // --- Daily Mission Bonus Logic ---
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let dailyTask = await tx.userDailyTask.findUnique({
+        where: { userId_taskKey: { userId, taskKey: "DAILY_MISSIONS" } }
+      });
+
+      // Reset if lastResetAt is before today
+      if (dailyTask && dailyTask.lastResetAt < today) {
+        dailyTask = await tx.userDailyTask.update({
+          where: { id: dailyTask.id },
+          data: { count: 0, lastResetAt: new Date() }
+        });
+      }
+
+      if (!dailyTask) {
+        dailyTask = await tx.userDailyTask.create({
+          data: { userId, taskKey: "DAILY_MISSIONS", count: 0, lastResetAt: new Date() }
+        });
+      }
+
+      // Increment count
+      const newCount = dailyTask.count + 1;
+      await tx.userDailyTask.update({
+        where: { id: dailyTask.id },
+        data: { count: newCount }
+      });
+
+      // Award bonus at exactly 3 missions
+      if (newCount === 3) {
+        await tx.pointTransaction.create({
+          data: {
+            userId,
+            amount: 200,
+            type: "DAILY_BONUS",
+            description: "Daily Mission Milestone: 3 Missions Completed",
+            status: "COMPLETED"
+          }
+        });
+
+        await tx.notification.create({
+          data: {
+            userId,
+            title: "Daily Goal Achieved!",
+            message: "You've earned a +200 PTS bonus for completing 3 missions today!",
+            type: "SUCCESS"
+          }
+        });
+      }
+      // ---------------------------------
 
       // Notification
       await tx.notification.create({

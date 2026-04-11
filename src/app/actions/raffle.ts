@@ -122,12 +122,13 @@ export async function spinGrandRaffle() {
   const pIphone = getProb("raffle_grand_iphone", 0.001);
   const p10k = getProb("raffle_grand_10kgcash", 0.01);
   const p1k = getProb("raffle_grand_1kchips", 0.189);
+  const p200 = getProb("raffle_grand_200gcash", 0.8);
 
   const rng = Math.random();
   let prizeLabel = "";
   let stopAngle = 0;
 
-  // iPhone 15+ (0.1%), 10k GCash (1%), 1k Chips (18.9%), 200 GCash (80%)
+  // Probability distribution based on explicit totals
   if (rng < pIphone) {
     prizeLabel = "iPhone 15+";
     stopAngle = 0; // Top
@@ -137,9 +138,13 @@ export async function spinGrandRaffle() {
   } else if (rng < pIphone + p10k + p1k) {
     prizeLabel = "1k Chips";
     stopAngle = 180; // Bottom
-  } else {
+  } else if (rng < pIphone + p10k + p1k + p200) {
     prizeLabel = "200 GCash";
     stopAngle = 270; // Left
+  } else {
+    // Fallback if total < 1.0 (though ideally it should be 1.0)
+    prizeLabel = "200 GCash";
+    stopAngle = 270;
   }
 
   // Record transaction

@@ -32,8 +32,12 @@ export default function AdminTasksPage() {
 
   const fetchTasks = async () => {
     setLoading(true);
-    const data = await getTasks();
-    setTasks(data);
+    const res = await getTasks();
+    if (Array.isArray(res)) {
+       setTasks(res);
+    } else if (res && res.items) {
+       setTasks(res.items);
+    }
     setLoading(false);
   };
 

@@ -39,6 +39,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
     { name: 'Brand Nexus', icon: <Rocket size={20} />, href: '/agent/platforms' },
     { name: 'Wallet', icon: <Wallet size={20} />, href: '/agent/wallet' },
     { name: 'Referrals', icon: <Users size={20} />, href: '/agent/referrals' },
+    { name: 'Earn', icon: <Trophy size={20} />, href: '/agent/earn' },
     { name: 'Nexus Feed', icon: <MessageSquare size={20} />, href: '/agent/chat' },
     { name: 'Mines Arena', icon: <Bomb size={20} />, href: '/agent/mines' },
     { name: 'Raffle Arena', icon: <Gift size={20} />, href: '/agent/raffle' },
