@@ -21,7 +21,7 @@ import { getAgentWallet } from "@/app/actions/wallet";
 export default function AgentWalletPage() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState({ pts: 0, gcash: 0 });
   const [transactions, setTransactions] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,17 +35,10 @@ export default function AgentWalletPage() {
     setLoading(true);
     const data = await getAgentWallet();
     if (data) {
-      // Calculate true balance considering holds
-      let activeBalance = 0;
-      data.transactions.forEach((t) => {
-        if (t.status === "REJECTED") return;
-        if (t.type === "WITHDRAWAL_HOLD" || t.type === "REDEMPTION") {
-          activeBalance -= t.amount;
-        } else {
-          activeBalance += t.amount;
-        }
+      setBalance({
+        pts: data.totalPoints,
+        gcash: data.totalGCash
       });
-      setBalance(activeBalance);
       setTransactions(data.transactions);
       if (data.mobileNumber && !paymentDetails) {
         setPaymentDetails(data.mobileNumber);
@@ -64,7 +57,7 @@ export default function AgentWalletPage() {
       setError("Minimum withdrawal is 100 PTS.");
       return;
     }
-    if (amount > balance) {
+    if (amount > balance.pts + balance.gcash) {
       setError("Insufficient balance.");
       return;
     }
@@ -122,24 +115,37 @@ export default function AgentWalletPage() {
               <Wallet size={160} />
             </div>
             
-            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-10">
-              <div>
-                <p className="text-[10px] uppercase font-black tracking-[0.3em] text-primary mb-1">AVAILABLE LIQUIDITY</p>
+            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+              <div className="p-6 bg-primary/10 rounded-2xl border border-primary/20 backdrop-blur-md">
+                <p className="text-[10px] uppercase font-black tracking-[0.3em] text-primary mb-1">POINTS WALLET</p>
                 <div className="flex items-baseline gap-2">
-                  <h3 className="text-5xl font-black text-on-surface font-headline tracking-tighter">
-                    {balance.toLocaleString()}
+                  <h3 className="text-4xl font-black text-on-surface font-headline tracking-tighter">
+                    {balance.pts.toLocaleString()}
                   </h3>
-                  <span className="text-sm font-black text-on-surface-variant uppercase tracking-widest">PTS</span>
+                  <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">PTS</span>
+                </div>
+              </div>
+
+              <div className="p-6 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 backdrop-blur-md relative overflow-hidden group/gcash">
+                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover/gcash:scale-110 transition-transform">
+                   <CheckCircle2 size={40} className="text-emerald-500" />
+                </div>
+                <p className="text-[10px] uppercase font-black tracking-[0.3em] text-emerald-500 mb-1">GCASH CREDIT</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-on-surface font-headline tracking-tighter">
+                    {balance.gcash.toLocaleString()}
+                  </h3>
+                  <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">PHP</span>
                 </div>
               </div>
               
               {pendingWithdrawals.length > 0 && (
-                <div className="bg-amber-500/10 border border-amber-500/20 px-4 py-3 rounded-xl flex items-center gap-3 self-start">
+                <div className="sm:col-span-2 bg-amber-500/10 border border-amber-500/20 px-4 py-3 rounded-xl flex items-center gap-3 self-start">
                   <Clock size={16} className="text-amber-400 animate-pulse shrink-0" />
                   <div>
-                    <p className="text-[9px] uppercase font-black tracking-widest text-amber-500">Pending Hold</p>
+                    <p className="text-[9px] uppercase font-black tracking-widest text-amber-500">Extraction Pending Audit</p>
                     <p className="text-sm font-bold text-amber-400 mt-0.5">
-                       {pendingWithdrawals.reduce((sum, t) => sum + t.amount, 0).toLocaleString()} PTS
+                       {pendingWithdrawals.reduce((sum, t) => sum + t.amount, 0).toLocaleString()} PTS / GCASH
                     </p>
                   </div>
                 </div>
@@ -159,12 +165,12 @@ export default function AgentWalletPage() {
                   <input 
                     type="number" 
                     min="100" 
-                    max={balance} 
+                    max={balance.pts + balance.gcash} 
                     value={amount} 
                     onChange={e => setAmount(Number(e.target.value))} 
                     className="w-full bg-transparent border-none py-3 px-3 text-sm font-mono font-black text-on-surface outline-none"
                   />
-                  <button type="button" onClick={() => setAmount(balance)} className="px-4 py-3 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest text-primary transition-colors border-l border-white/5">
+                  <button type="button" onClick={() => setAmount(balance.pts + balance.gcash)} className="px-4 py-3 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest text-primary transition-colors border-l border-white/5">
                     MAX
                   </button>
                 </div>
@@ -212,7 +218,7 @@ export default function AgentWalletPage() {
 
               <button 
                 type="submit" 
-                disabled={submitting || balance < 100}
+                disabled={submitting || (balance.pts + balance.gcash) < 100}
                 className="w-full bg-primary text-slate-950 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:shadow-[0_0_30px_rgba(129,236,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-4"
               >
                 {submitting ? <Loader2 className="animate-spin" size={16} /> : "Initiate Extraction"}
@@ -260,7 +266,7 @@ export default function AgentWalletPage() {
                       </div>
                       <div className="text-right">
                         <p className={cn("text-sm font-black font-mono", isPositive || t.status === "REJECTED" ? "text-emerald-400" : "text-on-surface")}>
-                          {isPositive || t.status === "REJECTED" ? "+" : "-"}{t.amount}
+                          {isPositive || t.status === "REJECTED" ? "+" : "-"}{t.amount} {t.currency || 'PTS'}
                         </p>
                         <span className={cn("text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border mt-1 inline-block",
                           t.status === "COMPLETED" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :

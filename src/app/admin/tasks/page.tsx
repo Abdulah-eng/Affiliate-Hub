@@ -93,7 +93,7 @@ export default function AdminTasksPage() {
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <GlassCard className="w-full max-w-lg p-8 space-y-6">
+          <GlassCard className="w-full max-w-lg p-8 space-y-6 max-h-[90vh] overflow-y-auto no-scrollbar">
             <h2 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">New Quest Protocol</h2>
             
             <div className="space-y-4">

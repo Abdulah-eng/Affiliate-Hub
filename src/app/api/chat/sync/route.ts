@@ -26,7 +26,10 @@ export async function GET() {
       userName: m.user.name || m.user.username || "Agent",
       userRole: m.user.role,
       createdAt: m.createdAt.toISOString(),
-      rewardPoints: m.rewardPoints
+      rewardPoints: m.rewardPoints,
+      reactions: m.reactions,
+      isSpam: m.isSpam,
+      isHelpful: m.isHelpful
     }));
 
     return NextResponse.json(formatted);

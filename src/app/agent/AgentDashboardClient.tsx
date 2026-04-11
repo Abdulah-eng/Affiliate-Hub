@@ -20,7 +20,15 @@ import {
   Search,
   AlertTriangle,
   MonitorPlay,
-  X
+  X,
+  Gift,
+  Zap,
+  Clock,
+  MessageSquare,
+  ThumbsUp,
+  Coins,
+  ImageIcon,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +49,8 @@ type Promo = {
   title: string;
   description: string | null;
   imageUrl: string | null;
+  requiresVerification: boolean;
+  pointsAward: number;
 };
 
 type Announcement = {
@@ -57,6 +67,7 @@ type Props = {
   promos: Promo[];
   userName: string;
   kycStatus: string;
+  dailyTasks: { key: string; count: number }[];
 };
 
 export default function AgentDashboardClient({
@@ -64,12 +75,27 @@ export default function AgentDashboardClient({
   announcements,
   promos,
   userName,
-  kycStatus
+  kycStatus,
+  dailyTasks
 }: Props) {
+  const tasks = [
+    { key: "DAILY_LOGIN", label: "Daily Sign-in", reward: "50 PTS", target: 1, icon: <Clock size={16} />, color: "text-primary" },
+    { key: "FIRST_CHAT", label: "First Nexus Node", reward: "100 PTS", target: 1, icon: <MessageSquare size={16} />, color: "text-secondary" },
+    { key: "CHAT_LIKES", label: "Community Support", reward: "250 PTS", target: 5, icon: <ThumbsUp size={16} />, color: "text-tertiary" },
+    { key: "DAILY_SURVIVAL", label: "Daily Survival Kit", reward: "200 GCASH", target: 1, icon: <Gift size={16} />, color: "text-amber-400" },
+  ];
+
+  const getTaskCount = (key: string) => dailyTasks.find(t => t.key === key)?.count || 0;
+
   const [revealedPasswords, setRevealedPasswords] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [launchPlatform, setLaunchPlatform] = useState<Platform | null>(null);
   const [activePromo, setActivePromo] = useState<Promo | null>(null);
+  
+  const [promoProof, setPromoProof] = useState<File | null>(null);
+  const [promoProofPreview, setPromoProofPreview] = useState<string | null>(null);
+  const [isSubmittingProof, setIsSubmittingProof] = useState(false);
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
   const toggleReveal = (id: string) => {
     setRevealedPasswords((prev) => {
@@ -421,6 +447,54 @@ export default function AgentDashboardClient({
 
       {/* Right Column */}
       <div className="lg:col-span-4 space-y-10">
+        
+        {/* Daily Bonus Section */}
+        <div className="space-y-6">
+          <h3 className="text-sm font-headline font-black text-on-surface-variant uppercase tracking-[0.3em] ml-1">
+            Daily Goals
+          </h3>
+          <GlassCard className="p-6 bg-surface-container-low/40 border-primary/10 overflow-hidden relative">
+            <div className="absolute -top-6 -right-6 opacity-5 rotate-12">
+               <Zap size={100} className="text-primary" />
+            </div>
+            <div className="space-y-4 relative z-10">
+              {tasks.map((task) => {
+                const count = getTaskCount(task.key);
+                const isDone = count >= task.target;
+                return (
+                  <div key={task.key} className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/5 transition-all hover:bg-white/[0.08]">
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
+                      isDone ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : "bg-surface-container text-on-surface-variant border-outline-variant/30"
+                    )}>
+                      {isDone ? <Check size={18} /> : task.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-xs font-black uppercase tracking-tight truncate", isDone ? "text-on-surface-variant/40 line-through" : "text-on-surface")}>
+                        {task.label}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                           <div 
+                             className={cn("h-full transition-all duration-1000", isDone ? "bg-emerald-500" : "bg-primary")} 
+                             style={{ width: `${Math.min(100, (count / task.target) * 100)}%` }} 
+                           />
+                        </div>
+                        <span className="text-[9px] font-black text-on-surface-variant">{count}/{task.target}</span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                       <p className={cn("text-[10px] font-black uppercase tracking-widest", isDone ? "text-emerald-400" : task.color)}>
+                         {task.reward}
+                       </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </GlassCard>
+        </div>
+
         {/* Promos Section */}
         {promos.length > 0 && (
           <div className="space-y-6">
@@ -559,7 +633,14 @@ export default function AgentDashboardClient({
       {/* Promo Instructions Detail Modal */}
       {activePromo && (
         <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6">
-           <GlassCard className="max-w-xl w-full p-8 space-y-6 animate-vapor">
+           <GlassCard className="max-w-xl w-full p-8 space-y-6 animate-vapor max-h-[90vh] overflow-y-auto no-scrollbar">
+              <div className="flex justify-between items-center mb-4">
+                 <h2 className="text-3xl font-black font-headline text-on-surface uppercase tracking-tight">{activePromo.title}</h2>
+                 <button onClick={() => { setActivePromo(null); setSubmissionSuccess(false); setPromoProof(null); setPromoProofPreview(null); }} className="p-2 text-on-surface-variant hover:text-white transition-colors">
+                   <X size={24} />
+                 </button>
+              </div>
+
               <div className="aspect-video w-full rounded-2xl overflow-hidden mb-6 border border-white/10">
                  {activePromo.imageUrl ? (
                    <img src={activePromo.imageUrl} alt={activePromo.title} className="w-full h-full object-cover" />
@@ -569,7 +650,7 @@ export default function AgentDashboardClient({
                    </div>
                  )}
               </div>
-              <h2 className="text-3xl font-black font-headline text-on-surface uppercase tracking-tight">{activePromo.title}</h2>
+              
               <div className="p-6 bg-surface-container-low rounded-2xl border border-white/5 space-y-3">
                  <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
                     <Lightbulb size={12} /> Poster Instructions
@@ -578,12 +659,83 @@ export default function AgentDashboardClient({
                     {activePromo.description || "No specific instructions provided. Please consult support if needed."}
                  </p>
               </div>
-              <button 
-                onClick={() => setActivePromo(null)}
-                className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                Understood
-              </button>
+
+              {activePromo.requiresVerification && !submissionSuccess && (
+                <div className="space-y-4">
+                  <div className="p-4 bg-primary/5 border border-dashed border-primary/20 rounded-2xl flex flex-col items-center gap-3">
+                    <p className="text-[10px] font-black text-primary uppercase tracking-widest">Verification Proof Required</p>
+                    <p className="text-[9px] text-on-surface-variant uppercase font-bold text-center">Upload a screenshot of the completed task to redeem {activePromo.pointsAward} PTS</p>
+                    
+                    <div className="relative w-full">
+                       <input 
+                         type="file" 
+                         accept="image/*"
+                         disabled={isSubmittingProof}
+                         onChange={(e) => {
+                           const file = e.target.files?.[0];
+                           if (file) {
+                             setPromoProof(file);
+                             setPromoProofPreview(URL.createObjectURL(file));
+                           }
+                         }}
+                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                       />
+                       <div className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface-variant flex items-center justify-center gap-2 text-xs font-bold uppercase transition-all hover:border-primary/40">
+                         {promoProof ? <span className="text-primary truncate">{promoProof.name}</span> : <><ImageIcon size={16} /> Select Screenshot</>}
+                       </div>
+                    </div>
+                    {promoProofPreview && (
+                      <div className="h-32 w-full rounded-xl overflow-hidden border border-white/10">
+                        <img src={promoProofPreview} className="w-full h-full object-contain" alt="Preview" />
+                      </div>
+                    )}
+                  </div>
+
+                  <button 
+                    onClick={async () => {
+                      if (!promoProof) return;
+                      setIsSubmittingProof(true);
+                      const formData = new FormData();
+                      formData.append("promoId", activePromo.id);
+                      formData.append("file", promoProof);
+                      
+                      const { submitPromoProof } = await import("@/app/actions/promos");
+                      const res = await submitPromoProof(formData);
+                      setIsSubmittingProof(false);
+                      if (res.success) {
+                        setSubmissionSuccess(true);
+                      } else {
+                        alert("Submission failed: " + res.error);
+                      }
+                    }}
+                    disabled={!promoProof || isSubmittingProof}
+                    className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                  >
+                    {isSubmittingProof ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Deploy Proof & Redeem"}
+                  </button>
+                </div>
+              )}
+
+              {submissionSuccess && (
+                <div className="p-8 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex flex-col items-center text-center gap-3">
+                   <div className="w-12 h-12 rounded-full bg-emerald-500 text-background flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                      <Check size={24} />
+                   </div>
+                   <div>
+                      <h4 className="font-black text-emerald-400 uppercase tracking-tight">Proof Submitted</h4>
+                      <p className="text-[10px] text-emerald-400/60 uppercase font-black tracking-widest mt-1">Pending Nexus Admin Review</p>
+                   </div>
+                </div>
+              )}
+
+              {!activePromo.requiresVerification && (
+                <button 
+                  onClick={() => setActivePromo(null)}
+                  className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  Understood
+                </button>
+              )}
            </GlassCard>
         </div>
       )}

@@ -12,7 +12,8 @@ import {
   X,
   Megaphone,
   Eye,
-  EyeOff
+  EyeOff,
+  Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
@@ -32,7 +33,9 @@ export default function AdminPromosPage() {
     title: "",
     description: "",
     imageUrl: "",
-    active: true
+    active: true,
+    requiresVerification: false,
+    pointsAward: 0
   });
   const [promoFile, setPromoFile] = useState<File | null>(null);
   const [promoPreview, setPromoPreview] = useState<string | null>(null);
@@ -78,7 +81,9 @@ export default function AdminPromosPage() {
           title: "",
           description: "",
           imageUrl: "",
-          active: true
+          active: true,
+          requiresVerification: false,
+          pointsAward: 0
         });
         setPromoFile(null);
         setPromoPreview(null);
@@ -182,6 +187,28 @@ export default function AdminPromosPage() {
                   <div className="absolute top-2 left-2 bg-slate-950/80 px-2 py-1 rounded text-[8px] font-black uppercase tracking-widest text-primary">Preview</div>
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                 <div>
+                  <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Points Award</label>
+                  <input 
+                    type="number"
+                    className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all"
+                    value={form.pointsAward}
+                    onChange={e => setForm({...form, pointsAward: parseInt(e.target.value)})}
+                  />
+                </div>
+                <div 
+                  className="flex items-center gap-3 cursor-pointer p-4 bg-slate-950/50 border border-white/10 rounded-xl"
+                  onClick={() => setForm({...form, requiresVerification: !form.requiresVerification})}
+                >
+                  <div className={cn("w-6 h-6 rounded border-2 flex items-center justify-center transition-all", form.requiresVerification ? "bg-primary border-primary" : "border-white/10")}>
+                    {form.requiresVerification && <Check size={14} className="text-slate-950" />}
+                  </div>
+                  <span className="text-xs font-bold text-on-surface">Screen Verification Required?</span>
+                </div>
+              </div>
+
               <div 
                 className="flex items-center gap-3 cursor-pointer p-2"
                 onClick={() => setForm({...form, active: !form.active})}

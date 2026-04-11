@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { redis } from "@/lib/redis";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
+import { awardDailyTask } from "./gamification";
 
 const CHAT_REDIS_KEY = "chat:recent_messages";
 const MAX_CACHED_MESSAGES = 100;
@@ -51,12 +52,12 @@ export async function sendMessage(content: string) {
   }
   // --- END STRAT ---
 
-  // Store in DB
   const newMessage = await prisma.chatMessage.create({
     data: {
       userId: session.user.id,
       content,
-      rewardPoints: 10 // e.g. give 10 points for engagement
+      rewardPoints: 10,
+      reactions: []
     },
     include: {
       user: {
@@ -64,6 +65,9 @@ export async function sendMessage(content: string) {
       }
     }
   });
+
+  // Award First Chat of Day
+  await awardDailyTask(session.user.id, "FIRST_CHAT", 100);
 
   // Automatically award points to Wallet
   await prisma.pointTransaction.create({
@@ -122,4 +126,68 @@ export async function getRecentChatMessages() {
   }
 
   return messages.reverse();
+}
+
+export async function reportSpam(messageId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false };
+
+  await prisma.chatMessage.update({
+    where: { id: messageId },
+    data: { isSpam: true }
+  });
+
+  // Clear cache to reflect change
+  try { await redis.del(CHAT_REDIS_KEY); } catch (e) {}
+
+  return { success: true };
+}
+
+export async function markHelpful(messageId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false };
+
+  await prisma.chatMessage.update({
+    where: { id: messageId },
+    data: { isHelpful: true }
+  });
+
+  // Clear cache to reflect change
+  try { await redis.del(CHAT_REDIS_KEY); } catch (e) {}
+
+  return { success: true };
+}
+
+export async function reactToMessage(messageId: string, type: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false };
+
+  const message = await prisma.chatMessage.findUnique({ where: { id: messageId } });
+  if (!message) return { success: false };
+
+  let reactions = message.reactions as any[] || [];
+  
+  // Toggle reaction: remove if exists, add if not
+  const existingIndex = reactions.findIndex(r => r.userId === session.user.id && r.type === type);
+  if (existingIndex > -1) {
+    reactions.splice(existingIndex, 1);
+  } else {
+    reactions.push({ userId: session.user.id, type });
+  }
+
+  await prisma.chatMessage.update({
+    where: { id: messageId },
+    data: { reactions }
+  });
+
+  // Clear cache to reflect change
+  try { await redis.del(CHAT_REDIS_KEY); } catch (e) {}
+
+  // Gamification: If it's a 'like', award points to the MESSAGE OWNER if they hit 5 total likes today
+  if (type === 'like' && existingIndex === -1) {
+    const { incrementDailyTask } = await import("./gamification");
+    await incrementDailyTask(message.userId, "CHAT_LIKES", 5, 250);
+  }
+
+  return { success: true };
 }

@@ -31,7 +31,7 @@ export default function AgentLayout({
       <AgentSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
       {/* Top Header */}
-      <header className="fixed top-0 inset-x-0 bg-slate-950/80 backdrop-blur-xl z-50 flex flex-col shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] lg:ml-72 transition-all">
+      <header className="fixed top-0 left-0 right-0 bg-slate-950/80 backdrop-blur-xl z-50 flex flex-col shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] lg:left-72 transition-all">
         <div className="flex items-center justify-between px-6 lg:px-12 h-20">
           <div className="flex items-center gap-6">
             <button 

@@ -14,7 +14,11 @@ export async function getAgentWallet() {
   });
 
   const totalPoints = transactions
-    .filter(t => t.status === "COMPLETED")
+    .filter(t => t.status === "COMPLETED" && t.currency === "PTS")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const totalGCash = transactions
+    .filter(t => t.status === "COMPLETED" && t.currency === "GCASH")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const user = await prisma.user.findUnique({
@@ -24,6 +28,7 @@ export async function getAgentWallet() {
 
   return {
     totalPoints,
+    totalGCash,
     transactions,
     mobileNumber: user?.mobileNumber || ""
   };

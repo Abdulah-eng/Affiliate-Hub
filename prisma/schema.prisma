@@ -14,6 +14,11 @@ enum Role {
   ADMIN
 }
 
+enum Currency {
+  PTS
+  GCASH
+}
+
 // Application status definition
 enum KycStatus {
   PENDING
@@ -86,6 +91,8 @@ model User {
   notifications Notification[]
   withdrawals   Withdrawal[]
   taskProgress  UserTaskProgress[]
+  promoSubmissions PromoSubmission[]
+  dailyTasks    UserDailyTask[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -128,6 +135,7 @@ model PointTransaction {
   id          String  @id @default(cuid())
   userId      String
   amount      Int
+  currency    Currency @default(PTS)
   type        String // REFERRAL, CHAT, LOGIN_STREAK, REDEMPTION
   description String?
   status      String  @default("COMPLETED") // COMPLETED, PENDING, FLAGGED
@@ -145,6 +153,10 @@ model ChatMessage {
 
   // Rewards linked to this message if any
   rewardPoints Int @default(0)
+
+  reactions   Json?    @default("[]") // Store as array of {userId, type}
+  isSpam      Boolean  @default(false)
+  isHelpful   Boolean  @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -224,6 +236,48 @@ model Promo {
   description String?
   imageUrl    String?
   active      Boolean  @default(true)
+  
+  requiresVerification Boolean @default(false)
+  pointsAward          Int @default(0)
+  currency             Currency @default(PTS)
+
+  submissions PromoSubmission[]
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model PromoSubmission {
+  id           String   @id @default(cuid())
+  promoId      String
+  userId       String
+  screenshotUrl String
+  status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedAt   DateTime?
+  
+  promo        Promo    @relation(fields: [promoId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime @default(now())
+}
+
+model UserDailyTask {
+  id          String   @id @default(cuid())
+  userId      String
+  taskKey     String   // e.g., "DAILY_LOGIN", "FIRST_CHAT", "CHAT_LIKES"
+  count       Int      @default(0)
+  lastResetAt DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, taskKey])
+}
+
+model WhitelistEntry {
+  id        String   @id @default(cuid())
+  value     String   @unique // IP or Username
+  type      String   // IP, USERNAME
+  reason    String?
+  addedBy   String?
+  createdAt DateTime @default(now())
 }

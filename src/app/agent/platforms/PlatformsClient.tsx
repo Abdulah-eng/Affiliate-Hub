@@ -140,22 +140,25 @@ export default function PlatformsClient({ brands, kycStatus }: Props) {
               </div>
 
               <div className="pt-6 border-t border-white/5">
-                 {isAvailable ? (
+                  {(isAvailable || isRejected) ? (
                     <button 
                       onClick={() => handleApply(brand.id)}
                       disabled={isPending || kycStatus !== 'APPROVED'}
-                      className="w-full py-4 bg-secondary text-white rounded-xl font-black uppercase tracking-widest text-xs shadow-lg shadow-secondary/10 hover:scale-[1.02] active:scale-[0.95] transition-all flex items-center justify-center gap-2 group/btn disabled:opacity-40 disabled:grayscale transition-all"
+                      className={cn(
+                        "w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs shadow-lg hover:scale-[1.02] active:scale-[0.95] transition-all flex items-center justify-center gap-2 group/btn disabled:opacity-40 disabled:grayscale transition-all",
+                        isRejected ? "bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/40" : "bg-secondary text-white shadow-secondary/10"
+                      )}
                     >
-                      {isPending ? <Loader2 size={16} className="animate-spin" /> : <>Request Access <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" /></>}
+                      {isPending ? <Loader2 size={16} className="animate-spin" /> : <>{isRejected ? "RE-APPLY" : "Request Access"} <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" /></>}
                     </button>
-                 ) : (
+                  ) : (
                     <div className={cn(
                       "w-full py-4 rounded-xl font-black uppercase tracking-widest text-[10px] text-center border transition-all",
                       isApproved ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-white/5 text-on-surface-variant/40 border-white/5"
                     )}>
-                      {isApproved ? "CONNECTION ACTIVE" : isPendingReq ? "APPLIED / IN REVIEW" : "DENIED"}
+                      {isApproved ? "CONNECTION ACTIVE" : "APPLIED / IN REVIEW"}
                     </div>
-                 )}
+                  )}
               </div>
             </GlassCard>
           );

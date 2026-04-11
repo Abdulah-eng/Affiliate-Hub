@@ -7,7 +7,12 @@ import {
   Paperclip, 
   Image as ImageIcon,
   CheckCheck,
-  Loader2
+  Loader2,
+  MoreVertical,
+  ThumbsUp,
+  AlertTriangle,
+  Star,
+  Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sendMessage } from "@/app/actions/chat";
@@ -20,6 +25,9 @@ type Message = {
   userRole: string;
   createdAt: string;
   rewardPoints: number;
+  reactions?: { userId: string, type: string }[];
+  isSpam?: boolean;
+  isHelpful?: boolean;
 };
 
 export function ChatClient({ 
@@ -32,6 +40,7 @@ export function ChatClient({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, msgId: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom
@@ -92,6 +101,24 @@ export function ChatClient({
     }
   };
 
+  const handleAction = async (msgId: string, action: 'spam' | 'helpful' | 'like') => {
+    setContextMenu(null);
+    const { reportSpam, markHelpful, reactToMessage } = await import("@/app/actions/chat");
+    
+    if (action === 'spam') await reportSpam(msgId);
+    else if (action === 'helpful') await markHelpful(msgId);
+    else if (action === 'like') await reactToMessage(msgId, 'like');
+    
+    // Refresh messages
+    const res = await fetch("/api/chat/sync");
+    if (res.ok) {
+      const data = await res.json();
+      setMessages(data.sort((a: any, b: any) => 
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      ));
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col bg-gradient-to-b from-[#0f172a] to-[#080d1a] rounded-3xl border border-[#1e293b] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_80px_rgba(129,236,255,0.02)] relative">
       {/* Message List */}
@@ -125,25 +152,70 @@ export function ChatClient({
                   </span>
                   {isSelf && <span className="text-sm font-black text-primary uppercase tracking-tight">You</span>}
                 </div>
-                <div className={cn(
-                  "p-5 rounded-3xl relative group border transition-all backdrop-blur-md shadow-2xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)]",
-                  isSelf 
-                    ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface" 
-                    : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90"
-                )}>
-                  <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
-                  {msg.rewardPoints > 0 && (
-                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
-                       <span className="bg-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-1 rounded-full border border-emerald-500/30 shadow-lg">+{msg.rewardPoints} PTS</span>
-                    </div>
+                  <div className={cn(
+                    "p-5 rounded-3xl relative group border transition-all backdrop-blur-md shadow-2xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu",
+                    msg.isSpam && "opacity-40 grayscale",
+                    msg.isHelpful && "border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
+                    isSelf 
+                      ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface" 
+                      : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90"
                   )}
-                  {isSelf && <div className="flex justify-end mt-2"><CheckCheck size={14} className="text-primary opacity-60" /></div>}
-                </div>
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    setContextMenu({ x: e.clientX, y: e.clientY, msgId: msg.id });
+                  }}
+                  >
+                    {msg.isSpam && <div className="absolute top-2 right-2 text-[8px] font-black text-red-500 uppercase tracking-widest">Flagged as Spam</div>}
+                    {msg.isHelpful && <div className="absolute top-2 right-2 text-[8px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-1"><Star size={8} fill="currentColor" /> Helpful Node</div>}
+                    
+                    <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
+                    
+                    {/* Reactions Display */}
+                    {msg.reactions && msg.reactions.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-3">
+                        {Array.from(new Set(msg.reactions.map(r => r.type))).map(type => (
+                          <div key={type} className="bg-white/5 border border-white/10 px-2 py-1 rounded-full text-[10px] flex items-center gap-1">
+                            {type === 'like' && <Heart size={10} fill="#ff4b4b" className="text-[#ff4b4b]" />}
+                            <span className="font-bold">{msg.reactions?.filter(r => r.type === type).length}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {msg.rewardPoints > 0 && (
+                      <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+                         <span className="bg-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-1 rounded-full border border-emerald-500/30 shadow-lg">+{msg.rewardPoints} PTS</span>
+                      </div>
+                    )}
+                    {isSelf && <div className="flex justify-end mt-2"><CheckCheck size={14} className="text-primary opacity-60" /></div>}
+                  </div>
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Context Menu Overlay */}
+      {contextMenu && (
+        <>
+          <div className="fixed inset-0 z-[110]" onClick={() => setContextMenu(null)} />
+          <div 
+            className="fixed z-[120] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 min-w-[180px] animate-in fade-in zoom-in duration-200"
+            style={{ top: contextMenu.y, left: contextMenu.x }}
+          >
+            <button onClick={() => handleAction(contextMenu.msgId, 'like')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
+              <Heart size={14} className="text-red-500" /> Like Message
+            </button>
+            <button onClick={() => handleAction(contextMenu.msgId, 'helpful')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
+              <Star size={14} className="text-amber-500" /> Mark as Helpful
+            </button>
+            <div className="h-[1px] bg-white/5 my-1" />
+            <button onClick={() => handleAction(contextMenu.msgId, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
+              <AlertTriangle size={14} /> Report as Spam
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Input Area */}
       <div className="p-8 bg-gradient-to-t from-background/40 to-transparent border-t border-white/5 relative z-10 backdrop-blur-sm">

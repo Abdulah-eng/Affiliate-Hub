@@ -26,7 +26,7 @@ import {
   X
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { submitKycApplication } from "@/app/actions/auth";
 import { signIn } from "next-auth/react";
@@ -70,8 +70,12 @@ const REFERRAL_SOURCES = [
 import { KycDisclaimer } from "@/components/kyc/KycDisclaimer";
 import { IdUploadField } from "@/components/kyc/IdUploadField";
 
-export default function ApplyPage() {
+import { Suspense } from "react";
+
+function ApplyPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref");
   const [isPending, startTransition] = useTransition();
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -95,7 +99,8 @@ export default function ApplyPage() {
 
   const handleGoogleApply = async () => {
     setGoogleLoading(true);
-    await signIn("google", { callbackUrl: "/apply/kyc" });
+    const callbackUrl = referralCode ? `/apply/kyc?ref=${referralCode}` : "/apply/kyc";
+    await signIn("google", { callbackUrl });
   };
 
   // Step 1: Account Setup
@@ -218,6 +223,7 @@ export default function ApplyPage() {
     });
 
     formData.append("agreedToTerms", "true");
+    if (referralCode) formData.append("referrerCode", referralCode);
 
     startTransition(async () => {
       const result = await submitKycApplication(formData);
@@ -811,5 +817,14 @@ export default function ApplyPage() {
     </div>
   );
 }
+
+export default function ApplyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
+      <ApplyPageContent />
+    </Suspense>
+  );
+}
+
 
 

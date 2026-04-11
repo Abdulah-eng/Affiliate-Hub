@@ -73,8 +73,12 @@ jobs:
             # Generate Prisma Client
             npx prisma generate
             
-            # Create uploads directory for CMS if it doesn't exist
+            # Create upload directories if they don't exist
             mkdir -p public/uploads/cms
+            mkdir -p public/uploads/kyc
+            mkdir -p public/uploads/promos
+            mkdir -p public/uploads/brands
+            mkdir -p public/uploads/payouts
             
             # Build the Next.js application
             npm run build

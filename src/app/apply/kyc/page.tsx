@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { IdUploadField } from "@/components/kyc/IdUploadField";
 import { KycDisclaimer } from "@/components/kyc/KycDisclaimer";
@@ -46,9 +46,11 @@ const REFERRAL_SOURCES = [
   "Messenger Community Chat", "Referral from a Friend / Family / Other Agent"
 ];
 
-export default function GoogleKycPage() {
+function GoogleKycPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralCode = searchParams.get("ref");
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -134,6 +136,7 @@ export default function GoogleKycPage() {
     formData.set("requestedBrands", JSON.stringify(selectedBrands));
     formData.set("referralSource", referralSource.join(", "));
     formData.set("agreedToTerms", agreedToTerms.toString());
+    if (referralCode) formData.set("referrerCode", referralCode);
 
     startTransition(async () => {
       const result = await submitKycForGoogleUser(userId, formData);
@@ -453,3 +456,12 @@ export default function GoogleKycPage() {
     </div>
   );
 }
+
+export default function GoogleKycPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
+      <GoogleKycPageContent />
+    </React.Suspense>
+  );
+}
+

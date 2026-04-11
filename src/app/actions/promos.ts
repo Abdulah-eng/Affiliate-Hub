@@ -19,7 +19,9 @@ export async function adminCreatePromo(data: {
   title: string,
   description?: string,
   imageUrl?: string,
-  active?: boolean
+  active?: boolean,
+  requiresVerification?: boolean,
+  pointsAward?: number
 }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
@@ -68,5 +70,109 @@ export async function uploadPromoImage(formData: FormData) {
   } catch (error: any) {
     console.error("Promo Upload Error:", error);
     return { success: false, error: "Failed to upload promo image." };
+  }
+}
+
+export async function submitPromoProof(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const promoId = formData.get("promoId") as string;
+    const file = formData.get("file") as File;
+    
+    if (!promoId || !file) return { success: false, error: "Missing required data" };
+
+    const uploadDir = join(process.cwd(), "public", "uploads", "proofs");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${session.user.id}-${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    
+    await writeFile(filePath, buffer);
+    const url = `/uploads/proofs/${fileName}`;
+
+    await prisma.promoSubmission.create({
+      data: {
+        promoId,
+        userId: session.user.id,
+        screenshotUrl: url,
+        status: "PENDING"
+      }
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Proof Submission Error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getAgentSubmissions() {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return [];
+
+  return prisma.promoSubmission.findMany({
+    where: { userId: session.user.id },
+    include: { promo: true },
+    orderBy: { createdAt: "desc" }
+  });
+}
+
+// Admin only: Get all pending submissions
+export async function adminGetPendingSubmissions() {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return [];
+
+  return prisma.promoSubmission.findMany({
+    where: { status: "PENDING" },
+    include: { 
+      promo: true,
+      user: { select: { name: true, username: true } }
+    },
+    orderBy: { createdAt: "asc" }
+  });
+}
+
+export async function adminReviewSubmission(submissionId: string, status: "APPROVED" | "REJECTED") {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    const submission = await prisma.promoSubmission.findUnique({
+      where: { id: submissionId },
+      include: { promo: true, user: true }
+    });
+
+    if (!submission) return { success: false, error: "Submission not found" };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.promoSubmission.update({
+        where: { id: submissionId },
+        data: { 
+          status,
+          reviewedAt: new Date()
+        }
+      });
+
+      if (status === "APPROVED") {
+        // Award points
+        await tx.pointTransaction.create({
+          data: {
+            userId: submission.userId,
+            amount: submission.promo.pointsAward,
+            currency: submission.promo.currency,
+            type: "PROMO",
+            description: `Verification Reward: ${submission.promo.title}`,
+            status: "COMPLETED"
+          }
+        });
+      }
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }

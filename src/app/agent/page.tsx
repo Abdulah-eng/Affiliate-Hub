@@ -8,6 +8,7 @@ import AgentDashboardClient from "./AgentDashboardClient";
 
 
 import { getPromos } from "@/app/actions/promos";
+import { awardDailyTask } from "@/app/actions/gamification";
 
 export default async function AgentDashboard() {
   const session = await getServerSession(authOptions);
@@ -17,6 +18,9 @@ export default async function AgentDashboard() {
   }
 
   const userId = (session.user as any).id;
+
+  // Award Daily Login Point
+  await awardDailyTask(userId, "DAILY_LOGIN", 50);
 
   // Always fetch fresh user status from DB in the server component
   // to avoid NextAuth session caching delays in the RSC payload
@@ -36,6 +40,11 @@ export default async function AgentDashboard() {
   });
 
   const promos = await getPromos();
+
+  // Fetch Daily Tasks status
+  const dailyTasks = await prisma.userDailyTask.findMany({
+    where: { userId }
+  });
 
   // Fetch recent announcements from SystemSettings used as announcements
   // (in a full build you'd have an Announcements model)
@@ -66,6 +75,7 @@ export default async function AgentDashboard() {
       promos={promos}
       userName={userName}
       kycStatus={kycStatus}
+      dailyTasks={dailyTasks.map(t => ({ key: t.taskKey, count: t.count }))}
     />
   );
 }

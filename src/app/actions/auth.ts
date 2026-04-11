@@ -38,6 +38,18 @@ export async function submitKycApplication(formData: FormData) {
     const password = rawData.password as string;
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Handle Referral logic
+    const referrerCode = rawData.referrerCode as string;
+    let referrerId = null;
+    if (referrerCode) {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode: referrerCode }
+      });
+      if (referrer) {
+        referrerId = referrer.id;
+      }
+    }
+
     // Create the PENDING user
     const newUser = await prisma.user.create({
       data: {
@@ -54,6 +66,7 @@ export async function submitKycApplication(formData: FormData) {
         affiliateUsername: rawData.affiliateUsername as string,
         location: rawData.location as string || rawData.city as string, 
         referralSource: rawData.referralSource as string,
+        referrerId, // Link!
         
         // KYC Data
         kycIdType: rawData.idType as string,
@@ -149,6 +162,18 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
     const kycSecondaryId2BackUrl = await handleFileUpload("secondaryId2Back", "s2-back");
     const selfieUrl = await handleFileUpload("selfie", "selfie") || "/mock-selfie.png";
 
+    // Handle Referral logic
+    const referrerCode = rawData.referrerCode as string;
+    let referrerId = undefined;
+    if (referrerCode) {
+      const referrer = await prisma.user.findUnique({
+        where: { referralCode: referrerCode }
+      });
+      if (referrer) {
+        referrerId = referrer.id;
+      }
+    }
+
     // Update the existing Google user with their KYC + profile data
     await prisma.user.update({
       where: { id: userId },
@@ -164,6 +189,7 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
         affiliateUsername: rawData.affiliateUsername as string,
         location: rawData.location as string || rawData.city as string,
         referralSource: rawData.referralSource as string,
+        referrerId, // Link!
 
         kycIdType: rawData.idType as string,
         kycIdNumber: rawData.idNumber as string,

@@ -28,7 +28,16 @@ export default async function ReferralsPage() {
     }
   });
 
-  const referralCode = user?.referralCode || "PENDING";
+  let referralCode = user?.referralCode;
+  
+  if (!referralCode || referralCode === "PENDING") {
+    referralCode = `AGENT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    await prisma.user.update({
+      where: { id: session?.user?.id },
+      data: { referralCode }
+    });
+  }
+
   const totalReferrals = user?.referrals.length || 0;
   const pendingRewards = totalReferrals * 500; // Mock calculation
 
@@ -94,7 +103,7 @@ export default async function ReferralsPage() {
             </div>
             
             <div className="bg-surface-container-high border border-outline-variant/30 px-8 py-4 rounded-2xl flex items-center gap-5 shadow-inner">
-              <span className="text-[10px] font-black text-primary tracking-[0.3em] uppercase">Node Code</span>
+              <span className="text-[10px] font-black text-primary tracking-[0.3em] uppercase">Agent Code</span>
               <span className="font-mono text-2xl font-black text-on-surface tracking-widest">{referralCode}</span>
             </div>
           </div>
