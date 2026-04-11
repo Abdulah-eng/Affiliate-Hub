@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ClientSoon } from "@/components/ui/ClientSoon";
+import { ChatHeaderDropdown } from "./ChatHeaderDropdown";
 
 export default async function NexusFeedPage() {
   const session = await getServerSession(authOptions);
@@ -136,13 +137,7 @@ export default async function NexusFeedPage() {
               </p>
             </div>
           </div>
-          <ClientSoon 
-            as="button"
-            message="Additional channel options coming soon."
-            className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-primary/5 rounded-xl"
-          >
-            <MoreVertical size={20} />
-          </ClientSoon>
+          <ChatHeaderDropdown />
         </div>
 
         <ChatClient 

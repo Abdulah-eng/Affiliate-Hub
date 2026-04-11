@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sendMessage } from "@/app/actions/chat";
+import EmojiPicker, { Theme } from "emoji-picker-react";
 
 type Message = {
   id: string;
@@ -40,8 +41,10 @@ export function ChatClient({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number, y: number, msgId: string } | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ msgId: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -74,6 +77,25 @@ export function ChatClient({
 
     return () => clearInterval(interval);
   }, []);
+
+  // Click outside handler for Emoji Picker and Context Menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+      if (contextMenu && !(event.target as HTMLElement).closest('.context-menu-container')) {
+        setContextMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [contextMenu]);
+
+  const onEmojiClick = (emojiData: any) => {
+    setInput(prev => prev + emojiData.emoji);
+    // Keep focus (optional, but good UX)
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isSending) return;
@@ -160,42 +182,75 @@ export function ChatClient({
                   </span>
                   {isSelf && <span className="text-sm font-black text-primary uppercase tracking-tight">You</span>}
                 </div>
-                  <div className={cn(
-                    "p-5 rounded-3xl relative group border transition-all backdrop-blur-md shadow-2xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu",
-                    msg.isSpam && "opacity-40 grayscale",
-                    msg.isHelpful && "border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
-                    isSelf 
-                      ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface" 
-                      : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90"
-                  )}
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    setContextMenu({ x: e.clientX, y: e.clientY, msgId: msg.id });
-                  }}
-                  >
-                    {msg.isSpam && <div className="absolute top-2 right-2 text-[8px] font-black text-red-500 uppercase tracking-widest">Flagged as Spam</div>}
-                    {msg.isHelpful && <div className="absolute top-2 right-2 text-[8px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-1"><Star size={8} fill="currentColor" /> Helpful Node</div>}
-                    
-                    <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
-                    
-                    {/* Reactions Display */}
-                    {msg.reactions && msg.reactions.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {Array.from(new Set(msg.reactions.map(r => r.type))).map(type => (
-                          <div key={type} className="bg-white/5 border border-white/10 px-2 py-1 rounded-full text-[10px] flex items-center gap-1">
-                            {type === 'like' && <Heart size={10} fill="#ff4b4b" className="text-[#ff4b4b]" />}
-                            <span className="font-bold">{msg.reactions?.filter(r => r.type === type).length}</span>
-                          </div>
-                        ))}
-                      </div>
+                  <div className="relative group/context">
+                    <div className={cn(
+                      "p-5 rounded-3xl relative group border transition-all backdrop-blur-md shadow-2xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu w-fit",
+                      msg.isSpam && "opacity-40 grayscale",
+                      msg.isHelpful && "border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
+                      isSelf 
+                        ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface ml-auto" 
+                        : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90 mr-auto"
                     )}
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      setContextMenu({ msgId: msg.id });
+                    }}
+                    >
+                      
+                      <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
+                      
+                      {/* Reactions & Marks Display */}
+                      {(msg.reactions && msg.reactions.length > 0 || msg.isHelpful || msg.isSpam) && (
+                        <div className={cn("flex flex-wrap gap-1 mt-3", isSelf ? "justify-end" : "justify-start")}>
+                          {msg.isHelpful && (
+                            <div className="bg-amber-500/10 border border-amber-500/30 px-2 py-1 rounded-full text-[10px] flex items-center gap-1 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+                              <Star size={10} fill="currentColor" />
+                              <span className="font-bold uppercase tracking-tighter">Helpful Node</span>
+                            </div>
+                          )}
+                          {msg.isSpam && (
+                            <div className="bg-red-500/10 border border-red-500/30 px-2 py-1 rounded-full text-[10px] flex items-center gap-1 text-red-500">
+                              <AlertTriangle size={10} />
+                              <span className="font-bold uppercase tracking-tighter">Spam</span>
+                            </div>
+                          )}
+                          {msg.reactions && Array.from(new Set(msg.reactions.map(r => r.type))).map(type => (
+                            <div key={type} className="bg-white/5 border border-white/10 px-2 py-1 rounded-full text-[10px] flex items-center gap-1">
+                              {type === 'like' && <Heart size={10} fill="#ff4b4b" className="text-[#ff4b4b]" />}
+                              <span className="font-bold">{msg.reactions?.filter(r => r.type === type).length}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+  
+                      {msg.rewardPoints > 0 && (
+                        <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+                           <span className="bg-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-1 rounded-full border border-emerald-500/30 shadow-lg">+{msg.rewardPoints} PTS</span>
+                        </div>
+                      )}
+                      {isSelf && <div className="flex justify-end mt-2"><CheckCheck size={14} className="text-primary opacity-60" /></div>}
+                    </div>
 
-                    {msg.rewardPoints > 0 && (
-                      <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
-                         <span className="bg-emerald-500/20 text-emerald-400 text-[9px] font-black px-2 py-1 rounded-full border border-emerald-500/30 shadow-lg">+{msg.rewardPoints} PTS</span>
+                    {/* Local Context Menu */}
+                    {contextMenu?.msgId === msg.id && (
+                      <div 
+                        className={cn(
+                          "absolute z-[120] bg-[#0f172a] border border-white/10 rounded-2xl shadow-2xl p-2 min-w-[190px] animate-in fade-in zoom-in duration-200 context-menu-container top-0",
+                          isSelf ? "right-full mr-4" : "left-full ml-4"
+                        )}
+                      >
+                        <button onClick={() => handleAction(msg.id, 'like')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
+                          <Heart size={14} className="text-red-500" /> Like Message
+                        </button>
+                        <button onClick={() => handleAction(msg.id, 'helpful')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
+                          <Star size={14} className="text-amber-500" /> Mark as Helpful
+                        </button>
+                        <div className="h-[1px] bg-white/5 my-1" />
+                        <button onClick={() => handleAction(msg.id, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
+                          <AlertTriangle size={14} /> Report as Spam
+                        </button>
                       </div>
                     )}
-                    {isSelf && <div className="flex justify-end mt-2"><CheckCheck size={14} className="text-primary opacity-60" /></div>}
                   </div>
               </div>
             </div>
@@ -203,27 +258,6 @@ export function ChatClient({
         })}
       </div>
 
-      {/* Context Menu Overlay */}
-      {contextMenu && (
-        <>
-          <div className="fixed inset-0 z-[110]" onClick={() => setContextMenu(null)} />
-          <div 
-            className="fixed z-[120] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl p-2 min-w-[180px] animate-in fade-in zoom-in duration-200"
-            style={{ top: contextMenu.y, left: contextMenu.x }}
-          >
-            <button onClick={() => handleAction(contextMenu.msgId, 'like')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
-              <Heart size={14} className="text-red-500" /> Like Message
-            </button>
-            <button onClick={() => handleAction(contextMenu.msgId, 'helpful')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
-              <Star size={14} className="text-amber-500" /> Mark as Helpful
-            </button>
-            <div className="h-[1px] bg-white/5 my-1" />
-            <button onClick={() => handleAction(contextMenu.msgId, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
-              <AlertTriangle size={14} /> Report as Spam
-            </button>
-          </div>
-        </>
-      )}
 
       {/* Input Area */}
       <div className="p-8 bg-gradient-to-t from-background/40 to-transparent border-t border-white/5 relative z-10 backdrop-blur-sm">
@@ -242,9 +276,27 @@ export function ChatClient({
             placeholder="Sync a message to the Nexus..." 
            />
            <div className="flex items-center gap-2 pr-2">
-              <button type="button" onClick={() => alert("Emoji picker coming soon")} className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl hidden md:block">
-                <Smile size={20} />
-              </button>
+              <div className="relative" ref={emojiPickerRef}>
+                {showEmojiPicker && (
+                  <div className="absolute bottom-full right-0 mb-4 z-50">
+                    <EmojiPicker 
+                      onEmojiClick={onEmojiClick}
+                      theme={Theme.DARK}
+                      lazyLoadEmojis={true}
+                    />
+                  </div>
+                )}
+                <button 
+                  type="button" 
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
+                  className={cn(
+                    "p-3 transition-colors rounded-2xl hidden md:block",
+                    showEmojiPicker ? "text-primary bg-primary/10" : "text-on-surface-variant hover:text-primary hover:bg-white/5"
+                  )}
+                >
+                  <Smile size={20} />
+                </button>
+              </div>
               <button 
                 type="submit" 
                 disabled={isSending || !input.trim()}

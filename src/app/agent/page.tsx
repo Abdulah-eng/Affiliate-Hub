@@ -19,9 +19,6 @@ export default async function AgentDashboard() {
 
   const userId = (session.user as any).id;
 
-  // Award Daily Login Point
-  await awardDailyTask(userId, "DAILY_LOGIN", 50);
-
   // Always fetch fresh user status from DB in the server component
   // to avoid NextAuth session caching delays in the RSC payload
   const dbUser = await prisma.user.findUnique({
