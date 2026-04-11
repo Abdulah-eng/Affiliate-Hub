@@ -75,14 +75,17 @@ function LoginContent() {
       <div className="w-full max-w-md relative z-10 animate-vapor">
         {/* Logo/Brand Area */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-48 h-48 mb-8">
-            <img src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" alt="Logo" className="w-full h-full object-contain scale-[2.5] animate-float" />
-          </div>
-          <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface">
-            HUB ACCESS
+          <h1 className="text-5xl font-black font-headline tracking-tighter text-primary mb-2" style={{ textShadow: "0 0 20px rgba(129,236,255,0.4)" }}>
+            AFFILIATE HUB PH
           </h1>
-          <p className="text-on-surface-variant mt-2 font-medium">
-            Access your high-performance affiliate hub
+          <p className="text-xs font-black text-on-surface-variant tracking-widest uppercase mb-8">
+            The #1 Affiliate Network in the Philippines
+          </p>
+          <h2 className="text-3xl font-black font-headline tracking-tighter text-on-surface">
+            HUB ACCESS
+          </h2>
+          <p className="text-on-surface-variant mt-2 font-bold">
+            Start Earning Now
           </p>
         </div>
 
@@ -196,12 +199,12 @@ function LoginContent() {
 
           <div className="mt-8 pt-8 border-t border-outline-variant/20 text-center">
             <p className="text-sm text-on-surface-variant">
-              New operative?{" "}
+              New here?{" "}
               <Link
                 href="/apply"
                 className="text-primary font-bold hover:underline underline-offset-4"
               >
-                Submit Application
+                Apply Now
               </Link>
             </p>
           </div>
