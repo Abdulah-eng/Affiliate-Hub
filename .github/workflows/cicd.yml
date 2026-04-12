@@ -61,8 +61,9 @@ jobs:
             # Navigate to your project directory. Change this to the actual path on your VPS (e.g. /var/www/Affiliate-Hub)
             cd /root/Affiliate-Hub
             
-            # Pull latest changes from git
-            git pull origin main
+            # Fetch and force reset to ensure local conflicts (like package-lock.json) don't block deployment
+            git fetch --all
+            git reset --hard origin/main
             
             # Install dependencies
             npm install

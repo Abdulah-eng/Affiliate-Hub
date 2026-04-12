@@ -215,8 +215,8 @@ function LoginContent() {
           <div className="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">
             <Zap size={10} /> Powered by NextAuth
           </div>
-          <div className="text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest">
-            v1.0.0-LIVE
+          <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest border border-primary/20 px-2 py-1 rounded bg-primary/5">
+            <Zap size={10} /> v1.1.0-REDEPLOYED
           </div>
         </div>
       </div>
