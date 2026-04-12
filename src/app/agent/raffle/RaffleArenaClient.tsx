@@ -109,7 +109,9 @@ export function RaffleArenaClient({
       // Align: wheel segment at stopAngle must face the top arrow.
       // Rotate = current + 8 full turns + (360 - stopAngle)
       const extra = (360 - (res.angle ?? 0) + 360) % 360;
-      const newRot = standardRotRef.current + 360 * 8 + extra;
+      const currentMod = standardRotRef.current % 360;
+      const diff = (extra - currentMod + 360) % 360;
+      const newRot = standardRotRef.current + 360 * 8 + diff;
       standardRotRef.current = newRot;
       setStandardRotation(newRot);
 
@@ -138,13 +140,17 @@ export function RaffleArenaClient({
 
     if (res.success) {
       const extra = (360 - (res.angle ?? 0) + 360) % 360;
-      const newRot = grandRotRef.current + 360 * 10 + extra;
+      const currentMod = grandRotRef.current % 360;
+      const diff = (extra - currentMod + 360) % 360;
+      const newRot = grandRotRef.current + 360 * 10 + diff;
       grandRotRef.current = newRot;
       setGrandRotation(newRot);
 
       setTimeout(() => {
         setIsGrandSpinning(false);
-        setUserPoints(prev => prev - 5000);
+        let wonPts = 0;
+        if (res.prize === "1k Chips") wonPts = 1000;
+        setUserPoints(prev => prev - 5000 + wonPts);
         setModal({ type: "grand", prize: res.prize! });
       }, 5100);
     } else {

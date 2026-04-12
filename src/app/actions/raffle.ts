@@ -15,7 +15,7 @@ export async function spinStandardRaffle() {
 
   // 1. Calculate current points
   const transactions = await prisma.pointTransaction.findMany({
-    where: { userId, status: "COMPLETED" }
+    where: { userId, status: "COMPLETED", currency: "PTS" }
   });
   const totalPoints = transactions.reduce((sum, t) => sum + t.amount, 0);
 
@@ -80,7 +80,7 @@ export async function spinStandardRaffle() {
         data: {
           userId,
           amount: prizePoints,
-          type: "REDEMPTION",
+          type: "RAFFLE_WIN",
           description: `Standard Raffle Win: ${prizeLabel}`
         }
       })
@@ -88,6 +88,7 @@ export async function spinStandardRaffle() {
   ]);
 
   revalidatePath("/agent/raffle");
+  revalidatePath("/agent", "layout");
   return { success: true, prize: prizeLabel, angle: stopAngle, points: prizePoints };
 }
 
@@ -101,7 +102,7 @@ export async function spinGrandRaffle() {
 
   // For Grand Raffle, let's say it costs 5000 points per spin
   const transactions = await prisma.pointTransaction.findMany({
-    where: { userId, status: "COMPLETED" }
+    where: { userId, status: "COMPLETED", currency: "PTS" }
   });
   const totalPoints = transactions.reduce((sum, t) => sum + t.amount, 0);
 
@@ -154,7 +155,7 @@ export async function spinGrandRaffle() {
       userId,
       amount: 10000,
       currency: "GCASH",
-      type: "REDEMPTION",
+      type: "RAFFLE_WIN",
       description: "Grand Raffle Win: 10k GCash"
     });
   } else if (prizeLabel === "200 GCash") {
@@ -162,7 +163,7 @@ export async function spinGrandRaffle() {
       userId,
       amount: 200,
       currency: "GCASH",
-      type: "REDEMPTION",
+      type: "RAFFLE_WIN",
       description: "Grand Raffle Win: 200 GCash"
     });
   } else if (prizeLabel === "1k Chips") {
@@ -170,7 +171,7 @@ export async function spinGrandRaffle() {
       userId,
       amount: 1000,
       currency: "PTS",
-      type: "REDEMPTION",
+      type: "RAFFLE_WIN",
       description: "Grand Raffle Win: 1k Chips"
     });
   }
@@ -188,5 +189,6 @@ export async function spinGrandRaffle() {
   ]);
 
   revalidatePath("/agent/raffle");
+  revalidatePath("/agent", "layout");
   return { success: true, prize: prizeLabel, angle: stopAngle };
 }

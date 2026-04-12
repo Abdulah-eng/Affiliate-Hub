@@ -45,6 +45,7 @@ export async function awardDailyTask(userId: string, taskKey: string, points: nu
       }
 
       revalidatePath("/agent");
+      revalidatePath("/agent", "layout");
       return { success: true, awarded: true };
     }
 
@@ -97,6 +98,7 @@ export async function incrementDailyTask(userId: string, taskKey: string, target
       await checkDailySurvivalKit(userId);
 
       revalidatePath("/agent");
+      revalidatePath("/agent", "layout");
       return { success: true, awarded: true };
     }
 

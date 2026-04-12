@@ -17,7 +17,7 @@ export async function startLuckGame() {
 
   // 1. Check points for 1 ticket
   const transactions = await prisma.pointTransaction.findMany({
-    where: { userId, status: "COMPLETED" }
+    where: { userId, status: "COMPLETED", currency: "PTS" }
   });
   const totalPoints = transactions.reduce((sum, t) => sum + t.amount, 0);
 
@@ -45,7 +45,9 @@ export async function startLuckGame() {
     history: []
   }), 'EX', 1800);
 
-  revalidatePath("/agent/raffle"); // Revalidate where points are shown
+  revalidatePath("/agent/raffle"); 
+  revalidatePath("/agent/luck");
+  revalidatePath("/agent", "layout");
   return { success: true, initialNum };
 }
 
@@ -115,11 +117,13 @@ export async function bankLuckPoints() {
     data: {
       userId,
       amount: totalWon,
-      type: "REDEMPTION",
+      type: "GAME_WIN",
       description: `Push Your Luck: Banked ${totalWon} PTS`
     }
   });
 
+  revalidatePath("/agent/luck");
   revalidatePath("/agent/raffle");
+  revalidatePath("/agent", "layout");
   return { success: true, totalWon };
 }

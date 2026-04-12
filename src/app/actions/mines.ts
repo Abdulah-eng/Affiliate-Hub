@@ -37,7 +37,7 @@ export async function startMinesGame(betAmount: number, mineCount: number) {
 
   // 1. Check points
   const transactions = await prisma.pointTransaction.findMany({
-    where: { userId, status: "COMPLETED" }
+    where: { userId, status: "COMPLETED", currency: "PTS" }
   });
   const totalPoints = transactions.reduce((sum, t) => sum + t.amount, 0);
 
@@ -77,6 +77,7 @@ export async function startMinesGame(betAmount: number, mineCount: number) {
   });
 
   revalidatePath("/agent/mines");
+  revalidatePath("/agent", "layout");
   return { success: true };
 }
 
@@ -143,5 +144,6 @@ export async function cashOutMines() {
   });
 
   revalidatePath("/agent/mines");
+  revalidatePath("/agent", "layout");
   return { success: true, winAmount, multiplier };
 }
