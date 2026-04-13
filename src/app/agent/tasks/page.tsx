@@ -296,9 +296,11 @@ export default function AgentTasksPage() {
               ) : (
                 /* PROMO UI */
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                   <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative">
+                   <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative bg-slate-950/80">
                       {selectedTask.imageUrl ? (
-                        <img src={selectedTask.imageUrl} alt="" className="w-full h-full object-cover" />
+                        <a href={selectedTask.imageUrl} target="_blank" rel="noreferrer" className="w-full h-full block">
+                          <img src={selectedTask.imageUrl} alt="" className="w-full h-full object-contain" />
+                        </a>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-tertiary/20">
                            <Megaphone size={120} />

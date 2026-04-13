@@ -192,9 +192,8 @@ export function ChatClient({
                         : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90 mr-auto"
                     )}
                     onContextMenu={(e) => e.preventDefault()}
-                    onDoubleClick={(e) => {
-                      e.preventDefault();
-                      setContextMenu({ msgId: msg.id });
+                    onClick={(e) => {
+                      setContextMenu(contextMenu?.msgId === msg.id ? null : { msgId: msg.id });
                     }}
                     >
                       

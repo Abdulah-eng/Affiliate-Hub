@@ -35,6 +35,26 @@ export async function adminCreatePromo(data: {
   }
 }
 
+export async function adminUpdatePromo(id: string, data: {
+  title?: string,
+  description?: string,
+  imageUrl?: string,
+  active?: boolean,
+  requiresVerification?: boolean,
+  pointsAward?: number
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    await prisma.promo.update({ where: { id }, data });
+    revalidatePath("/agent");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function adminDeletePromo(id: string) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
@@ -82,6 +102,11 @@ export async function submitPromoProof(formData: FormData) {
     const file = formData.get("file") as File;
     
     if (!promoId || !file) return { success: false, error: "Missing required data" };
+
+    const existing = await prisma.promoSubmission.findFirst({
+      where: { promoId, userId: session.user.id }
+    });
+    if (existing) return { success: false, error: "You have already submitted for this promo" };
 
     const uploadDir = join(process.cwd(), "public", "uploads", "proofs");
     await mkdir(uploadDir, { recursive: true });

@@ -39,7 +39,15 @@ export default function RaffleSettingsPage() {
       "raffle_grand_iphone": "0.1",
       "raffle_grand_10kgcash": "1",
       "raffle_grand_1kchips": "18.9",
-      "raffle_grand_200gcash": "80"
+      "raffle_grand_200gcash": "80",
+      "raffle_standard_500_label": "500 PTS Win",
+      "raffle_standard_nowin_label": "No Win / Loss",
+      "raffle_standard_200_label": "200 PTS Win",
+      "raffle_standard_1000_label": "1000 PTS Jackpot",
+      "raffle_grand_iphone_label": "iPhone 15+ Jackpot",
+      "raffle_grand_10kgcash_label": "10k GCash Prize",
+      "raffle_grand_1kchips_label": "1k Chips Reward",
+      "raffle_grand_200gcash_label": "200 GCash Base"
     };
 
     Object.keys(defaults).forEach(k => {
@@ -112,10 +120,16 @@ export default function RaffleSettingsPage() {
               ].map(item => (
                 <div key={item.key} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest flex items-center gap-2">
-                      <span className="text-lg">{item.icon}</span> {item.label}
+                    <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest flex items-center gap-2 w-full pr-4">
+                      <span className="text-lg shrink-0">{item.icon}</span> 
+                      <input 
+                         type="text"
+                         className="bg-transparent border-b border-white/20 outline-none w-full pb-1 focus:border-primary transition-all text-on-surface"
+                         value={settings[`${item.key}_label`] || item.label}
+                         onChange={e => setSettings({...settings, [`${item.key}_label`]: e.target.value})}
+                      />
                     </label>
-                    <span className="text-xs font-mono text-primary font-black">{settings[item.key]}%</span>
+                    <span className="text-xs font-mono text-primary font-black ml-4 shrink-0">{settings[item.key]}%</span>
                   </div>
                   <input 
                     type="range"
@@ -149,10 +163,16 @@ export default function RaffleSettingsPage() {
               ].map(item => (
                 <div key={item.key} className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest flex items-center gap-2">
-                      <span className="text-lg">{item.icon}</span> {item.label}
+                    <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest flex items-center gap-2 w-full pr-4">
+                      <span className="text-lg shrink-0">{item.icon}</span> 
+                      <input 
+                         type="text"
+                         className="bg-transparent border-b border-white/20 outline-none w-full pb-1 focus:border-tertiary transition-all text-on-surface"
+                         value={settings[`${item.key}_label`] || item.label}
+                         onChange={e => setSettings({...settings, [`${item.key}_label`]: e.target.value})}
+                      />
                     </label>
-                    <span className="text-xs font-mono text-tertiary font-black">{settings[item.key]}%</span>
+                    <span className="text-xs font-mono text-tertiary font-black ml-4 shrink-0">{settings[item.key]}%</span>
                   </div>
                   <input 
                     type="range"

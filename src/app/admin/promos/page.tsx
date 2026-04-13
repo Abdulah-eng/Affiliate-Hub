@@ -1,6 +1,6 @@
 "use client";
-
 import React, { useState, useEffect, useTransition } from "react";
+import Link from "next/link";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
   MonitorPlay, 
@@ -13,11 +13,13 @@ import {
   Megaphone,
   Eye,
   EyeOff,
-  Check
+  Check,
+  Settings2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
   adminCreatePromo, 
+  adminUpdatePromo,
   adminDeletePromo, 
   getPromos,
   uploadPromoImage 
@@ -28,6 +30,7 @@ export default function AdminPromosPage() {
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -74,9 +77,16 @@ export default function AdminPromosPage() {
         }
       }
 
-      const res = await adminCreatePromo({ ...form, imageUrl: finalImageUrl });
+      let res;
+      if (editingId) {
+        res = await adminUpdatePromo(editingId, { ...form, imageUrl: finalImageUrl });
+      } else {
+        res = await adminCreatePromo({ ...form, imageUrl: finalImageUrl });
+      }
+
       if (res.success) {
         setShowAddModal(false);
+        setEditingId(null);
         setForm({
           title: "",
           description: "",
@@ -89,9 +99,39 @@ export default function AdminPromosPage() {
         setPromoPreview(null);
         fetchPromos();
       } else {
-        alert("Creation failed: " + res.error);
+        alert("Operation failed: " + res.error);
       }
     });
+  };
+
+  const handleEdit = (promo: any) => {
+    setForm({
+      title: promo.title,
+      description: promo.description || "",
+      imageUrl: promo.imageUrl || "",
+      active: promo.active,
+      requiresVerification: promo.requiresVerification,
+      pointsAward: promo.pointsAward
+    });
+    setEditingId(promo.id);
+    setPromoFile(null);
+    setPromoPreview(null);
+    setShowAddModal(true);
+  };
+
+  const handleOpenAdd = () => {
+    setEditingId(null);
+    setForm({
+      title: "",
+      description: "",
+      imageUrl: "",
+      active: true,
+      requiresVerification: false,
+      pointsAward: 0
+    });
+    setPromoFile(null);
+    setPromoPreview(null);
+    setShowAddModal(true);
   };
 
   if (loading) {
@@ -113,18 +153,26 @@ export default function AdminPromosPage() {
             Broadcast promotional posters and seasonal campaigns to the agent dashboard.
           </p>
         </div>
-        <button 
-          onClick={() => setShowAddModal(true)}
-          className="px-6 py-4 bg-primary text-background rounded-full font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:scale-105 transition-all shadow-lg"
-        >
-          <Plus size={18} /> New Campaign
-        </button>
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/admin/promos/submissions"
+            className="px-6 py-4 bg-surface-container-high text-on-surface hover:text-primary border border-outline-variant/30 rounded-full font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:scale-105 transition-all shadow-lg"
+          >
+            <Eye size={18} /> Review Submissions
+          </Link>
+          <button 
+            onClick={handleOpenAdd}
+            className="px-6 py-4 bg-primary text-background rounded-full font-black uppercase tracking-widest text-xs flex items-center gap-2 hover:scale-105 transition-all shadow-lg"
+          >
+            <Plus size={18} /> New Campaign
+          </button>
+        </div>
       </div>
 
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <GlassCard className="w-full max-w-lg p-8 space-y-6">
-            <h2 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">Broadcast Initialization</h2>
+          <GlassCard className="w-full max-w-lg p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">{editingId ? "Edit Campaign" : "Broadcast Initialization"}</h2>
             
             <div className="space-y-4">
               <div>
@@ -232,7 +280,7 @@ export default function AdminPromosPage() {
                 disabled={isPending || !form.title}
                 className="flex-1 py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
               >
-                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Deploy Propaganda"}
+                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : editingId ? "Update Propaganda" : "Deploy Propaganda"}
               </button>
             </div>
           </GlassCard>
@@ -251,6 +299,12 @@ export default function AdminPromosPage() {
                  </div>
                )}
                <div className="absolute top-4 right-4 flex gap-2">
+                  <button 
+                    onClick={() => handleEdit(promo)}
+                    className="p-2 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-all backdrop-blur-md"
+                  >
+                    <Settings2 size={16} />
+                  </button>
                   <button 
                     onClick={() => handleDelete(promo.id)}
                     className="p-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all backdrop-blur-md"
