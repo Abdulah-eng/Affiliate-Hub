@@ -1,8 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
-import { Bell, Search, Settings, ShieldCheck } from "lucide-react";
+import { Bell, Search, Settings, ShieldCheck, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -11,11 +11,19 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Admin Navbar */}
       <header className="fixed top-0 w-full z-50 bg-[#060e20]/80 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_40px_rgba(110,155,255,0.08)] flex justify-between items-center h-16 px-6">
         <div className="flex items-center gap-4">
+          <button 
+            className="p-2 rounded-full hover:bg-white/5 text-primary transition-colors md:hidden"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu size={24} />
+          </button>
           <Link href="/" className="relative h-12 w-32 flex items-center justify-center -ml-4">
             <img 
               src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
@@ -58,7 +66,7 @@ export default function AdminLayout({
         </div>
       </header>
 
-      <AdminSidebar />
+      <AdminSidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       
       <main className="md:ml-64 pt-24 pb-12 px-6 md:px-10 min-h-screen">
         <div className="max-w-7xl mx-auto">

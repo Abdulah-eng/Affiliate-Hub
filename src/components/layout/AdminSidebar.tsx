@@ -15,13 +15,14 @@ import {
   History,
   Layout,
   Radio,
-  MessageSquare
+  MessageSquare,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 
-export const AdminSidebar = () => {
+export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
 
   const MENU_ITEMS = [
@@ -40,13 +41,32 @@ export const AdminSidebar = () => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 z-40 bg-surface-container-low shadow-2xl flex flex-col pt-20 pb-6 hidden md:flex border-r border-primary/5">
-      <div className="px-6 mb-8">
-        <div className="mb-2">
-          <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>
-          <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold italic">Admin Level Access</p>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && setIsOpen && (
+        <div 
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[55] md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      <aside className={cn(
+        "fixed left-0 top-0 h-full w-64 z-[60] bg-surface-container-low shadow-2xl flex flex-col pt-20 pb-6 border-r border-primary/5 transition-transform duration-300 md:translate-x-0 md:flex",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="px-6 mb-8 flex items-center justify-between">
+          <div className="mb-2">
+            <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>
+            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold italic">Admin Level Access</p>
+          </div>
+          {setIsOpen && (
+            <button 
+              className="p-2 text-on-surface-variant hover:text-white md:hidden -mt-4 -mr-2 cursor-pointer"
+              onClick={() => setIsOpen(false)}
+            >
+              <X size={20} />
+            </button>
+          )}
         </div>
-      </div>
 
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
         {MENU_ITEMS.map((item) => {
@@ -55,6 +75,7 @@ export const AdminSidebar = () => {
             <Link 
               key={item.href}
               href={item.href}
+              onClick={() => setIsOpen && setIsOpen(false)}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 transition-all rounded-r-full group relative overflow-hidden",
                 isActive 
@@ -71,10 +92,10 @@ export const AdminSidebar = () => {
       </nav>
 
       <div className="px-3 pt-6 border-t border-outline-variant/10 space-y-1">
-        <Link href="/admin/help" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
+        <Link href="/admin/help" onClick={() => setIsOpen && setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
           <HelpCircle size={16} /> Support
         </Link>
-        <Link href="/admin/docs" className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
+        <Link href="/admin/docs" onClick={() => setIsOpen && setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
           <FileText size={16} /> Documentation
         </Link>
         <button 
@@ -88,6 +109,7 @@ export const AdminSidebar = () => {
       
       {/* Visual background edge glow */}
       <div className="absolute right-[-1px] top-0 w-[1px] h-full bg-gradient-to-b from-transparent via-primary/20 to-transparent"></div>
-    </aside>
+      </aside>
+    </>
   );
 };
