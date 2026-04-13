@@ -100,7 +100,7 @@ export function MinesClient({ userPoints: initialPoints }: { userPoints: number 
         
         {/* Settings Panel */}
         <div className="lg:col-span-4 space-y-6 order-2 lg:order-1">
-          <GlassCard className="p-8 space-y-8 border-primary/20 bg-surface-container-low/40 h-full">
+          <GlassCard className="p-4 sm:p-8 space-y-8 border-primary/20 bg-surface-container-low/40 h-full">
             <div>
               <h3 className="text-xs font-black text-primary uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
                 <ShieldCheck size={16} /> Strategy Config
@@ -220,7 +220,7 @@ export function MinesClient({ userPoints: initialPoints }: { userPoints: number 
             </div>
 
             {/* 5x5 Grid */}
-            <div className="grid grid-cols-5 gap-3 max-w-[600px] mx-auto">
+            <div className="grid grid-cols-5 gap-2 sm:gap-3 max-w-[600px] w-full mx-auto px-2">
               {new Array(25).fill(null).map((_, i) => {
                 const isRevealed = revealed.includes(i);
                 const isMine = board[i] === true;
@@ -233,7 +233,7 @@ export function MinesClient({ userPoints: initialPoints }: { userPoints: number 
                     onClick={() => handleTileClick(i)}
                     disabled={!isClickable}
                     className={cn(
-                      "aspect-square rounded-2xl flex items-center justify-center transition-all duration-300 relative select-none",
+                      "aspect-square rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-300 relative select-none",
                       // Idle tiles (not yet revealed during play)
                       !isRevealed && status === "PLAYING" && "bg-surface-container-high border-2 border-white/5 hover:bg-white/10 hover:shadow-[0_0_20px_rgba(255,255,255,0.08)] hover:-translate-y-1 cursor-pointer active:scale-90",
                       // Not started / game over, unreveled

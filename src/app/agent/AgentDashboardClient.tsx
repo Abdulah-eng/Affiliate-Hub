@@ -127,9 +127,9 @@ export default function AgentDashboardClient({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 animate-vapor">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 animate-vapor">
       {/* Left Column */}
-      <div className="lg:col-span-8 space-y-10">
+      <div className="lg:col-span-8 space-y-6 md:space-y-10">
 
         {/* KYC Status Banner */}
         {kycStatus === "REJECTED" && (
@@ -151,7 +151,7 @@ export default function AgentDashboardClient({
         )}
 
         {/* Application Status Tracker */}
-        <section className="glass-card rounded-2xl p-8 border-l-[6px] border-secondary shadow-[0_0_40px_rgba(110,155,255,0.05)] relative overflow-hidden group">
+        <section className="glass-card rounded-2xl p-4 sm:p-8 border-l-[6px] border-secondary shadow-[0_0_40px_rgba(110,155,255,0.05)] relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-700">
             <Activity size={120} className="text-secondary" />
           </div>
@@ -183,7 +183,7 @@ export default function AgentDashboardClient({
             </span>
           </div>
 
-          <div className="relative flex justify-between items-center px-6 mb-4">
+          <div className="relative flex justify-between items-center px-2 sm:px-6 mb-4">
             <div className="absolute top-5 left-10 right-10 h-1 bg-surface-container-highest z-0">
               <div
                 className="h-full bg-gradient-to-r from-primary to-secondary shadow-[0_0_10px_rgba(0,229,255,0.2)]"
@@ -266,7 +266,7 @@ export default function AgentDashboardClient({
                 <GlassCard
                   key={platform.id}
                   className={cn(
-                    "p-6 transition-all duration-500 border-l-4 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.3)]",
+                    "p-4 sm:p-6 transition-all duration-500 border-l-4 hover:-translate-y-1 hover:shadow-[0_15px_30px_rgba(0,0,0,0.3)]",
                     isApproved
                       ? color === "primary"
                         ? "border-primary"
@@ -632,8 +632,8 @@ export default function AgentDashboardClient({
 
       {/* Promo Instructions Detail Modal */}
       {activePromo && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6">
-           <GlassCard className="max-w-xl w-full p-8 space-y-6 animate-vapor max-h-[90vh] overflow-y-auto no-scrollbar">
+        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+           <GlassCard className="max-w-xl w-full p-4 sm:p-8 space-y-6 animate-vapor max-h-[90vh] overflow-y-auto no-scrollbar my-auto">
               <div className="flex justify-between items-center mb-4">
                  <h2 className="text-3xl font-black font-headline text-on-surface uppercase tracking-tight">{activePromo.title}</h2>
                  <button onClick={() => { setActivePromo(null); setSubmissionSuccess(false); setPromoProof(null); setPromoProofPreview(null); }} className="p-2 text-on-surface-variant hover:text-white transition-colors">

@@ -123,17 +123,18 @@ export default async function NexusFeedPage() {
       </div>
 
       {/* Main Chat Feed */}
-      <div className="flex-1 flex flex-col min-w-0 lg:px-6">
-        <div className="px-8 py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-3xl">
-          <div className="flex items-center gap-5">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
-              <Zap fill="currentColor" size={24} />
+      <div className="flex-1 flex flex-col min-w-0 lg:px-6 h-full relative">
+        <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-2xl sm:rounded-t-3xl">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
+              <Zap fill="currentColor" size={20} className="sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black font-headline text-on-surface uppercase tracking-tight">Nexus Feed</h2>
-              <p className="text-xs text-on-surface-variant font-medium flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Real-time synchronization active
+              <h2 className="text-lg sm:text-xl font-black font-headline text-on-surface uppercase tracking-tight leading-tight">Nexus Feed</h2>
+              <p className="text-[10px] sm:text-xs text-on-surface-variant font-medium flex items-center gap-2">
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="hidden xs:inline">Real-time synchronization active</span>
+                <span className="xs:hidden">Live Sync</span>
               </p>
             </div>
           </div>

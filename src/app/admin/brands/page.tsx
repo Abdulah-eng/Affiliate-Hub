@@ -152,8 +152,8 @@ export default function BrandManagerPage() {
 
       {/* Edit Modal */}
       {editingBrand && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 overflow-y-auto">
-          <GlassCard className="p-8 max-w-2xl w-full space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-4 overflow-y-auto">
+          <GlassCard className="p-4 sm:p-8 max-w-2xl w-full space-y-6 my-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">Configure Gateway</h3>
               <button onClick={() => setEditingBrand(null)} className="p-2 rounded-full hover:bg-white/5 text-on-surface-variant">
@@ -293,8 +293,8 @@ export default function BrandManagerPage() {
 
       {/* Add Brand Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <GlassCard className="p-8 max-w-md w-full mx-4 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+          <GlassCard className="p-4 sm:p-8 max-w-md w-full mx-auto space-y-5 my-auto">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-black text-on-surface uppercase tracking-tight">Expand Network</h3>
               <button onClick={() => setShowAddModal(false)} className="p-2 rounded-full hover:bg-white/5 transition-all text-on-surface-variant">
@@ -370,7 +370,7 @@ export default function BrandManagerPage() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 pt-10 px-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 md:mb-12 gap-6 pt-6 md:pt-10 px-4 md:px-8">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
              <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">KYC EDITOR v2.0</span>
@@ -399,7 +399,7 @@ export default function BrandManagerPage() {
       </div>
 
       {/* Brand Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 px-4 md:px-8">
         {brands.map((brand) => (
           <GlassCard key={brand.id} className={cn(
             "p-8 group hover:-translate-y-2 transition-all duration-500 border-l-4",

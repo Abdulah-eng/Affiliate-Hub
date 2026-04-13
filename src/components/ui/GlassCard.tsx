@@ -12,7 +12,7 @@ export const GlassCard = ({ children, className, glow = true, ...props }: GlassC
     <div 
       {...props}
       className={cn(
-        "glass-panel rounded-xl p-8 group transition-all duration-500",
+        "glass-panel rounded-xl p-4 sm:p-8 group transition-all duration-500",
         glow && "neon-glow-primary hover:shadow-[0_0_40px_rgba(129,236,255,0.2)]",
         className
       )}
