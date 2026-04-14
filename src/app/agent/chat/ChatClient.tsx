@@ -150,21 +150,21 @@ export function ChatClient({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-b from-[#0f172a] to-[#080d1a] rounded-3xl border border-[#1e293b] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_80px_rgba(129,236,255,0.02)] relative">
+    <div className="flex-1 flex flex-col bg-gradient-to-b from-[#0f172a] to-[#080d1a] rounded-3xl border border-[#1e293b] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_80px_rgba(129,236,255,0.02)] relative h-full">
       {/* Message List */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-5 py-4 space-y-5 no-scrollbar scroll-smooth max-h-[55vh] lg:max-h-[60vh]"
+        className="flex-1 overflow-y-auto px-5 py-2 space-y-2 no-scrollbar scroll-smooth"
       >
         {messages.map((msg) => {
           const isSelf = msg.userId === currentUserId;
           return (
             <div key={msg.id} className={cn(
-              "flex gap-5 max-w-[85%] animate-vapor",
+              "flex gap-3 max-w-[90%] animate-vapor",
               isSelf ? "flex-row-reverse ml-auto" : "flex-row"
             )}>
               <div className="shrink-0 relative h-fit">
-                <div className="w-12 h-12 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary font-bold border border-primary/20 ring-2 ring-white/5 uppercase">
+                <div className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold border border-primary/10 ring-2 ring-white/5 uppercase text-xs">
                   {msg.userName?.[0]}
                 </div>
                 <div className={cn(
@@ -174,7 +174,7 @@ export function ChatClient({
                   {msg.userRole}
                 </div>
               </div>
-              <div className={cn("space-y-2", isSelf ? "text-right" : "text-left")}>
+              <div className={cn("space-y-1", isSelf ? "text-right" : "text-left")}>
                 <div className={cn("flex items-center gap-3", isSelf ? "justify-end" : "justify-start")}>
                   {!isSelf && <span className="text-sm font-black text-on-surface uppercase tracking-tight">{msg.userName}</span>}
                   <span className="text-[10px] font-black text-on-surface-variant opacity-40">
@@ -184,7 +184,7 @@ export function ChatClient({
                 </div>
                   <div className="relative group/context">
                     <div className={cn(
-                      "p-3 px-4 rounded-2xl relative group border transition-all backdrop-blur-md shadow-md hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu w-fit max-w-[280px] sm:max-w-xs",
+                      "p-2 px-3 rounded-xl relative group border transition-all backdrop-blur-md shadow-md hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu w-fit max-w-[300px] sm:max-w-md",
                       msg.isSpam && "opacity-40 grayscale",
                       msg.isHelpful && "border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
                       isSelf 
@@ -197,7 +197,7 @@ export function ChatClient({
                     }}
                     >
                       
-                      <p className="text-sm font-medium leading-snug">{msg.content}</p>
+                      <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
                       
                       {/* Reactions & Marks Display */}
                       {(msg.reactions && msg.reactions.length > 0 || msg.isHelpful || msg.isSpam) && (
