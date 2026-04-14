@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Bell, User, Zap } from 'lucide-react';
+import Image from 'next/image';
 
 export const Navbar = () => {
   return (
@@ -8,10 +9,13 @@ export const Navbar = () => {
       <div className="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
         <div className="flex items-center gap-4">
           <Link href="/" className="relative h-20 w-48 flex items-center justify-center ml-12">
-            <img 
+            <Image 
               src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
               alt="Logo" 
+              width={200}
+              height={100}
               className="absolute max-w-none h-32 w-auto object-contain scale-[2.25] -translate-x-4" 
+              priority
             />
           </Link>
           <div className="hidden md:flex gap-10 items-center">

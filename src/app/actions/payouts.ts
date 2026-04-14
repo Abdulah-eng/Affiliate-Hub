@@ -13,6 +13,28 @@ export async function requestWithdrawal(amount: number, paymentMethod: string, p
 
   if (amount < 100) return { success: false, error: "Minimum withdrawal is 100 PTS" };
 
+  // Fetch conversion rate (Default to 10 if not found, i.e., 1000 pts = 100 gcash)
+  let rate = 10;
+  try {
+    const rateSetting = await prisma.systemSetting.findUnique({ where: { key: "POINTS_TO_GCASH_RATE" } });
+    if (rateSetting) {
+      rate = parseFloat(rateSetting.value) || 10;
+    } else {
+      // Fallback to legacy seed key
+      const legacySetting = await prisma.systemSetting.findUnique({ where: { key: "points_to_gcash_rate" } });
+      if (legacySetting) {
+        // Seed says 100, which might mean 100 pts = 1 gcash? 
+        // User says 1000 pts = 100 gcash, which is 10 pts = 1 gcash.
+        // I'll stick to 10 if seed is confusing, or use seed/10 if it's 100.
+        rate = (parseFloat(legacySetting.value) === 100) ? 10 : (parseFloat(legacySetting.value) || 10);
+      }
+    }
+  } catch (e) {
+    console.error("Error fetching conversion rate:", e);
+  }
+
+  const gcashAmount = Math.floor(amount / rate);
+
   try {
     return await prisma.$transaction(async (tx) => {
       // 1. Calculate current points balance accurately
@@ -45,7 +67,7 @@ export async function requestWithdrawal(amount: number, paymentMethod: string, p
           userId: session.user.id,
           amount: amount,
           type: "WITHDRAWAL_HOLD",
-          description: "Pending point withdrawal request",
+          description: `Pending withdrawal: ${amount} PTS for ${gcashAmount} PHP GCash`,
           status: "PENDING"
         }
       });

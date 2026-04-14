@@ -19,6 +19,7 @@ export async function adminCreatePromo(data: {
   title: string,
   description?: string,
   imageUrl?: string,
+  externalLink?: string,
   active?: boolean,
   requiresVerification?: boolean,
   pointsAward?: number
@@ -39,6 +40,7 @@ export async function adminUpdatePromo(id: string, data: {
   title?: string,
   description?: string,
   imageUrl?: string,
+  externalLink?: string,
   active?: boolean,
   requiresVerification?: boolean,
   pointsAward?: number

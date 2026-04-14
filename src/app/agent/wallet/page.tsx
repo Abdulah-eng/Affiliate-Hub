@@ -11,7 +11,8 @@ import {
   XCircle,
   Loader2,
   AlertTriangle,
-  Landmark
+  Landmark,
+  TrendingUp
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ export default function AgentWalletPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   const [amount, setAmount] = useState<number>(100);
   const [paymentMethod, setPaymentMethod] = useState("GCash");
@@ -33,17 +35,20 @@ export default function AgentWalletPage() {
 
   const fetchData = async () => {
     setLoading(true);
-    const data = await getAgentWallet();
-    if (data) {
-      setBalance({
-        pts: data.totalPoints,
-        gcash: data.totalGCash
-      });
-      setTransactions(data.transactions);
-      if (data.mobileNumber && !paymentDetails) {
-        setPaymentDetails(data.mobileNumber);
+      const data = await getAgentWallet();
+      if (data) {
+        setBalance({
+          pts: data.totalPoints,
+          gcash: data.totalGCash
+        });
+        setTransactions(data.transactions);
+        if (data.mobileNumber && !paymentDetails) {
+          setPaymentDetails(data.mobileNumber);
+        }
+        if (data.settings) {
+          setSettings(data.settings);
+        }
       }
-    }
     setLoading(false);
   };
 
@@ -159,7 +164,7 @@ export default function AgentWalletPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Amount (Min 100 PTS)</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Amount to Convert (Min 100 PTS)</label>
                 <div className="flex bg-surface-container-low rounded-xl overflow-hidden border border-white/10 focus-within:border-primary transition-colors">
                   <span className="pl-4 py-3 text-sm font-bold text-on-surface-variant/50">PTS</span>
                   <input 
@@ -174,6 +179,11 @@ export default function AgentWalletPage() {
                     MAX
                   </button>
                 </div>
+                {amount >= 100 && (
+                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-2 px-1 flex items-center gap-2">
+                    <TrendingUp size={12} /> Expected Credit: ≈ {Math.floor(amount / (settings['POINTS_TO_GCASH_RATE'] ? parseInt(settings['POINTS_TO_GCASH_RATE']) : 10))} PHP GCash
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

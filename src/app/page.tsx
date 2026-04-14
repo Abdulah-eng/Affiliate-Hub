@@ -92,14 +92,22 @@ export default async function LandingPage() {
           {heroVideo && (
             <div className="absolute inset-0 z-0 overflow-hidden">
               <div className="absolute inset-0 bg-background/60 z-10" />
-              <video 
-                src={heroVideo} 
-                autoPlay 
-                muted 
-                loop 
-                playsInline
-                className="w-full h-full object-cover opacity-30"
-              />
+              {heroVideo.includes('youtube.com') || heroVideo.includes('youtu.be') ? (
+                <iframe 
+                  src={`https://www.youtube.com/embed/${heroVideo.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1]}?autoplay=1&mute=1&controls=0&loop=1&playlist=${heroVideo.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1]}&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3`} 
+                  className="w-[300%] h-[300%] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-0 pointer-events-none opacity-30"
+                  allow="autoplay; encrypted-media"
+                />
+              ) : (
+                <video 
+                  src={heroVideo} 
+                  autoPlay 
+                  muted 
+                  loop 
+                  playsInline
+                  className="w-full h-full object-cover opacity-30"
+                />
+              )}
             </div>
           )}
           {/* Decorative Void Glows */}

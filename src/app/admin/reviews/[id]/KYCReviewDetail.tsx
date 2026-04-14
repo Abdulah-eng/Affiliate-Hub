@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   Plus,
   Loader2,
-  Check
+  Check,
+  Phone
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,18 +36,22 @@ type PlatformAssignment = {
 type Props = {
   user: {
     id: string;
+    username: string;
     name: string;
     email: string;
-    username: string;
     affiliateUsername: string;
     location: string;
+    mobileNumber: string;
     idPhotoUrl: string | null;
     selfieUrl: string | null;
     kycStatus: string;
     kycNotes: string;
+    registrationIp: string;
+    lastLoginIp: string;
     kycSubmittedAt: string | null;
     kycReviewedAt: string | null;
   };
+  sharedIpAccounts: { id: string; username: string; kycStatus: string }[];
   platforms: {
     id: string;
     brandId: string;
@@ -60,7 +65,7 @@ type Props = {
   allBrands: { id: string; name: string; loginUrl: string }[];
 };
 
-export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
+export default function KYCReviewDetail({ user, sharedIpAccounts, platforms, allBrands }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [notes, setNotes] = useState(user.kycNotes);
@@ -266,6 +271,11 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
                   icon: <MapPin size={16} />,
                   label: "Location",
                   value: user.location || "—"
+                },
+                {
+                  icon: <Phone size={16} />,
+                  label: "Mobile Number",
+                  value: user.mobileNumber || "—"
                 }
               ].map(({ icon, label, value }) => (
                 <div key={label} className="flex gap-3 items-start">
@@ -466,6 +476,65 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
 
         {/* Right: Decision Panel */}
         <div className="space-y-6">
+          {/* Security Audit */}
+          <GlassCard className={cn(
+            "p-8 space-y-6 border-l-4",
+            sharedIpAccounts.length > 0 ? "border-l-red-500 bg-red-500/5" : "border-l-emerald-500 bg-emerald-500/5"
+          )}>
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "w-9 h-9 rounded-xl flex items-center justify-center",
+                sharedIpAccounts.length > 0 ? "bg-red-500/20 text-red-400" : "bg-emerald-500/20 text-emerald-400"
+              )}>
+                {sharedIpAccounts.length > 0 ? <AlertTriangle size={18} /> : <ShieldCheck size={18} />}
+              </div>
+              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface">
+                Security Audit
+              </h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Reg IP</p>
+                  <p className="text-xs font-mono font-bold text-on-surface truncate" title={user.registrationIp}>{user.registrationIp}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">Last IP</p>
+                  <p className="text-xs font-mono font-bold text-on-surface truncate" title={user.lastLoginIp}>{user.lastLoginIp}</p>
+                </div>
+              </div>
+
+              {sharedIpAccounts.length > 0 ? (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 space-y-3">
+                  <div className="flex items-center gap-2 text-red-400">
+                    <AlertTriangle size={14} />
+                    <p className="text-[10px] font-black uppercase tracking-widest">Multi-Account Detected</p>
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant leading-relaxed">
+                    This IP is associated with <span className="text-red-400 font-bold">{sharedIpAccounts.length}</span> other account(s). Potential referral abuse or fake account creation.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {sharedIpAccounts.map(acc => (
+                      <Link 
+                        key={acc.id}
+                        href={`/admin/reviews/${acc.id}`}
+                        className="px-2 py-1 rounded bg-red-500/20 text-[9px] font-bold text-red-300 hover:bg-red-500/30 transition-all border border-red-500/20"
+                      >
+                        @{acc.username} ({acc.kycStatus})
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-emerald-400 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                  <CheckCircle2 size={14} />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Unique Digital Footprint</p>
+                </div>
+              )}
+            </div>
+          </GlassCard>
+
           <GlassCard className="p-8 space-y-6">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary">

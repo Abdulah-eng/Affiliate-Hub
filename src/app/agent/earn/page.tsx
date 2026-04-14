@@ -21,33 +21,67 @@ import {
   Coins,
   CheckCircle,
   Zap,
-  Info
+  Info,
+  ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getTasks, completeTask } from "@/app/actions/tasks";
 import { submitPromoProof, claimSimplePromo } from "@/app/actions/promos";
+import { getSystemSettings } from "@/app/actions/admin";
 
 export default function EarnPage() {
   const [activeTab, setActiveTab] = useState<"protocol" | "missions">("protocol");
   const [tasks, setTasks] = useState<any[]>([]);
   const [dailyCount, setDailyCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [videoEnded, setVideoEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  useEffect(() => {
+    if (selectedTask && selectedTask.taskType === "VIDEO" && !videoEnded) {
+      setTimer(30); // 30 second minimum watch time
+      timerRef.current = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current!);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setTimer(0);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [selectedTask, videoEnded]);
+
   // Promo specific states
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [timer, setTimer] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchTasks = async () => {
     setLoading(true);
-    const res = await getTasks();
-    if (res.items) {
-      setTasks(res.items);
-      setDailyCount(res.dailyCount || 0);
+    const [taskRes, settingRes] = await Promise.all([
+      getTasks(),
+      getSystemSettings()
+    ]);
+    
+    if (taskRes.items) {
+      setTasks(taskRes.items);
+      setDailyCount(taskRes.dailyCount || 0);
     }
+
+    if (settingRes) {
+      const sMap = settingRes.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
+      setSettings(sMap);
+    }
+
     setLoading(false);
   };
 
@@ -58,6 +92,10 @@ export default function EarnPage() {
     startTransition(async () => {
       const res = await completeTask(selectedTask.id);
       if (res.success) {
+        if ((res as any).pending) {
+           // Mission submitted, don't clear until proof is uploaded? 
+           // No, completeTask marks it PENDING.
+        }
         setSelectedTask(null);
         setVideoEnded(false);
         fetchTasks();
@@ -70,15 +108,19 @@ export default function EarnPage() {
   const handlePromoSubmit = () => {
     if (!selectedTask) return;
     startTransition(async () => {
+      const isTask = selectedTask.taskType === "VIDEO"; // It could be a Mission now
+      
       if (selectedTask.requiresVerification) {
         if (!proofFile) {
           alert("Please select a screenshot first.");
           return;
         }
         const formData = new FormData();
-        formData.append("promoId", selectedTask.id);
+        formData.append(isTask ? "taskId" : "promoId", selectedTask.id);
         formData.append("file", proofFile);
-        const res = await submitPromoProof(formData);
+        
+        const res = await (isTask ? import("@/app/actions/tasks").then(m => m.submitTaskProof(formData)) : submitPromoProof(formData));
+        
         if (res.success) {
           setSelectedTask(null);
           setProofFile(null);
@@ -157,20 +199,35 @@ export default function EarnPage() {
               <div className="flex items-start gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/20">
                 <Info size={16} className="text-primary shrink-0 mt-0.5" />
                 <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
-                  <span className="text-primary font-bold">Yes, you earn!</span> Every video mission in the <span className="font-bold text-on-surface">Missions</span> tab rewards you with Kinetic Points upon completion. Watch the full video, then click <span className="font-bold text-on-surface">Extract Reward</span> to claim.
+                  {settings['CMS_EARN_DESC'] || (
+                    <>
+                      <span className="text-primary font-bold">Yes, you earn!</span> Every video mission in the <span className="font-bold text-on-surface">Missions</span> tab rewards you with Kinetic Points upon completion. Watch the full video, then click <span className="font-bold text-on-surface">Extract Reward</span> to claim.
+                    </>
+                  )}
                 </p>
               </div>
               <GlassCard className="p-2 border-primary/20 overflow-hidden group">
                 <div className="aspect-video bg-black relative rounded-2xl overflow-hidden shadow-2xl">
-                  {/* Mock Tutorial Video */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black flex items-center justify-center">
-                    <div className="text-center">
-                       <PlayCircle size={80} className="text-primary opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 mx-auto mb-4" />
-                       <p className="text-primary font-black uppercase tracking-[0.3em] text-xs">Earning Protocol Video</p>
-                       <p className="text-[10px] text-on-surface-variant mt-2 italic opacity-60">Wait for Canva MP4 deployment...</p>
+                  {/* Tutorial Video */}
+                  {settings['CMS_EARN_VIDEO'] ? (
+                    settings['CMS_EARN_VIDEO'].includes('youtube.com') || settings['CMS_EARN_VIDEO'].includes('youtu.be') ? (
+                      <iframe 
+                        src={`https://www.youtube.com/embed/${settings['CMS_EARN_VIDEO'].match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1]}?autoplay=0&rel=0`} 
+                        className="w-full h-full border-0"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <video src={settings['CMS_EARN_VIDEO']} controls className="w-full h-full" />
+                    )
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black flex items-center justify-center">
+                      <div className="text-center">
+                         <PlayCircle size={80} className="text-primary opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 mx-auto mb-4" />
+                         <p className="text-primary font-black uppercase tracking-[0.3em] text-xs">Earning Protocol Video</p>
+                         <p className="text-[10px] text-on-surface-variant mt-2 italic opacity-60">Wait for Canva MP4 deployment...</p>
+                      </div>
                     </div>
-                  </div>
-                  {/* This would be an <iframe /> or <video /> in production */}
+                  )}
                 </div>
               </GlassCard>
 
@@ -180,12 +237,12 @@ export default function EarnPage() {
                     <Info size={24} className="text-primary" /> Execution Steps
                   </h3>
                   <div className="space-y-4">
-                    {[
+                    {(settings['CMS_EARN_STEPS_JSON'] ? JSON.parse(settings['CMS_EARN_STEPS_JSON']) : [
                       "Initialize your unique referral link",
                       "Broadcast across FB, TikTok, and Groups",
                       "Enlist new players into the Kinetic Vault",
                       "Extract commission + bounty points"
-                    ].map((step, i) => (
+                    ]).map((step: string, i: number) => (
                       <div key={i} className="flex gap-4 group">
                         <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-primary font-black group-hover:bg-primary group-hover:text-slate-950 transition-all font-mono">
                           {i + 1}
@@ -202,12 +259,14 @@ export default function EarnPage() {
                   </h3>
                   <GlassCard className="p-6 bg-white/[0.02] border-white/5">
                     <ul className="space-y-4">
-                       <li className="text-xs text-on-surface-variant leading-relaxed">
-                          <span className="text-primary font-bold">Groups:</span> Post in groups with over 10k members for maximum extraction.
-                       </li>
-                       <li className="text-xs text-on-surface-variant leading-relaxed">
-                          <span className="text-primary font-bold">Videos:</span> Missions with video content provide the highest point stability.
-                       </li>
+                       {(settings['CMS_EARN_TIPS_JSON'] ? JSON.parse(settings['CMS_EARN_TIPS_JSON']) : [
+                         { label: "Groups", text: "Post in groups with over 10k members for maximum extraction." },
+                         { label: "Videos", text: "Missions with video content provide the highest point stability." }
+                       ]).map((tip: any, i: number) => (
+                         <li key={i} className="text-xs text-on-surface-variant leading-relaxed">
+                            <span className="text-primary font-bold">{tip.label}:</span> {tip.text}
+                         </li>
+                       ))}
                     </ul>
                   </GlassCard>
                   
@@ -409,25 +468,53 @@ export default function EarnPage() {
               </button>
             </div>
 
+            {/* Admin Instructions Section for Video/Mission */}
+            <div className="mb-8 p-6 bg-white/[0.03] border border-white/10 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1 space-y-2">
+                   <div className="flex items-center gap-3">
+                      <Info size={16} className="text-primary" />
+                      <h3 className="text-sm font-black uppercase tracking-tight text-on-surface">Instruction</h3>
+                   </div>
+                   <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic border-l-2 border-primary/30 pl-4 py-1">
+                      {selectedTask.description || "Watch the protocol transmission below and perform any secondary actions requested."}
+                   </p>
+                </div>
+                
+                {selectedTask.externalLink && (
+                  <a 
+                    href={selectedTask.externalLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full md:w-auto px-8 py-4 bg-primary text-slate-950 rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.05] active:scale-[0.95] transition-all shadow-lg flex items-center justify-center gap-3 border border-primary/20"
+                  >
+                    <ExternalLink size={14} /> Open Mission Link
+                  </a>
+                )}
+            </div>
+
             {selectedTask.taskType === "VIDEO" ? (
               /* VIDEO TASK UI */
               <>
-                <GlassCard className="p-2 border-primary/20 overflow-hidden">
-                  <div className="aspect-video bg-black relative rounded-2xl overflow-hidden shadow-2xl">
+                <GlassCard className="p-2 border-primary/20 overflow-hidden max-w-4xl mx-auto">
+                  <div className="aspect-video max-h-[60vh] bg-black relative rounded-2xl overflow-hidden shadow-2xl">
                      {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
-                       <iframe 
-                         className="w-full h-full"
-                         src={(() => {
-                           const url = selectedTask.videoUrl.replace(/^(https?:\/\/)+/, 'https://');
-                           if (url.includes('youtu.be/')) {
-                             const id = url.split('youtu.be/')[1]?.split('?')[0];
-                             return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
-                           }
-                           return url.replace('watch?v=', 'embed/').split('&')[0] + '?autoplay=1&rel=0';
-                         })()}
-                         title={selectedTask.title}
-                         allowFullScreen
-                       ></iframe>
+                        <iframe 
+                          className="w-full h-full border-0"
+                          src={(() => {
+                            const url = selectedTask.videoUrl.replace(/^(https?:\/\/)+/, 'https://');
+                            let base = "";
+                            if (url.includes('youtu.be/')) {
+                              const id = url.split('youtu.be/')[1]?.split('?')[0];
+                              base = `https://www.youtube.com/embed/${id}`;
+                            } else {
+                              base = url.replace('watch?v=', 'embed/').split('&')[0];
+                            }
+                            return `${base}?autoplay=1&rel=0&modestbranding=1&showinfo=0&iv_load_policy=3`;
+                          })()}
+                          title={selectedTask.title}
+                          allow="autoplay; encrypted-media"
+                          allowFullScreen
+                        ></iframe>
                      ) : (
                        <video 
                          ref={videoRef}
@@ -458,21 +545,17 @@ export default function EarnPage() {
                   </div>
 
                   <div className="flex gap-4 w-full md:w-auto">
-                       {/* Show manual complete for YouTube/iframe videos since onEnded doesn't fire on iframes */}
                        {!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')) && (
-                         <button 
-                           onClick={() => setVideoEnded(true)}
-                           className="px-8 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10"
-                         >
-                           Manual Complete
-                         </button>
+                         <div className="px-6 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl">
+                            {timer > 0 ? `Verifying Protocol: ${timer}s` : "Protocol Verified"}
+                         </div>
                        )}
                       <button 
-                        disabled={!videoEnded || isPending}
+                        disabled={(!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed') ? timer > 0 : true)) || isPending}
                         onClick={handleClaimPoints}
                         className={cn(
                           "flex-1 md:flex-none px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-2xl flex items-center justify-center gap-3",
-                          videoEnded 
+                          (videoEnded || (timer === 0 && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')))) 
                             ? "bg-primary text-background hover:scale-105 active:scale-95 shadow-primary/20" 
                             : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed border border-white/5"
                         )}
@@ -486,27 +569,26 @@ export default function EarnPage() {
             ) : (
               /* PROMO UI */
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                 <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative">
-                    {selectedTask.imageUrl ? (
-                      <img src={selectedTask.imageUrl} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-tertiary/20">
-                         <Megaphone size={120} />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent flex items-end p-8">
-                       <p className="text-sm font-medium italic opacity-80">{selectedTask.description}</p>
+                  <GlassCard className="p-0 overflow-hidden border-tertiary/20 flex flex-col items-center justify-center bg-slate-900/50 relative min-h-[350px] md:min-h-[500px] max-h-[75vh]">
+                    <div className="flex-1 w-full flex items-center justify-center p-4">
+                      {selectedTask.imageUrl ? (
+                        <img src={selectedTask.imageUrl} alt="" className="max-w-full max-h-full object-contain animate-in fade-in zoom-in-95 duration-500 shadow-2xl rounded-lg" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-tertiary/20">
+                           <Megaphone size={120} />
+                        </div>
+                      )}
                     </div>
-                 </GlassCard>
+                  </GlassCard>
 
-                 <div className="space-y-8 flex flex-col justify-center">
-                    {selectedTask.requiresVerification ? (
-                      <div className="space-y-6">
-                         <div className="flex items-center gap-3 mb-2">
-                            <Upload size={20} className="text-tertiary" />
-                            <h3 className="text-xl font-black uppercase tracking-tight">Proof Required</h3>
-                         </div>
-                         <p className="text-xs text-on-surface-variant font-medium">Please upload a screenshot showing your participation/support.</p>
+                  <div className="space-y-6 flex flex-col justify-center">
+                     {selectedTask.requiresVerification ? (
+                       <div className="space-y-6">
+                          <div className="flex items-center gap-3 mb-2">
+                             <Upload size={20} className="text-tertiary" />
+                             <h3 className="text-xl font-black uppercase tracking-tight">Proof Required</h3>
+                          </div>
+                          <p className="text-xs text-on-surface-variant font-medium">Please upload a screenshot showing your participation/support.</p>
                          
                          <div className="relative group rounded-2xl overflow-hidden aspect-video bg-white/5 border-2 border-dashed border-white/10 hover:border-tertiary/50 transition-all">
                             {proofPreview ? (

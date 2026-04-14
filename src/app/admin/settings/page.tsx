@@ -146,6 +146,45 @@ export default function AdminSettingsPage() {
               {saveSuccess ? "Configuration Deployed" : "Deploy Allocation Rules"}
             </button>
           </GlassCard>
+
+          {/* Reward Conversion Rates */}
+          <GlassCard className="p-10 border-emerald-500/20 bg-emerald-500/[0.02]">
+            <div className="mb-10">
+              <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight font-headline">Reward Conversion Rates</h3>
+              <p className="text-sm text-on-surface-variant font-medium mt-1">Configure the exchange rate between Points and GCash Credit.</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="p-6 rounded-2xl bg-surface-container-high/40 border border-white/5 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
+                <div className="flex items-center gap-5">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center">
+                    <TrendingUp size={20} />
+                  </div>
+                  <div>
+                    <p className="font-black text-on-surface text-base uppercase tracking-tight">GCash Liquidity Rate</p>
+                    <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mt-1 opacity-60">Amount of PTS required per 1 PHP GCash</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center bg-slate-900 rounded-xl px-4 py-2 border border-white/10 focus-within:border-emerald-500 transition-all">
+                    <input 
+                      type="number" 
+                      value={settings['POINTS_TO_GCASH_RATE'] || settings['points_to_gcash_rate'] || "10"} 
+                      onChange={(e) => updateVal('POINTS_TO_GCASH_RATE', e.target.value)}
+                      className="w-16 bg-transparent text-sm font-black text-emerald-500 text-center outline-none" 
+                    />
+                    <span className="mx-2 text-on-surface-variant/40">PTS</span>
+                    <ChevronRight size={14} className="text-on-surface-variant/40 mx-1" />
+                    <span className="text-sm font-black text-emerald-500 ml-2">1.00 PHP</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <p className="mt-4 text-[10px] text-on-surface-variant italic opacity-60 flex items-center gap-2">
+              <ShieldAlert size={12} className="text-emerald-500" /> Standard Protocol: 1,000 PTS = 100 PHP (Rate: 10)
+            </p>
+          </GlassCard>
         </div>
 
         {/* Side Column: Security & Campaigns */}

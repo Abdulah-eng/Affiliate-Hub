@@ -1,10 +1,11 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { prisma } from "@/lib/prisma";
 
 export async function submitKycApplication(formData: FormData) {
   try {
@@ -50,9 +51,14 @@ export async function submitKycApplication(formData: FormData) {
       }
     }
 
+    // Capture IP
+    const headerList = await headers();
+    const registrationIp = headerList.get("x-forwarded-for")?.split(",")[0] || headerList.get("x-real-ip") || "127.0.0.1";
+
     // Create the PENDING user
     const newUser = await prisma.user.create({
       data: {
+        registrationIp,
         email: rawData.email as string,
         name: `${rawData.firstName} ${rawData.lastName}`.trim(),
         firstName: rawData.firstName as string,
@@ -174,10 +180,15 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
       }
     }
 
+    // Capture IP
+    const headerList = await headers();
+    const registrationIp = headerList.get("x-forwarded-for")?.split(",")[0] || headerList.get("x-real-ip") || "127.0.0.1";
+
     // Update the existing Google user with their KYC + profile data
     await prisma.user.update({
       where: { id: userId },
       data: {
+        registrationIp,
         name: `${rawData.firstName} ${rawData.lastName}`.trim(),
         firstName: rawData.firstName as string,
         lastName: rawData.lastName as string,

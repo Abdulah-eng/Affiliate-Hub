@@ -13,6 +13,9 @@ export async function getAgentWallet() {
     orderBy: { createdAt: "desc" }
   });
 
+  const settingsData = await prisma.systemSetting.findMany();
+  const settings = settingsData.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
+
   const totalPoints = transactions
     .filter(t => t.status === "COMPLETED" && t.currency === "PTS")
     .reduce((sum, t) => sum + t.amount, 0);
@@ -30,7 +33,8 @@ export async function getAgentWallet() {
     totalPoints,
     totalGCash,
     transactions,
-    mobileNumber: user?.mobileNumber || ""
+    mobileNumber: user?.mobileNumber || "",
+    settings
   };
 }
 

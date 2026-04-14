@@ -21,7 +21,8 @@ import {
   Zap,
   Layers,
   ChevronRight,
-  Plus
+  Plus,
+  MonitorPlay
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { getSystemSettings, updateSystemSettings, uploadCmsAsset } from '@/app/actions/admin';
@@ -39,6 +40,7 @@ const SECTIONS = [
   { id: 'features', label: 'Features (Bento)', icon: <Layers size={18} /> },
   { id: 'partners', label: 'Partner Network', icon: <List size={18} /> },
   { id: 'workflow', label: 'Workflow (HIW)', icon: <Zap size={18} /> },
+  { id: 'earn', label: 'Earn Tutorial', icon: <MonitorPlay size={18} /> },
   { id: 'cta', label: 'CTA & Footer', icon: <ChevronRight size={18} /> },
 ];
 
@@ -85,6 +87,11 @@ const CMS_MAP: Record<string, CMSItem[]> = {
     { key: 'CMS_CTA_DESC', label: 'CTA Description', type: 'TEXTAREA', desc: 'Body text for the CTA section.' },
     { key: 'CMS_CTA_BTN_PRIMARY', label: 'Primary Button Label', type: 'TEXT', desc: 'Text for "Apply Now" style buttons.' },
     { key: 'CMS_CTA_BTN_SECONDARY', label: 'Secondary Button Label', type: 'TEXT', desc: 'Text for "Support" style buttons.' },
+  ],
+  earn: [
+    { key: 'CMS_EARN_VIDEO', label: 'Tutorial Video', type: 'VIDEO', desc: 'Main protocol tutorial video for agents.' },
+    { key: 'CMS_EARN_TITLE', label: 'Banner Title', type: 'TEXT', desc: 'Headline for the tutorial tab.' },
+    { key: 'CMS_EARN_DESC', label: 'Banner Description', type: 'TEXTAREA', desc: 'Body text for the earning instructions.' },
   ]
 };
 
@@ -97,6 +104,12 @@ export default function AdminCmsPage() {
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [partners, setPartners] = useState<{name: string; logo: string}[]>([]);
   const [newPartnerName, setNewPartnerName] = useState("");
+  
+  // Earn Tutorials
+  const [earnSteps, setEarnSteps] = useState<string[]>([]);
+  const [newStep, setNewStep] = useState("");
+  const [earnTips, setEarnTips] = useState<{label: string; text: string}[]>([]);
+  const [newTip, setNewTip] = useState({ label: "", text: "" });
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -113,6 +126,15 @@ export default function AdminCmsPage() {
         setPartners(list.map(name => ({ name, logo: '' })));
       }
     } catch { setPartners([]); }
+    try {
+      const stepsJson = settingsMap['CMS_EARN_STEPS_JSON'];
+      if (stepsJson) setEarnSteps(JSON.parse(stepsJson));
+      const tipsJson = settingsMap['CMS_EARN_TIPS_JSON'];
+      if (tipsJson) setEarnTips(JSON.parse(tipsJson));
+    } catch { 
+      setEarnSteps([]);
+      setEarnTips([]);
+    }
     setLoading(false);
   };
 
@@ -143,11 +165,16 @@ export default function AdminCmsPage() {
 
   const handleSaveAll = () => {
     startTransition(async () => {
-      // Merge partner JSON into settings before saving
-      const merged = { ...settings, CMS_PARTNERS_JSON: JSON.stringify(partners) };
+      // Merge JSONs into settings before saving
+      const merged = { 
+        ...settings, 
+        CMS_PARTNERS_JSON: JSON.stringify(partners),
+        CMS_EARN_STEPS_JSON: JSON.stringify(earnSteps),
+        CMS_EARN_TIPS_JSON: JSON.stringify(earnTips)
+      };
       const res = await updateSystemSettings(merged);
       if (res.success) {
-        setStatus({ type: 'success', message: 'All changes deployed to landing page.' });
+        setStatus({ type: 'success', message: 'All changes deployed to production.' });
         setTimeout(() => setStatus(null), 3000);
       } else {
         setStatus({ type: 'error', message: res.error || 'Failed to save changes.' });
@@ -278,7 +305,15 @@ export default function AdminCmsPage() {
                       <div className="md:col-span-4 relative aspect-video rounded-xl bg-surface-container overflow-hidden">
                         {settings[item.key] ? (
                           item.type === 'VIDEO' ? (
-                            <video src={settings[item.key]} className="w-full h-full object-cover" muted />
+                            settings[item.key].includes('youtube.com') || settings[item.key].includes('youtu.be') ? (
+                              <iframe 
+                                src={`https://www.youtube.com/embed/${settings[item.key].match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1]}?autoplay=1&mute=1&controls=0&loop=1`} 
+                                className="w-full h-full border-0 pointer-events-none"
+                                title="YouTube Preview"
+                              />
+                            ) : (
+                              <video src={settings[item.key]} className="w-full h-full object-cover" muted />
+                            )
                           ) : (
                             <img src={settings[item.key]} className="w-full h-full object-cover" />
                           )
@@ -359,13 +394,25 @@ export default function AdminCmsPage() {
                       onChange={(e) => setPartners(prev => prev.map((p, idx) => idx === i ? { ...p, name: e.target.value } : p))}
                       className="flex-1 bg-transparent border-b border-outline-variant/20 focus:border-primary pb-1 text-sm font-bold text-on-surface outline-none transition-all"
                     />
-                    {/* Logo upload */}
-                    <div className="relative flex-shrink-0">
-                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" onChange={(e) => e.target.files?.[0] && handlePartnerLogoUpload(i, e.target.files[0])} />
-                      <button className="flex items-center gap-1 px-3 py-2 bg-primary/10 border border-primary/20 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all">
-                        {uploadingKey === `CMS_PARTNER_LOGO_${i}` ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
-                        Logo
-                      </button>
+                    {/* Logo upload and URL */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 flex-shrink-0 w-full sm:w-auto">
+                      <div className="relative w-full sm:w-64">
+                        <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" size={14} />
+                        <input 
+                          type="text"
+                          value={partner.logo}
+                          onChange={(e) => setPartners(prev => prev.map((p, idx) => idx === i ? { ...p, logo: e.target.value } : p))}
+                          placeholder="Logo URL (Direct Link)"
+                          className="w-full bg-surface-container/50 border border-outline-variant/10 rounded-lg pl-9 pr-3 py-2 text-[10px] font-bold text-on-surface outline-none focus:border-primary transition-all"
+                        />
+                      </div>
+                      <div className="relative flex-shrink-0 w-full sm:w-auto">
+                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer z-10 w-full h-full" onChange={(e) => e.target.files?.[0] && handlePartnerLogoUpload(i, e.target.files[0])} />
+                        <button className="flex items-center justify-center gap-1 px-4 py-2 bg-primary/10 border border-primary/20 text-primary rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all w-full sm:w-auto">
+                          {uploadingKey === `CMS_PARTNER_LOGO_${i}` ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+                          Upload Local
+                        </button>
+                      </div>
                     </div>
                     {/* Delete */}
                     <button onClick={() => removePartner(i)} className="p-2 text-red-400/40 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-all flex-shrink-0">
@@ -375,6 +422,104 @@ export default function AdminCmsPage() {
                 ))}
               </div>
             </GlassCard>
+          )}
+
+          {/* Earn Tutorial Manager */}
+          {activeSection === 'earn' && (
+            <div className="space-y-8">
+              {/* Steps Manager */}
+              <GlassCard className="p-8 border-white/5 bg-surface-container-lowest/30">
+                <h3 className="font-black text-on-surface uppercase tracking-tight text-lg mb-1 flex items-center gap-2">
+                  <List size={20} className="text-secondary" /> Execution Steps
+                </h3>
+                <p className="text-xs text-on-surface-variant font-medium mb-6">Define the step-by-step instructions for agents to start earning.</p>
+                
+                <div className="flex gap-3 mb-6">
+                  <input
+                    type="text"
+                    value={newStep}
+                    onChange={(e) => setNewStep(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (setEarnSteps(p => [...p, newStep]), setNewStep(""))}
+                    placeholder="Describe a step (e.g. Share link to FB)"
+                    className="flex-1 bg-surface-container/30 border border-outline-variant/20 rounded-xl px-4 py-3 text-sm font-bold text-on-surface outline-none focus:border-secondary transition-all"
+                  />
+                  <button onClick={() => {setEarnSteps(p => [...p, newStep]); setNewStep("");}} disabled={!newStep.trim()} className="flex items-center gap-2 px-5 py-3 bg-secondary/20 border border-secondary/30 text-secondary rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/30 transition-all disabled:opacity-40">
+                    <Plus size={14} /> Add Step
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {earnSteps.map((step, i) => (
+                    <div key={i} className="flex items-center gap-3 p-4 bg-surface-container/30 rounded-xl border border-outline-variant/10 group">
+                      <span className="w-6 h-6 rounded bg-secondary/10 flex items-center justify-center text-[10px] font-black text-secondary shrink-0">{i+1}</span>
+                      <input
+                        type="text"
+                        value={step}
+                        onChange={(e) => setEarnSteps(prev => prev.map((s, idx) => idx === i ? e.target.value : s))}
+                        className="flex-1 bg-transparent text-sm font-bold text-on-surface outline-none"
+                      />
+                      <button onClick={() => setEarnSteps(prev => prev.filter((_, idx) => idx !== i))} className="p-2 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+
+              {/* Tips Manager */}
+              <GlassCard className="p-8 border-white/5 bg-surface-container-lowest/30">
+                <h3 className="font-black text-on-surface uppercase tracking-tight text-lg mb-1 flex items-center gap-2">
+                  <Zap size={20} className="text-secondary" /> Pro-Tips
+                </h3>
+                <p className="text-xs text-on-surface-variant font-medium mb-6">Add specialized advice with bold labels to help agents perform better.</p>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                  <input
+                    type="text"
+                    value={newTip.label}
+                    onChange={(e) => setNewTip(p => ({...p, label: e.target.value}))}
+                    placeholder="Bold Label (e.g. TIP)"
+                    className="bg-surface-container/30 border border-outline-variant/20 rounded-xl px-4 py-3 text-sm font-bold text-on-surface outline-none focus:border-secondary transition-all"
+                  />
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={newTip.text}
+                      onChange={(e) => setNewTip(p => ({...p, text: e.target.value}))}
+                      placeholder="Tip Description..."
+                      className="flex-1 bg-surface-container/30 border border-outline-variant/20 rounded-xl px-4 py-3 text-sm font-bold text-on-surface outline-none focus:border-secondary transition-all"
+                    />
+                    <button onClick={() => {setEarnTips(p => [...p, newTip]); setNewTip({label:"", text:""});}} disabled={!newTip.label || !newTip.text} className="flex items-center gap-2 px-5 py-3 bg-secondary/20 border border-secondary/30 text-secondary rounded-xl font-black text-xs uppercase tracking-widest hover:bg-secondary/30 transition-all disabled:opacity-40">
+                      <Plus size={14} /> Add Tip
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {earnTips.map((tip, i) => (
+                    <div key={i} className="flex items-start gap-3 p-4 bg-surface-container/30 rounded-xl border border-outline-variant/10 group">
+                      <div className="flex-1 space-y-1">
+                        <input
+                          type="text"
+                          value={tip.label}
+                          onChange={(e) => setEarnTips(prev => prev.map((t, idx) => idx === i ? {...t, label: e.target.value} : t))}
+                          className="bg-secondary/10 px-2 py-0.5 rounded text-[10px] font-black text-secondary uppercase outline-none"
+                        />
+                        <textarea
+                          value={tip.text}
+                          rows={2}
+                          onChange={(e) => setEarnTips(prev => prev.map((t, idx) => idx === i ? {...t, text: e.target.value} : t))}
+                          className="w-full bg-transparent text-xs font-medium text-on-surface-variant outline-none resize-none"
+                        />
+                      </div>
+                      <button onClick={() => setEarnTips(prev => prev.filter((_, idx) => idx !== i))} className="p-2 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            </div>
           )}
         </div>
       </div>

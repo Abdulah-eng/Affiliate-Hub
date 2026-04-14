@@ -36,6 +36,7 @@ export default function AdminPromosPage() {
     title: "",
     description: "",
     imageUrl: "",
+    externalLink: "",
     active: true,
     requiresVerification: false,
     pointsAward: 0
@@ -91,6 +92,7 @@ export default function AdminPromosPage() {
           title: "",
           description: "",
           imageUrl: "",
+          externalLink: "",
           active: true,
           requiresVerification: false,
           pointsAward: 0
@@ -109,6 +111,7 @@ export default function AdminPromosPage() {
       title: promo.title,
       description: promo.description || "",
       imageUrl: promo.imageUrl || "",
+      externalLink: promo.externalLink || "",
       active: promo.active,
       requiresVerification: promo.requiresVerification,
       pointsAward: promo.pointsAward
@@ -125,6 +128,7 @@ export default function AdminPromosPage() {
       title: "",
       description: "",
       imageUrl: "",
+      externalLink: "",
       active: true,
       requiresVerification: false,
       pointsAward: 0
@@ -185,6 +189,15 @@ export default function AdminPromosPage() {
                 />
               </div>
               <div>
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Social Task Redirect Link (Optional)</label>
+                <input 
+                  className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all font-mono text-sm"
+                  value={form.externalLink}
+                  onChange={e => setForm({...form, externalLink: e.target.value})}
+                  placeholder="https://facebook.com/reel/..."
+                />
+              </div>
+              <div>
                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Poster Instructions (Instruction from Admin)</label>
                 <textarea 
                   className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all h-24"
@@ -209,7 +222,7 @@ export default function AdminPromosPage() {
                     <div className="relative group">
                       <input 
                         type="file" 
-                        accept="image/*"
+                        accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
@@ -228,7 +241,7 @@ export default function AdminPromosPage() {
                 
                 <div className="aspect-video rounded-xl bg-slate-950/50 border border-white/5 overflow-hidden flex items-center justify-center relative">
                   {(promoPreview || form.imageUrl) ? (
-                    <img src={promoPreview || form.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                    <img src={promoPreview || form.imageUrl} alt="Preview" className="w-full h-full object-contain" />
                   ) : (
                     <ImageIcon size={32} className="opacity-10" />
                   )}
@@ -292,7 +305,7 @@ export default function AdminPromosPage() {
           <GlassCard key={promo.id} className="group overflow-hidden relative">
             <div className="aspect-video bg-black relative">
                {promo.imageUrl ? (
-                 <img src={promo.imageUrl} alt="" className="w-full h-full object-cover" />
+                 <img src={promo.imageUrl} alt="" className="w-full h-full object-contain" />
                ) : (
                  <div className="w-full h-full flex items-center justify-center text-primary/10">
                    <Megaphone size={64} />

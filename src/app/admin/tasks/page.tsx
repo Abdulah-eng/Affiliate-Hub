@@ -13,12 +13,13 @@ import {
   X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { adminCreateTask, adminDeleteTask, getTasks } from "@/app/actions/tasks";
+import { adminCreateTask, adminUpdateTask, adminDeleteTask, getTasks } from "@/app/actions/tasks";
 
 export default function AdminTasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [form, setForm] = useState({
@@ -26,7 +27,9 @@ export default function AdminTasksPage() {
     description: "",
     points: 100,
     videoUrl: "",
+    externalLink: "",
     isExternal: false,
+    requiresVerification: false,
     type: "VIDEO"
   });
 
@@ -54,18 +57,41 @@ export default function AdminTasksPage() {
   const handleCreate = () => {
     if (!form.title) return;
     startTransition(async () => {
-      await adminCreateTask(form);
+      if (editingId) {
+        await adminUpdateTask(editingId, form);
+      } else {
+        await adminCreateTask(form);
+      }
+      
       setShowAddModal(false);
+      setEditingId(null);
       setForm({
         title: "",
         description: "",
         points: 100,
         videoUrl: "",
+        externalLink: "",
         isExternal: false,
+        requiresVerification: false,
         type: "VIDEO"
       });
       fetchTasks();
     });
+  };
+
+  const handleEdit = (task: any) => {
+    setEditingId(task.id);
+    setForm({
+      title: task.title,
+      description: task.description || "",
+      points: task.points,
+      videoUrl: task.videoUrl || "",
+      externalLink: task.externalLink || "",
+      isExternal: task.isExternal || false,
+      requiresVerification: task.requiresVerification || false,
+      type: task.type || "VIDEO"
+    });
+    setShowAddModal(true);
   };
 
   if (loading) {
@@ -98,7 +124,9 @@ export default function AdminTasksPage() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
           <GlassCard className="w-full max-w-lg p-8 space-y-6 max-h-[90vh] overflow-y-auto no-scrollbar">
-            <h2 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">New Quest Protocol</h2>
+            <h2 className="text-2xl font-black font-headline text-on-surface uppercase tracking-tight">
+              {editingId ? "Re-Calibration Protocol" : "New Quest Protocol"}
+            </h2>
             
             <div className="space-y-4">
               <div>
@@ -151,6 +179,15 @@ export default function AdminTasksPage() {
                   placeholder="https://youtube.com/..."
                 />
               </div>
+              <div>
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">External Redirect Link (Optional)</label>
+                <input 
+                  className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all font-mono text-sm"
+                  value={form.externalLink}
+                  onChange={e => setForm({...form, externalLink: e.target.value})}
+                  placeholder="https://facebook.com/..."
+                />
+              </div>
               <div 
                 className="flex items-center gap-3 cursor-pointer p-2"
                 onClick={() => setForm({...form, isExternal: !form.isExternal})}
@@ -160,21 +197,33 @@ export default function AdminTasksPage() {
                 </div>
                 <span className="text-xs font-bold text-on-surface">External Redirect Task?</span>
               </div>
+              <div 
+                className="flex items-center gap-3 cursor-pointer p-2"
+                onClick={() => setForm({...form, requiresVerification: !form.requiresVerification})}
+              >
+                <div className={cn("w-6 h-6 rounded border-2 flex items-center justify-center transition-all", form.requiresVerification ? "bg-emerald-500 border-emerald-500" : "border-white/10")}>
+                  {form.requiresVerification && <ChevronRight size={14} className="text-slate-950" />}
+                </div>
+                <span className="text-xs font-bold text-on-surface">Proof Required? (Screenshot Review)</span>
+              </div>
             </div>
 
             <div className="flex gap-3 pt-4">
               <button 
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setEditingId(null);
+                }}
                 className="flex-1 py-4 border border-white/10 rounded-xl font-bold text-on-surface-variant hover:bg-white/5 transition-all uppercase tracking-widest text-xs"
               >
-                Abondon
+                Abandon
               </button>
               <button 
                 onClick={handleCreate}
                 disabled={isPending || !form.title}
                 className="flex-1 py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
               >
-                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Deploy Quest"}
+                {isPending ? <Loader2 size={16} className="animate-spin mx-auto" /> : (editingId ? "Update Quest" : "Deploy Quest")}
               </button>
             </div>
           </GlassCard>
@@ -206,12 +255,20 @@ export default function AdminTasksPage() {
                   </div>
                 </div>
               </div>
-              <button 
-                onClick={() => handleDelete(task.id)}
-                className="p-3 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-slate-950 rounded-xl transition-all border border-red-500/20"
-              >
-                <Trash2 size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => handleEdit(task)}
+                  className="p-3 bg-primary/10 text-primary hover:bg-primary hover:text-slate-950 rounded-xl transition-all border border-primary/20"
+                >
+                  <Save size={20} />
+                </button>
+                <button 
+                  onClick={() => handleDelete(task.id)}
+                  className="p-3 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-slate-950 rounded-xl transition-all border border-red-500/20"
+                >
+                  <Trash2 size={20} />
+                </button>
+              </div>
             </div>
           </GlassCard>
         ))}

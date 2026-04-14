@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AgentSidebar } from "@/components/layout/AgentSidebar";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { SupportWidget } from "@/components/support/SupportWidget";
 import { 
   Menu, 
   UserCircle, 
@@ -113,6 +114,9 @@ export default function AgentLayout({
 
       {/* Background Decorative Element */}
       <div className="fixed bottom-[-10%] left-[-5%] w-[30%] h-[30%] bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+      
+      {/* Support Chat Widget */}
+      <SupportWidget />
     </div>
   );
 }

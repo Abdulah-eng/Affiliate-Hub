@@ -16,7 +16,9 @@ import {
   Layout,
   Radio,
   MessageSquare,
-  X
+  X,
+  Trophy,
+  Headphones
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
@@ -29,6 +31,8 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin' },
     { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands' },
     { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews' },
+    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions' },
+    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support' },
     { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history' },
     { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts' },
     { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks' },

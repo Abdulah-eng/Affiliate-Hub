@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Bell, Check, Info, AlertTriangle, ShieldCheck, X } from "lucide-react";
 import { getNotifications, markAsRead, markAllAsRead } from "@/app/actions/notifications";
 import { cn } from "@/lib/utils";
@@ -14,17 +14,17 @@ export function NotificationBell({ userId }: NotificationProps) {
   const [notifications, setNotifications] = useState<any[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!userId) return;
     const data = await getNotifications(userId);
     setNotifications(data);
-  };
+  }, [userId]);
 
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000); // 30 sec polling
     return () => clearInterval(interval);
-  }, [userId]);
+  }, [fetchNotifications]);
 
   // Handle outside click
   useEffect(() => {

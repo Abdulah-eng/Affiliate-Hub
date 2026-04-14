@@ -9,10 +9,12 @@ import {
   Shield, 
   Bell, 
   Smartphone,
+  MapPin,
   Save,
   Loader2,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Phone
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -29,6 +31,7 @@ export default function AgentSettingsPage() {
     email: user?.email || "",
     affiliateUsername: user?.affiliateUsername || "",
     location: user?.location || "",
+    mobileNumber: user?.mobileNumber || "",
   });
 
   const handleSave = async (e: React.FormEvent) => {
@@ -137,17 +140,37 @@ export default function AgentSettingsPage() {
                   <p className="text-[10px] text-on-surface-variant/40 italic">Email cannot be changed after KYC approval.</p>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
-                    Primary Location
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.location}
-                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                    className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl py-3 px-4 text-sm focus:border-primary outline-none transition-all"
-                    placeholder="City, Country"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+                      Primary Location
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" size={16} />
+                      <input
+                        type="text"
+                        value={formData.location}
+                        onChange={(e) => setFormData({...formData, location: e.target.value})}
+                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary outline-none transition-all"
+                        placeholder="City, Country"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+                      Mobile Number
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/40" size={16} />
+                      <input
+                        type="tel"
+                        value={formData.mobileNumber}
+                        onChange={(e) => setFormData({...formData, mobileNumber: e.target.value})}
+                        className="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl py-3 pl-10 pr-4 text-sm focus:border-primary outline-none transition-all"
+                        placeholder="+63 9xx xxx xxxx"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

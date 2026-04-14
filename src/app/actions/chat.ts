@@ -28,6 +28,21 @@ export async function sendMessage(content: string) {
     console.warn("Redis is unavailable for ratelimit, bypassing.", e);
   }
 
+  // Fetch points from settings (Default to 10 if not found)
+  let chatPoints = 10;
+  try {
+    const chatPointsSetting = await prisma.systemSetting.findUnique({ where: { key: "POINTS_CHAT" } });
+    if (chatPointsSetting) {
+      chatPoints = parseInt(chatPointsSetting.value) || 10;
+    } else {
+      // Fallback to legacy key from seed if exists
+      const legacySetting = await prisma.systemSetting.findUnique({ where: { key: "points_per_chat" } });
+      if (legacySetting) chatPoints = parseInt(legacySetting.value) || 10;
+    }
+  } catch (e) {
+    console.error("Error fetching chat points setting:", e);
+  }
+
   // --- SENTINEL V2 AI MODERATION FILTER ---
   try {
     const sentinelSetting = await prisma.systemSetting.findUnique({ where: { key: "SENTINEL_V2_ENABLED" }});
@@ -56,7 +71,7 @@ export async function sendMessage(content: string) {
     data: {
       userId: session.user.id,
       content,
-      rewardPoints: 10,
+      rewardPoints: chatPoints,
       reactions: []
     },
     include: {
@@ -73,7 +88,7 @@ export async function sendMessage(content: string) {
   await prisma.pointTransaction.create({
     data: {
       userId: session.user.id,
-      amount: 10,
+      amount: chatPoints,
       type: "CHAT",
       description: "Chat engagement reward"
     }

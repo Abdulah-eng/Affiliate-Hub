@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { headers } from "next/headers";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -60,6 +61,21 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
+      // Capture IP for login tracking
+      try {
+        const headerList = await headers();
+        const ip = headerList.get("x-forwarded-for")?.split(",")[0] || headerList.get("x-real-ip") || "127.0.0.1";
+        
+        if (user.id) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginIp: ip }
+          });
+        }
+      } catch (e) {
+        console.error("Failed to log IP on login:", e);
+      }
+
       // Handle Google sign-in: find or create the user in our DB
       if (account?.provider === "google") {
         try {

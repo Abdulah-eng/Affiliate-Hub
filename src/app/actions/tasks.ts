@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
 
 export async function getTasks() {
   const session = await getServerSession(authOptions);
@@ -82,11 +84,16 @@ export async function completeTask(taskId: string) {
       if (!task) throw new Error("Task not found");
 
       // Record progress
+      const status = task.requiresVerification ? "PENDING" : "COMPLETED";
       await tx.userTaskProgress.create({
-        data: { userId, taskId, status: "COMPLETED" }
+        data: { userId, taskId, status }
       });
 
-      // Award points
+      if (task.requiresVerification) {
+        return { success: true, pending: true, message: "Mission submitted for verification." };
+      }
+
+      // Award points immediately if no verification required
       await tx.pointTransaction.create({
         data: {
           userId,
@@ -173,7 +180,9 @@ export async function adminCreateTask(data: {
   description?: string,
   points: number,
   videoUrl?: string,
+  externalLink?: string,
   isExternal?: boolean,
+  requiresVerification?: boolean,
   type?: string
 }) {
   const session = await getServerSession(authOptions);
@@ -181,6 +190,29 @@ export async function adminCreateTask(data: {
 
   try {
     await prisma.task.create({ data });
+    revalidatePath("/admin/tasks");
+    revalidatePath("/agent/tasks");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminUpdateTask(id: string, data: {
+  title?: string,
+  description?: string,
+  points?: number,
+  videoUrl?: string,
+  externalLink?: string,
+  isExternal?: boolean,
+  requiresVerification?: boolean,
+  type?: string
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    await prisma.task.update({ where: { id }, data });
     revalidatePath("/admin/tasks");
     revalidatePath("/agent/tasks");
     return { success: true };
@@ -201,4 +233,126 @@ export async function adminDeleteTask(id: string) {
   } catch (error: any) {
     return { success: false, error: error.message };
   }
+}
+
+export async function submitTaskProof(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const taskId = formData.get("taskId") as string;
+    const file = formData.get("file") as File;
+    const userId = session.user.id;
+
+    if (!taskId || !file) return { success: false, error: "Missing required data" };
+
+    const task = await prisma.task.findUnique({ where: { id: taskId } });
+    if (!task) return { success: false, error: "Task not found" };
+
+    const uploadDir = join(process.cwd(), "public", "uploads", "task_proofs");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${userId}-${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    await writeFile(filePath, buffer);
+    const url = `/uploads/task_proofs/${fileName}`;
+
+    await prisma.userTaskProgress.upsert({
+      where: { userId_taskId: { userId, taskId } },
+      update: {
+        status: "PENDING",
+        proofUrl: url,
+        completedAt: new Date()
+      },
+      create: {
+        userId,
+        taskId,
+        status: "PENDING",
+        proofUrl: url
+      }
+    });
+
+    revalidatePath("/agent/earn");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Task Proof Submission Error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminReviewTaskProgress(progressId: string, status: "COMPLETED" | "REJECTED") {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    const progress = await prisma.userTaskProgress.findUnique({
+      where: { id: progressId },
+      include: { task: true, user: true }
+    });
+
+    if (!progress) return { success: false, error: "Progress record not found" };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.userTaskProgress.update({
+        where: { id: progressId },
+        data: { 
+          status,
+          reviewedAt: new Date()
+        }
+      });
+
+      if (status === "COMPLETED") {
+        await tx.pointTransaction.create({
+          data: {
+            userId: progress.userId,
+            amount: progress.task.points,
+            type: "TASK_REWARD",
+            description: `Verification Reward: ${progress.task.title}`,
+            status: "COMPLETED"
+          }
+        });
+
+        // Simplified milestone check
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dailyTask = await tx.userDailyTask.findUnique({
+          where: { userId_taskKey: { userId: progress.userId, taskKey: "DAILY_MISSIONS" } }
+        });
+        if (dailyTask && dailyTask.lastResetAt >= today) {
+           const newCount = dailyTask.count + 1;
+           await tx.userDailyTask.update({ where: { id: dailyTask.id }, data: { count: newCount } });
+           if (newCount === 3) {
+              await tx.pointTransaction.create({
+                data: {
+                  userId: progress.userId, amount: 200, type: "DAILY_BONUS",
+                  description: "Daily Mission Milestone: 3 Missions Completed", status: "COMPLETED"
+                }
+              });
+           }
+        }
+      }
+    });
+
+    revalidatePath("/admin/tasks");
+    revalidatePath("/agent/earn");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Admin Review Task Error:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function adminGetPendingTaskSubmissions() {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return [];
+
+  return prisma.userTaskProgress.findMany({
+    where: { status: "PENDING" },
+    include: {
+      user: { select: { id: true, name: true, username: true, image: true } },
+      task: true
+    },
+    orderBy: { completedAt: "desc" }
+  });
 }

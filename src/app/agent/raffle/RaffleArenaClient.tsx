@@ -490,36 +490,8 @@ export function RaffleArenaClient({
 
           {/* Win Probabilities hidden per admin request */}
 
-          {/* Prize Manifest */}
           <div className="space-y-4">
-            <h3 className="text-sm font-black text-on-surface uppercase tracking-[0.4em] ml-2">Prize Manifest</h3>
-            <div className="grid grid-cols-1 gap-3">
-              {[
-                { name: "iPhone 15+", tier: "Grand Jackpot", icon: <Smartphone size={22} />, color: "primary", prob: "0.1%" },
-                { name: "10k GCash", tier: "Grand Cash", icon: <Wallet size={22} />, color: "secondary", prob: "1%" },
-                { name: "1,000 PTS", tier: "Instant Bonus", icon: <Coins size={22} />, color: "tertiary", prob: "18.9%" },
-                { name: "200 GCash", tier: "Grand Base", icon: <Gift size={22} />, color: "primary", prob: "80%" },
-              ].map((prize, idx) => (
-                <GlassCard
-                  key={idx}
-                  className="p-5 flex items-center justify-between border-white/5 hover:border-primary/20 transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "p-3 rounded-xl bg-white/[0.04] group-hover:scale-110 transition-transform",
-                      prize.color === "primary" ? "text-primary" : prize.color === "secondary" ? "text-secondary" : "text-tertiary"
-                    )}>
-                      {prize.icon}
-                    </div>
-                    <div>
-                      <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest">{prize.tier}</p>
-                      <p className="text-sm font-black text-on-surface uppercase">{prize.name}</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-black text-on-surface-variant opacity-50">{prize.prob}</span>
-                </GlassCard>
-              ))}
-            </div>
+            {/* Prize Manifest removed per admin request */}
           </div>
         </div>
       </div>

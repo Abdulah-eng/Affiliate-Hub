@@ -24,6 +24,20 @@ export default async function ReviewDetailPage({ params }: Props) {
   // Fetch all brands so CSR can assign
   const brands = await prisma.brand.findMany({ orderBy: { name: "asc" } });
 
+  // Fetch accounts sharing the same IP
+  const sharedIpUsers = user.registrationIp ? await prisma.user.findMany({
+    where: {
+      id: { not: user.id },
+      role: "AGENT",
+      OR: [
+        { registrationIp: user.registrationIp },
+        { lastLoginIp: user.registrationIp },
+        ...(user.lastLoginIp ? [{ registrationIp: user.lastLoginIp }, { lastLoginIp: user.lastLoginIp }] : [])
+      ]
+    },
+    select: { username: true, id: true, kycStatus: true }
+  }) : [];
+
   return (
     <KYCReviewDetail
       user={{
@@ -37,9 +51,17 @@ export default async function ReviewDetailPage({ params }: Props) {
         selfieUrl: user.selfieUrl,
         kycStatus: user.kycStatus,
         kycNotes: user.kycNotes || "",
+        mobileNumber: user.mobileNumber || "",
+        registrationIp: user.registrationIp || "N/A",
+        lastLoginIp: user.lastLoginIp || "N/A",
         kycSubmittedAt: user.kycSubmittedAt?.toISOString() || null,
         kycReviewedAt: user.kycReviewedAt?.toISOString() || null
       }}
+      sharedIpAccounts={sharedIpUsers.map(u => ({
+        id: u.id,
+        username: u.username || "agent",
+        kycStatus: u.kycStatus as string
+      }))}
       platforms={user.platforms.map((p: any) => ({
         id: p.id,
         brandId: p.brandId,
