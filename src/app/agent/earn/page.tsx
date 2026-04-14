@@ -153,6 +153,13 @@ export default function EarnPage() {
           {activeTab === "protocol" ? (
             /* PROTOCOL TAB: TUTORIAL */
             <div className="space-y-10">
+              {/* Earning info banner */}
+              <div className="flex items-start gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                <Info size={16} className="text-primary shrink-0 mt-0.5" />
+                <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
+                  <span className="text-primary font-bold">Yes, you earn!</span> Every video mission in the <span className="font-bold text-on-surface">Missions</span> tab rewards you with Kinetic Points upon completion. Watch the full video, then click <span className="font-bold text-on-surface">Extract Reward</span> to claim.
+                </p>
+              </div>
               <GlassCard className="p-2 border-primary/20 overflow-hidden group">
                 <div className="aspect-video bg-black relative rounded-2xl overflow-hidden shadow-2xl">
                   {/* Mock Tutorial Video */}
@@ -410,7 +417,14 @@ export default function EarnPage() {
                      {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
                        <iframe 
                          className="w-full h-full"
-                         src={`${selectedTask.videoUrl.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
+                         src={(() => {
+                           const url = selectedTask.videoUrl.replace(/^(https?:\/\/)+/, 'https://');
+                           if (url.includes('youtu.be/')) {
+                             const id = url.split('youtu.be/')[1]?.split('?')[0];
+                             return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+                           }
+                           return url.replace('watch?v=', 'embed/').split('&')[0] + '?autoplay=1&rel=0';
+                         })()}
                          title={selectedTask.title}
                          allowFullScreen
                        ></iframe>
@@ -444,14 +458,15 @@ export default function EarnPage() {
                   </div>
 
                   <div className="flex gap-4 w-full md:w-auto">
-                      {!videoEnded && selectedTask.videoUrl?.includes('embed') && (
-                        <button 
-                          onClick={() => setVideoEnded(true)}
-                          className="px-8 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10"
-                        >
-                          Manual Complete
-                        </button>
-                      )}
+                       {/* Show manual complete for YouTube/iframe videos since onEnded doesn't fire on iframes */}
+                       {!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')) && (
+                         <button 
+                           onClick={() => setVideoEnded(true)}
+                           className="px-8 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10"
+                         >
+                           Manual Complete
+                         </button>
+                       )}
                       <button 
                         disabled={!videoEnded || isPending}
                         onClick={handleClaimPoints}

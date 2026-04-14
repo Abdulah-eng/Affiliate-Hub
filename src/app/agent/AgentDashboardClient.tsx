@@ -91,11 +91,20 @@ export default function AgentDashboardClient({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [launchPlatform, setLaunchPlatform] = useState<Platform | null>(null);
   const [activePromo, setActivePromo] = useState<Promo | null>(null);
+  // Track which tab (agent/player) is shown per platform
+  const [platformTab, setPlatformTab] = useState<Record<string, 'agent' | 'player'>>({});
   
   const [promoProof, setPromoProof] = useState<File | null>(null);
   const [promoProofPreview, setPromoProofPreview] = useState<string | null>(null);
   const [isSubmittingProof, setIsSubmittingProof] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+
+  // Helper: ensure URL always has exactly one https:// prefix
+  const safeUrl = (url: string) => {
+    if (!url) return '';
+    const cleaned = url.replace(/^(https?:\/\/)+/, '');
+    return `https://${cleaned}`;
+  };
 
   const toggleReveal = (id: string) => {
     setRevealedPasswords((prev) => {
@@ -261,6 +270,7 @@ export default function AgentDashboardClient({
               const colors = ["primary", "secondary", "tertiary"];
               const color = colors[i % colors.length];
               const isRevealed = revealedPasswords.has(platform.id);
+              const tab = platformTab[platform.id] || 'agent';
 
               return (
                 <GlassCard
@@ -315,10 +325,34 @@ export default function AgentDashboardClient({
                       </div>
                     </div>
 
+                    {/* Agent / Player tab toggle */}
+                    {isApproved && (
+                      <div className="flex bg-slate-950/80 p-1 rounded-xl border border-white/5 shrink-0">
+                        <button
+                          onClick={() => setPlatformTab(prev => ({ ...prev, [platform.id]: 'agent' }))}
+                          className={cn(
+                            "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                            tab === 'agent' ? "bg-primary text-background shadow" : "text-on-surface-variant hover:text-white"
+                          )}
+                        >
+                          Agent Login
+                        </button>
+                        <button
+                          onClick={() => setPlatformTab(prev => ({ ...prev, [platform.id]: 'player' }))}
+                          className={cn(
+                            "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all",
+                            tab === 'player' ? "bg-secondary text-background shadow" : "text-on-surface-variant hover:text-white"
+                          )}
+                        >
+                          Player Login
+                        </button>
+                      </div>
+                    )}
+
                     <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-6">
                       <div className="space-y-1">
                         <p className="text-[9px] text-on-surface-variant uppercase font-black tracking-[0.2em] ml-1">
-                          Access URL
+                          {tab === 'agent' ? 'Agent URL' : 'Player URL'}
                         </p>
                         <p
                           className={cn(
@@ -331,15 +365,22 @@ export default function AgentDashboardClient({
                       </div>
                       <div className="space-y-1">
                         <p className="text-[9px] text-on-surface-variant uppercase font-black tracking-[0.2em] ml-1">
-                          Username
+                          {tab === 'agent' ? 'Agent Username' : 'Player Username'}
                         </p>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-mono font-bold">
-                            {isApproved ? platform.username || "—" : "•••••••"}
+                            {isApproved 
+                              ? tab === 'agent' 
+                                ? (platform.username || "—") 
+                                : (platform.username ? `player_${platform.username}` : "Contact admin")
+                              : "•••••••"}
                           </span>
                           {isApproved && platform.username && (
                             <button
-                              onClick={() => copyToClipboard(platform.username, `u-${platform.id}`)}
+                              onClick={() => copyToClipboard(
+                                tab === 'agent' ? platform.username : `player_${platform.username}`, 
+                                `u-${platform.id}`
+                              )}
                               className="text-on-surface-variant hover:text-primary transition-colors"
                               title="Copy username"
                             >
@@ -354,7 +395,7 @@ export default function AgentDashboardClient({
                       </div>
                       <div className="space-y-1 relative">
                         <p className="text-[9px] text-on-surface-variant uppercase font-black tracking-[0.2em] ml-1">
-                          Password
+                          {tab === 'agent' ? 'Agent Password' : 'Player Password'}
                         </p>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-mono tracking-[0.3em]">
@@ -407,7 +448,7 @@ export default function AgentDashboardClient({
                           if (platform.useIframe) {
                             setLaunchPlatform(platform);
                           } else {
-                            window.open(`https://${platform.loginUrl}`, "_blank");
+                            window.open(safeUrl(platform.loginUrl), "_blank");
                           }
                         }}
                         className={cn(
@@ -602,8 +643,8 @@ export default function AgentDashboardClient({
 
       {/* Iframe Modal */}
       {launchPlatform && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex flex-col p-4 md:p-8">
-           <div className="flex items-center justify-between mb-4">
+         <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex flex-col">
+           <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/10">
               <div className="flex items-center gap-4">
                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                     <MonitorPlay size={24} />
@@ -620,14 +661,15 @@ export default function AgentDashboardClient({
                 <X size={24} />
               </button>
            </div>
-           <GlassCard className="flex-1 p-0 overflow-hidden border-primary/20 bg-black">
+           <div className="flex-1 bg-black min-h-0 relative">
               <iframe 
-                src={`https://${launchPlatform.loginUrl}`} 
-                className="w-full h-full border-none"
+                src={safeUrl(launchPlatform.loginUrl)} 
+                className="absolute inset-0 w-full h-full border-none"
                 title={launchPlatform.brandName}
+                allow="fullscreen"
               />
-           </GlassCard>
-        </div>
+           </div>
+         </div>
       )}
 
       {/* Promo Instructions Detail Modal */}
@@ -641,9 +683,9 @@ export default function AgentDashboardClient({
                  </button>
               </div>
 
-              <div className="aspect-video w-full rounded-2xl overflow-hidden mb-6 border border-white/10">
+              <div className="aspect-video w-full rounded-2xl overflow-hidden mb-6 border border-white/10 bg-slate-950">
                  {activePromo.imageUrl ? (
-                   <img src={activePromo.imageUrl} alt={activePromo.title} className="w-full h-full object-cover" />
+                   <img src={activePromo.imageUrl} alt={activePromo.title} className="w-full h-full object-contain" />
                  ) : (
                    <div className="w-full h-full bg-slate-900 flex items-center justify-center text-primary/20">
                      <MonitorPlay size={64} />

@@ -31,7 +31,11 @@ export default async function ReferralsPage() {
   let referralCode = user?.referralCode;
   
   if (!referralCode || referralCode === "PENDING") {
-    referralCode = `AGENT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    // Use username to build the code so it matches the agent's username
+    const baseCode = user?.username 
+      ? `AGENT-${user.username.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)}`
+      : `AGENT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    referralCode = baseCode;
     await prisma.user.update({
       where: { id: session?.user?.id },
       data: { referralCode }

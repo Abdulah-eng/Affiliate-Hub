@@ -235,7 +235,14 @@ export default function AgentTasksPage() {
                        {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
                          <iframe 
                            className="w-full h-full"
-                           src={`${selectedTask.videoUrl.replace('watch?v=', 'embed/')}?autoplay=1&rel=0`}
+                           src={(() => {
+                             const url = selectedTask.videoUrl.replace(/^(https?:\/\/)+/, 'https://');
+                             if (url.includes('youtu.be/')) {
+                               const id = url.split('youtu.be/')[1]?.split('?')[0];
+                               return `https://www.youtube.com/embed/${id}?autoplay=1&rel=0`;
+                             }
+                             return url.replace('watch?v=', 'embed/').split('&')[0] + '?autoplay=1&rel=0';
+                           })()}
                            title={selectedTask.title}
                            allowFullScreen
                          ></iframe>
@@ -269,7 +276,8 @@ export default function AgentTasksPage() {
                     </div>
 
                     <div className="flex gap-4 w-full md:w-auto">
-                        {!videoEnded && selectedTask.videoUrl?.includes('embed') && (
+                        {/* Show manual complete for YouTube iframes since onEnded doesn't fire */}
+                        {!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')) && (
                           <button 
                             onClick={() => setVideoEnded(true)}
                             className="px-8 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-white/10"

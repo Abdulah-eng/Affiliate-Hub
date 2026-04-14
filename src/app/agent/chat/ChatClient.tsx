@@ -154,7 +154,7 @@ export function ChatClient({
       {/* Message List */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-10 py-8 space-y-10 no-scrollbar scroll-smooth"
+        className="flex-1 overflow-y-auto px-5 py-4 space-y-5 no-scrollbar scroll-smooth max-h-[55vh] lg:max-h-[60vh]"
       >
         {messages.map((msg) => {
           const isSelf = msg.userId === currentUserId;
@@ -184,7 +184,7 @@ export function ChatClient({
                 </div>
                   <div className="relative group/context">
                     <div className={cn(
-                      "p-5 rounded-3xl relative group border transition-all backdrop-blur-md shadow-2xl hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu w-fit",
+                      "p-3 px-4 rounded-2xl relative group border transition-all backdrop-blur-md shadow-md hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-context-menu w-fit max-w-[280px] sm:max-w-xs",
                       msg.isSpam && "opacity-40 grayscale",
                       msg.isHelpful && "border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
                       isSelf 
@@ -197,7 +197,7 @@ export function ChatClient({
                     }}
                     >
                       
-                      <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
+                      <p className="text-sm font-medium leading-snug">{msg.content}</p>
                       
                       {/* Reactions & Marks Display */}
                       {(msg.reactions && msg.reactions.length > 0 || msg.isHelpful || msg.isSpam) && (
@@ -260,7 +260,7 @@ export function ChatClient({
 
 
       {/* Input Area */}
-      <div className="p-8 bg-gradient-to-t from-background/40 to-transparent border-t border-white/5 relative z-10 backdrop-blur-sm">
+      <div className="p-4 bg-gradient-to-t from-background/40 to-transparent border-t border-white/5 relative z-10 backdrop-blur-sm">
         <form 
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           className="bg-surface-container-high/60 border border-white/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 focus-within:bg-surface-container-high/90 focus-within:shadow-[0_10px_40px_rgba(129,236,255,0.15)] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_2px_15px_rgba(255,255,255,0.05)] group backdrop-blur-lg"

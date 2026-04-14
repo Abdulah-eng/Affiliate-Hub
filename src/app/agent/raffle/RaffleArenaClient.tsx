@@ -488,26 +488,7 @@ export function RaffleArenaClient({
             </div>
           </GlassCard>
 
-          {/* Odds Disclosure */}
-          <GlassCard className="p-6 rounded-3xl border-white/5 bg-surface-container-low/60">
-            <h3 className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.3em] mb-5 flex items-center gap-2">
-              <RotateCw size={14} className="animate-spin-slow" /> Win Probabilities
-            </h3>
-            <div className="space-y-3">
-              {[
-                { label: "500 PTS", prob: "20%", color: "bg-primary", type: "Standard" },
-                { label: "200 PTS", prob: "30%", color: "bg-primary/50", type: "Standard" },
-                { label: "No Win", prob: "40%", color: "bg-white/10", type: "Standard" },
-                { label: "1,000 PTS", prob: "10%", color: "bg-secondary", type: "Standard" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className={cn("w-2 h-2 rounded-full shrink-0", item.color)} />
-                  <span className="text-xs text-on-surface flex-1 font-medium">{item.label}</span>
-                  <span className="text-xs font-black text-on-surface-variant">{item.prob}</span>
-                </div>
-              ))}
-            </div>
-          </GlassCard>
+          {/* Win Probabilities hidden per admin request */}
 
           {/* Prize Manifest */}
           <div className="space-y-4">
