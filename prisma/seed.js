@@ -34,7 +34,7 @@ async function main() {
       password: adminPassword,
       role: "ADMIN",
       kycStatus: "APPROVED",
-      referralCode: "ADMIN-REF-001"
+      referralCode: "admin"
     }
   });
   console.log(`  ✅ Admin user seeded (username: admin, password: Admin@12345)`);
@@ -51,7 +51,7 @@ async function main() {
       password: csrPassword,
       role: "CSR",
       kycStatus: "APPROVED",
-      referralCode: "CSR-REF-001"
+      referralCode: "csr_aileen"
     }
   });
   console.log(`  ✅ CSR user seeded (username: csr_aileen, password: Csr@12345)`);
@@ -72,7 +72,7 @@ async function main() {
       kycReviewedAt: new Date(),
       telegram: "@juan_vault",
       location: "Metro Manila, PH",
-      referralCode: "REF-JUAN01"
+      referralCode: "vaultmaster77"
     }
   });
   console.log(`  ✅ Demo agent seeded (username: vaultmaster77, password: Agent@12345)`);

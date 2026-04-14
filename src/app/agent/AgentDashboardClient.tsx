@@ -41,6 +41,8 @@ type Platform = {
   useIframe: boolean;
   username: string;
   password: string;
+  playerUsername: string;
+  playerPassword: string;
   status: string;
 };
 
@@ -372,13 +374,13 @@ export default function AgentDashboardClient({
                             {isApproved 
                               ? tab === 'agent' 
                                 ? (platform.username || "—") 
-                                : (platform.username ? `player_${platform.username}` : "Contact admin")
+                                : (platform.playerUsername || "Contact admin")
                               : "•••••••"}
                           </span>
-                          {isApproved && platform.username && (
+                          {isApproved && ((tab === 'agent' && platform.username) || (tab === 'player' && platform.playerUsername)) && (
                             <button
                               onClick={() => copyToClipboard(
-                                tab === 'agent' ? platform.username : `player_${platform.username}`, 
+                                tab === 'agent' ? platform.username : platform.playerUsername, 
                                 `u-${platform.id}`
                               )}
                               className="text-on-surface-variant hover:text-primary transition-colors"
@@ -401,7 +403,7 @@ export default function AgentDashboardClient({
                           <span className="text-xs font-mono tracking-[0.3em]">
                             {isApproved
                               ? isRevealed
-                                ? platform.password || "—"
+                                ? (tab === 'agent' ? platform.password : platform.playerPassword) || "—"
                                 : "••••••••"
                               : "••••••••"}
                           </span>
@@ -414,9 +416,12 @@ export default function AgentDashboardClient({
                               >
                                 {isRevealed ? <EyeOff size={12} /> : <Eye size={12} />}
                               </button>
-                              {platform.password && (
+                              {((tab === 'agent' && platform.password) || (tab === 'player' && platform.playerPassword)) && (
                                 <button
-                                  onClick={() => copyToClipboard(platform.password, `p-${platform.id}`)}
+                                  onClick={() => copyToClipboard(
+                                    tab === 'agent' ? platform.password : platform.playerPassword, 
+                                    `p-${platform.id}`
+                                  )}
                                   className="text-on-surface-variant hover:text-primary transition-colors"
                                   title="Copy password"
                                 >

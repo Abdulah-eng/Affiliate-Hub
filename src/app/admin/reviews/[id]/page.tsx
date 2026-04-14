@@ -46,6 +46,8 @@ export default async function ReviewDetailPage({ params }: Props) {
         brandName: p.brand.name,
         username: p.username || "",
         password: p.password || "",
+        playerUsername: p.playerUsername || "",
+        playerPassword: p.playerPassword || "",
         status: p.status
       }))}
       allBrands={brands.map((b: any) => ({ id: b.id, name: b.name, loginUrl: b.loginUrl || "" }))}

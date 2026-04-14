@@ -17,7 +17,13 @@ export async function reviewApplication(
   userId: string, 
   status: "APPROVED" | "REJECTED" | "REQUEST_REUPLOAD", 
   notes?: string,
-  platformAssignments?: { brandId: string; username: string; password?: string }[]
+  platformAssignments?: { 
+    brandId: string; 
+    username: string; 
+    password?: string;
+    playerUsername?: string;
+    playerPassword?: string;
+  }[]
 ) {
   try {
     await prisma.$transaction(async (tx) => {
@@ -44,13 +50,17 @@ export async function reviewApplication(
              update: {
                status: "APPROVED",
                username: assignment.username,
-               password: assignment.password
+               password: assignment.password,
+               playerUsername: assignment.playerUsername,
+               playerPassword: assignment.playerPassword
              },
              create: {
                userId,
                brandId: assignment.brandId,
                username: assignment.username,
                password: assignment.password,
+               playerUsername: assignment.playerUsername,
+               playerPassword: assignment.playerPassword,
                status: "APPROVED"
              }
           });

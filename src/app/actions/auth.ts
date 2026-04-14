@@ -90,7 +90,7 @@ export async function submitKycApplication(formData: FormData) {
         role: "AGENT",
         kycStatus: "PENDING",
         kycSubmittedAt: new Date(),
-        referralCode: `REF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        referralCode: rawData.username as string,
       }
     });
 
@@ -208,7 +208,7 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
 
         kycStatus: "PENDING",
         kycSubmittedAt: new Date(),
-        referralCode: `REF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+        referralCode: rawData.username as string,
         role: "AGENT",
       }
     });

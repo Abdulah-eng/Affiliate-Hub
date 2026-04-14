@@ -74,11 +74,11 @@ function LoginContent() {
 
       <div className="w-full max-w-md relative z-10 animate-vapor">
         {/* Logo/Brand Area */}
-        <div className="text-center mb-6 flex flex-col items-center pt-2">
+        <div className="text-center mb-2 flex flex-col items-center pt-12">
           <img 
             src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
             alt="Affiliate Hub PH Logo" 
-            className="h-52 md:h-72 w-auto object-contain drop-shadow-[0_0_30px_rgba(129,236,255,0.5)] mb-1"
+            className="h-52 md:h-72 w-auto object-contain drop-shadow-[0_0_30px_rgba(129,236,255,0.5)] mb-0"
           />
           <p className="text-xs font-black text-on-surface-variant tracking-widest uppercase mb-3">
             The #1 Affiliate Network in the Philippines

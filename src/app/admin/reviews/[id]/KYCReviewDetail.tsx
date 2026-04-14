@@ -28,6 +28,8 @@ type PlatformAssignment = {
   brandName: string;
   username: string;
   password: string;
+  playerUsername: string;
+  playerPassword: string;
 };
 
 type Props = {
@@ -51,6 +53,8 @@ type Props = {
     brandName: string;
     username: string;
     password: string;
+    playerUsername: string | null;
+    playerPassword: string | null;
     status: string;
   }[];
   allBrands: { id: string; name: string; loginUrl: string }[];
@@ -70,14 +74,28 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
           brandId: p.brandId,
           brandName: p.brandName,
           username: p.username,
-          password: p.password
+          password: p.password,
+          playerUsername: p.playerUsername || "",
+          playerPassword: p.playerPassword || ""
         }))
       : []
   );
 
   const [newBrandId, setNewBrandId] = useState(allBrands[0]?.id || "");
+  const [newRole, setNewRole] = useState<"AGENT" | "PLAYER">("AGENT");
 
-  const updateAssignment = (brandId: string, field: "username" | "password", value: string) => {
+  // Track which roles are "active" (manually added) even if empty
+  const [activeRoles, setActiveRoles] = useState<Record<string, { agent?: boolean; player?: boolean }>>(
+    platforms.reduce((acc, p) => ({
+      ...acc,
+      [p.brandId]: { 
+        agent: !!p.username || !!p.password, 
+        player: !!p.playerUsername || !!p.playerPassword 
+      }
+    }), {})
+  );
+
+  const updateAssignment = (brandId: string, field: keyof PlatformAssignment, value: string) => {
     setAssignments((prev) =>
       prev.map((a) => (a.brandId === brandId ? { ...a, [field]: value } : a))
     );
@@ -85,21 +103,41 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
 
   const addPlatform = () => {
     if (!newBrandId) return;
-    if (assignments.find((a) => a.brandId === newBrandId)) return;
     const brand = allBrands.find((b) => b.id === newBrandId);
     if (!brand) return;
-    setAssignments((prev) => [
+
+    // Update active roles tracker
+    setActiveRoles(prev => ({
       ...prev,
-      { brandId: brand.id, brandName: brand.name, username: "", password: "" }
-    ]);
+      [newBrandId]: {
+        ...prev[newBrandId],
+        [newRole.toLowerCase()]: true
+      }
+    }));
+
+    // Add to assignments list if not already there
+    if (!assignments.find((a) => a.brandId === newBrandId)) {
+      setAssignments((prev) => [
+        ...prev,
+        { brandId: brand.id, brandName: brand.name, username: "", password: "", playerUsername: "", playerPassword: "" }
+      ]);
+    }
   };
 
   const autoGenerateAll = () => {
-    setAssignments(prev => prev.map(a => ({
-      ...a,
-      username: a.username || `ag_${user.username.substring(0,4)}_${Math.floor(1000 + Math.random() * 9000)}`.toLowerCase(),
-      password: a.password || Math.random().toString(36).slice(-8) + "X!"
-    })));
+    setAssignments(prev => prev.map(a => {
+      const baseUser = (user.username || "agent").substring(0,4);
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const roles = activeRoles[a.brandId] || { agent: true, player: true };
+      
+      return {
+        ...a,
+        username: roles.agent ? (a.username || `ag_${baseUser}_${rand}`.toLowerCase()) : a.username,
+        password: roles.agent ? (a.password || Math.random().toString(36).slice(-8) + "X!") : a.password,
+        playerUsername: roles.player ? (a.playerUsername || `pl_${baseUser}_${rand}`.toLowerCase()) : a.playerUsername,
+        playerPassword: roles.player ? (a.playerPassword || Math.random().toString(36).slice(-8) + "P!") : a.playerPassword
+      };
+    }));
   };
 
   const handleAction = (status: "APPROVED" | "REJECTED" | "REQUEST_REUPLOAD") => {
@@ -112,8 +150,12 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
         return;
       }
       for (const a of assignments) {
-        if (!a.username.trim() || !a.password.trim()) {
-          setError(`Please provide both username and password for the assigned platform (${a.brandName}).`);
+        const roles = activeRoles[a.brandId];
+        const hasAgent = roles?.agent && a.username.trim() && a.password.trim();
+        const hasPlayer = roles?.player && a.playerUsername.trim() && a.playerPassword.trim();
+        
+        if (!hasAgent && !hasPlayer) {
+          setError(`Please provide fully filled credentials for at least one role in ${a.brandName}.`);
           return;
         }
       }
@@ -128,7 +170,9 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
           ? assignments.map((a) => ({
               brandId: a.brandId,
               username: a.username,
-              password: a.password
+              password: a.password,
+              playerUsername: a.playerUsername,
+              playerPassword: a.playerPassword
             }))
           : undefined
       );
@@ -319,6 +363,14 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
                     </option>
                   ))}
                 </select>
+                <select
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value as any)}
+                  className="text-xs bg-surface-container-low border border-outline-variant rounded-lg px-3 py-2 text-on-surface outline-none focus:border-primary font-black uppercase tracking-widest"
+                >
+                  <option value="AGENT">Agent</option>
+                  <option value="PLAYER">Player</option>
+                </select>
                 <button
                   onClick={addPlatform}
                   className="p-2 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-background transition-all border border-primary/20"
@@ -349,35 +401,61 @@ export default function KYCReviewDetail({ user, platforms, allBrands }: Props) {
                     <p className="text-xs font-black text-primary uppercase tracking-widest">
                       {a.brandName}
                     </p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1">
-                          Username
-                        </label>
-                        <input
-                          type="text"
-                          value={a.username}
-                          onChange={(e) =>
-                            updateAssignment(a.brandId, "username", e.target.value)
-                          }
-                          className="w-full bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant focus:border-primary outline-none text-sm text-on-surface"
-                          placeholder="agent_username"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1">
-                          Password
-                        </label>
-                        <input
-                          type="text"
-                          value={a.password}
-                          onChange={(e) =>
-                            updateAssignment(a.brandId, "password", e.target.value)
-                          }
-                          className="w-full bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant focus:border-primary outline-none text-sm text-on-surface font-mono"
-                          placeholder="••••••••"
-                        />
-                      </div>
+                    <div className={cn(
+                      "grid gap-6",
+                      activeRoles[a.brandId]?.agent && activeRoles[a.brandId]?.player ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+                    )}>
+                      {/* Agent Admin Block */}
+                      {activeRoles[a.brandId]?.agent && (
+                        <div className="space-y-3 p-4 rounded-xl bg-primary/5 border border-primary/10 transition-all animate-in fade-in slide-in-from-left-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Agent Login</p>
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                          </div>
+                          <div className="grid grid-cols-1 gap-3">
+                            <input
+                              type="text"
+                              value={a.username}
+                              onChange={(e) => updateAssignment(a.brandId, "username", e.target.value)}
+                              className="w-full bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant focus:border-primary outline-none text-sm text-on-surface"
+                              placeholder="Agent Username"
+                            />
+                            <input
+                              type="text"
+                              value={a.password}
+                              onChange={(e) => updateAssignment(a.brandId, "password", e.target.value)}
+                              className="w-full bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant focus:border-primary outline-none text-sm text-on-surface font-mono"
+                              placeholder="Agent Password"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Player Login Block */}
+                      {activeRoles[a.brandId]?.player && (
+                        <div className="space-y-3 p-4 rounded-xl bg-secondary/5 border border-secondary/10 transition-all animate-in fade-in slide-in-from-right-4">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[10px] font-black text-secondary uppercase tracking-widest">Player Login</p>
+                            <div className="w-1.5 h-1.5 rounded-full bg-secondary" />
+                          </div>
+                          <div className="grid grid-cols-1 gap-3">
+                            <input
+                              type="text"
+                              value={a.playerUsername}
+                              onChange={(e) => updateAssignment(a.brandId, "playerUsername", e.target.value)}
+                              className="w-full bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant focus:border-secondary outline-none text-sm text-on-surface"
+                              placeholder="Player Username"
+                            />
+                            <input
+                              type="text"
+                              value={a.playerPassword}
+                              onChange={(e) => updateAssignment(a.brandId, "playerPassword", e.target.value)}
+                              className="w-full bg-surface-container-low px-3 py-2 rounded-lg border border-outline-variant focus:border-secondary outline-none text-sm text-on-surface font-mono"
+                              placeholder="Player Password"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

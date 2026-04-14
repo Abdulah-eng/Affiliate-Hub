@@ -117,12 +117,14 @@ model Brand {
 
 // The credentials mapping for an agent to a specific partner brand
 model PlatformAccess {
-  id       String  @id @default(cuid())
-  userId   String
-  brandId  String
-  username String?
-  password String?
-  status   String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  id             String  @id @default(cuid())
+  userId         String
+  brandId        String
+  username       String? // Agent Username
+  password       String? // Agent Password
+  playerUsername String? // Player Username
+  playerPassword String? // Player Password
+  status         String  @default("PENDING") // PENDING, APPROVED, REJECTED
 
   user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   brand Brand @relation(fields: [brandId], references: [id], onDelete: Cascade)

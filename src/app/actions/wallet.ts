@@ -49,10 +49,22 @@ export async function getReferralStats() {
 
   if (!user) return null;
 
+  // Background sync: ensure referralCode matches username exactly
+  let referralCode = user.referralCode;
+  const targetCode = user.username || referralCode;
+  if (referralCode !== targetCode && targetCode) {
+    referralCode = targetCode;
+    // Don't await to avoid blocking response, but update DB
+    prisma.user.update({
+      where: { id: session.user.id },
+      data: { referralCode }
+    }).catch(console.error);
+  }
+
   const verifiedReferrals = user.referrals.filter(r => r.kycStatus === "APPROVED").length;
 
   return {
-    referralCode: user.referralCode,
+    referralCode, // Return the synced code
     totalInvites: user.referrals.length,
     verifiedReferrals,
     referralsList: user.referrals

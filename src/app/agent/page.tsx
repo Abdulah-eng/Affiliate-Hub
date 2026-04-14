@@ -66,6 +66,8 @@ export default async function AgentDashboard() {
         useIframe: p.brand.useIframe,
         username: p.username || "",
         password: p.password || "",
+        playerUsername: p.playerUsername || "",
+        playerPassword: p.playerPassword || "",
         status: p.status
       }))}
       announcements={announcements}
