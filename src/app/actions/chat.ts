@@ -9,7 +9,7 @@ import { awardDailyTask } from "./gamification";
 const CHAT_REDIS_KEY = "chat:recent_messages";
 const MAX_CACHED_MESSAGES = 100;
 
-export async function sendMessage(content: string) {
+export async function sendMessage(content: string, attachmentUrl?: string, attachmentType?: string) {
   const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return { success: false, error: "Unauthorized" };
@@ -72,7 +72,9 @@ export async function sendMessage(content: string) {
       userId: session.user.id,
       content,
       rewardPoints: chatPoints,
-      reactions: []
+      reactions: [],
+      attachmentUrl,
+      attachmentType
     },
     include: {
       user: {
@@ -94,16 +96,42 @@ export async function sendMessage(content: string) {
     }
   });
 
-  // Push to Redis Cache for fast retrieval (With Fallback)
+  // Clear Redis Cache to force refresh with new fields or push if working
   try {
-    const messageData = JSON.stringify(newMessage);
-    await redis.lpush(CHAT_REDIS_KEY, messageData);
-    await redis.ltrim(CHAT_REDIS_KEY, 0, MAX_CACHED_MESSAGES - 1);
+    await redis.del(CHAT_REDIS_KEY);
   } catch (e) {
     console.warn("Redis is unavailable for chat caching. Falling back to DB only.");
   }
 
   return { success: true, message: newMessage };
+}
+
+export async function uploadChatAsset(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user) return { success: false, error: "Unauthorized" };
+
+  try {
+    const file = formData.get("file") as File;
+    if (!file) return { success: false, error: "No file provided" };
+
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+
+    const uploadDir = join(process.cwd(), "public", "uploads", "chat");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    
+    await writeFile(filePath, buffer);
+    const url = `/uploads/chat/${fileName}`;
+
+    return { success: true, url, type: file.type };
+  } catch (error: any) {
+    console.error("Chat Upload Error:", error);
+    return { success: false, error: "Failed to upload asset." };
+  }
 }
 
 export async function getRecentChatMessages() {

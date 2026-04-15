@@ -29,7 +29,9 @@ export async function GET() {
       rewardPoints: m.rewardPoints,
       reactions: m.reactions,
       isSpam: m.isSpam,
-      isHelpful: m.isHelpful
+      isHelpful: m.isHelpful,
+      attachmentUrl: m.attachmentUrl,
+      attachmentType: m.attachmentType
     }));
 
     return NextResponse.json(formatted);

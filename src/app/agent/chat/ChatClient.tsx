@@ -29,6 +29,8 @@ type Message = {
   reactions?: { userId: string, type: string }[];
   isSpam?: boolean;
   isHelpful?: boolean;
+  attachmentUrl?: string | null;
+  attachmentType?: string | null;
 };
 
 export function ChatClient({ 
@@ -43,8 +45,10 @@ export function ChatClient({
   const [isSending, setIsSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ msgId: string } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -97,16 +101,15 @@ export function ChatClient({
     // Keep focus (optional, but good UX)
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || isSending) return;
+  const handleSend = async (attachmentUrl?: string, attachmentType?: string) => {
+    if ((!input.trim() && !attachmentUrl) || isSending) return;
     setIsSending(true);
     
     try {
-      const result = await sendMessage(input);
+      const result = await sendMessage(input, attachmentUrl, attachmentType);
       if (result.success && result.message) {
-        setInput("");
+        if (!attachmentUrl) setInput("");
         // Optimistic update handled by polling or manual append
-        // Safe append: only add if not already present (due to polling race)
         setMessages(prev => {
           if (prev.some(m => m.id === result.message.id)) return prev;
           const createdAt = result.message.createdAt instanceof Date 
@@ -118,9 +121,11 @@ export function ChatClient({
             content: result.message.content,
             userId: currentUserId,
             userName: "You",
-            userRole: "AGENT", // Default
+            userRole: "AGENT", 
             createdAt,
-            rewardPoints: result.message.rewardPoints
+            rewardPoints: result.message.rewardPoints,
+            attachmentUrl: result.message.attachmentUrl,
+            attachmentType: result.message.attachmentType
           }];
         });
       }
@@ -128,6 +133,36 @@ export function ChatClient({
       console.error("Send error:", e);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const onFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File too large. Max size is 10MB.");
+      return;
+    }
+
+    setIsUploading(true);
+    const { uploadChatAsset } = await import("@/app/actions/chat");
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await uploadChatAsset(formData);
+      if (res.success && res.url) {
+        await handleSend(res.url, res.type);
+      } else {
+        alert("Upload failed: " + (res.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Upload failed due to network error.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -197,6 +232,32 @@ export function ChatClient({
                     }}
                     >
                       
+                      {msg.attachmentUrl && (
+                        <div className="rounded-lg overflow-hidden border border-black/10 bg-black/5 mb-2 max-w-full">
+                          {msg.attachmentType?.startsWith('image/') ? (
+                            <img 
+                              src={msg.attachmentUrl} 
+                              alt="Attachment" 
+                              className="max-h-60 w-auto object-contain cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(msg.attachmentUrl as string, '_blank');
+                              }}
+                            />
+                          ) : (
+                            <a 
+                              href={msg.attachmentUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-2 px-3 py-2 text-[10px] uppercase font-bold text-primary hover:text-primary/80 transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Paperclip size={14} /> View Attachment
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      
                       <p className="text-sm font-medium leading-relaxed">{msg.content}</p>
                       
                       {/* Reactions & Marks Display */}
@@ -265,9 +326,21 @@ export function ChatClient({
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
           className="bg-surface-container-high/60 border border-white/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 focus-within:bg-surface-container-high/90 focus-within:shadow-[0_10px_40px_rgba(129,236,255,0.15)] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_2px_15px_rgba(255,255,255,0.05)] group backdrop-blur-lg"
         >
-           <button type="button" onClick={() => alert("File attachment upload coming soon")} className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl">
-             <Paperclip size={20} />
-           </button>
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              className="hidden" 
+              onChange={onFileSelect}
+              accept="image/*,application/pdf,application/zip,application/x-zip-compressed"
+            />
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()} 
+              disabled={isUploading || isSending}
+              className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl disabled:opacity-30"
+            >
+              {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Paperclip size={20} />}
+            </button>
            <input 
             value={input}
             onChange={(e) => setInput(e.target.value)}
