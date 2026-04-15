@@ -104,6 +104,8 @@ export function SupportWidget() {
     const res = await uploadSupportAsset(formData);
     if (res.success && res.url) {
       handleSend(res.url, res.type);
+    } else {
+      alert("Upload failed: " + (res.error || "Please check your file size (max 10MB) and try again."));
     }
     setIsUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";

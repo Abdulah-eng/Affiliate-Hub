@@ -71,6 +71,8 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
     const res = await uploadSupportAsset(formData);
     if (res.success && res.url) {
       handleSend(res.url, res.type);
+    } else {
+      alert("Upload failed: " + (res.error || "Please check the file size and try again."));
     }
     setIsUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
