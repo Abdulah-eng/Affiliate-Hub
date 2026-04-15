@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AgentSidebar } from "@/components/layout/AgentSidebar";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { SupportWidget } from "@/components/support/SupportWidget";
@@ -14,6 +14,15 @@ import {
 } from "lucide-react";
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { getAgentHeaderStats } from '@/app/actions/agent';
+
+interface HeaderStats {
+  rank: string;
+  performance: number;
+  points: number;
+  activeNodes: number;
+  trend: string;
+}
 
 export default function AgentLayout({
   children,
@@ -22,10 +31,21 @@ export default function AgentLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: session } = useSession();
+  const [stats, setStats] = useState<HeaderStats | null>(null);
   const user = session?.user as any;
   const userName = user?.name || user?.username || 'Agent';
   const role = user?.role || 'AGENT';
-  const points = 24500; // Mock or fetch from session/db later
+
+  useEffect(() => {
+    async function fetchStats() {
+      const data = await getAgentHeaderStats();
+      if (data) setStats(data);
+    }
+    fetchStats();
+    // Poll every 60s for updates
+    const interval = setInterval(fetchStats, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,43 +86,55 @@ export default function AgentLayout({
         </div>
         
         {/* Sub-header Context Bar */}
-        <div className="bg-surface-container-low/90 backdrop-blur-lg border-y border-white/5 py-3 px-6 lg:px-12 flex items-center gap-8 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Rank</span>
-            <span className="text-xs font-black text-cyan-400 px-4 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 shadow-[0_0_10px_rgba(0,229,255,0.1)] uppercase">
-              {user?.kycStatus === 'APPROVED' ? 'Elite Tier' : 'Pending Vault'}
-            </span>
-          </div>
-          <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
-          
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Performance</span>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-black text-on-surface">40%</span>
-              <div className="w-20 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-primary to-secondary w-[40%] animate-pulse"></div>
-              </div>
-              <span className="text-primary text-[10px] font-black flex items-center gap-1 uppercase">
-                <TrendingUp size={12} /> +5.2%
-              </span>
+        <div className="bg-surface-container-low/90 backdrop-blur-lg border-y border-white/5 py-3 px-6 lg:px-12 flex items-center gap-8 overflow-x-auto no-scrollbar min-h-[56px]">
+          {!stats ? (
+            <div className="flex items-center justify-center w-full gap-4 opacity-50 italic text-[10px] font-black uppercase tracking-[0.2em]">
+              <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+              Establishing Node Connection...
             </div>
-          </div>
-          <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
-          
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Points Value</span>
-            <span className="text-xs font-black text-tertiary flex items-center gap-2">
-              <Wallet size={14} className="text-tertiary" /> {points.toLocaleString()} PTS
-            </span>
-          </div>
-          <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
-          
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Vault Nodes</span>
-            <span className="text-xs font-black text-on-surface flex items-center gap-2">
-              <Layers size={14} className="text-primary" /> 03 <span className="text-on-surface-variant font-bold">ACTIVE</span>
-            </span>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Rank</span>
+                <span className="text-xs font-black text-cyan-400 px-4 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 shadow-[0_0_10px_rgba(0,229,255,0.1)] uppercase">
+                  {stats.rank}
+                </span>
+              </div>
+              <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
+              
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Performance</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-black text-on-surface">{stats.performance}%</span>
+                  <div className="w-20 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000" 
+                      style={{ width: `${stats.performance}%` }}
+                    />
+                  </div>
+                  <span className="text-primary text-[10px] font-black flex items-center gap-1 uppercase">
+                    <TrendingUp size={12} /> {stats.trend}
+                  </span>
+                </div>
+              </div>
+              <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
+              
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Points Value</span>
+                <span className="text-xs font-black text-tertiary flex items-center gap-2">
+                  <Wallet size={14} className="text-tertiary" /> {stats.points.toLocaleString()} PTS
+                </span>
+              </div>
+              <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
+              
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Vault Nodes</span>
+                <span className="text-xs font-black text-on-surface flex items-center gap-2">
+                  <Layers size={14} className="text-primary" /> {stats.activeNodes.toString().padStart(2, '0')} <span className="text-on-surface-variant font-bold">ACTIVE</span>
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </header>
 
