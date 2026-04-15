@@ -39,31 +39,71 @@ export default function EarnPage() {
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [videoEnded, setVideoEnded] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    if (selectedTask && selectedTask.taskType === "VIDEO" && !videoEnded) {
-      setTimer(30); // 30 second minimum watch time
-      timerRef.current = setInterval(() => {
-        setTimer(prev => {
-          if (prev <= 1) {
-            clearInterval(timerRef.current!);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-      setTimer(0);
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [selectedTask, videoEnded]);
-
-  // Promo specific states
-  const [proofFile, setProofFile] = useState<File | null>(null);
-  const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [player, setPlayer] = useState<any>(null); // YT Player Instance
+  const [isVideoPaused, setIsVideoPaused] = useState(true);
+  const [interactionTimestamp, setInteractionTimestamp] = useState<number | null>(null);
+  const [interactionVisible, setInteractionVisible] = useState(false);
   const [timer, setTimer] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string | null>(null);
+
+  // Timer Effect
+  useEffect(() => {
+    if (selectedTask && selectedTask.taskType === "VIDEO" && !videoEnded) {
+      if (!isVideoPaused) {
+        if (timer === 0) setTimer(30); // Reset timer if not set
+        timerRef.current = setInterval(() => {
+          setTimer(prev => {
+            if (prev <= 1) {
+              clearInterval(timerRef.current!);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        if (timerRef.current) clearInterval(timerRef.current);
+      }
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+      // setTimer(0); // Don't clear timer so it resumes
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [selectedTask, videoEnded, isVideoPaused]);
+
+  // YouTube API Loader
+  useEffect(() => {
+    if (selectedTask?.taskType === "VIDEO" && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be'))) {
+      if (!(window as any).YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      }
+
+      (window as any).onYouTubeIframeAPIReady = () => {
+         // This might not fire if script already loaded, handled by manual check
+      };
+    }
+  }, [selectedTask]);
+
+  // Interaction Logic
+  useEffect(() => {
+    if (selectedTask && !videoEnded && !isVideoPaused) {
+        // Randomly set interaction pulse between 10-25 seconds left
+        if (interactionTimestamp === null) {
+            setInteractionTimestamp(Math.floor(Math.random() * 15) + 10);
+        }
+        
+        if (timer === interactionTimestamp && !interactionVisible) {
+            setInteractionVisible(true);
+            setIsVideoPaused(true); // Forced pause
+            if (player) player.pauseVideo();
+            if (videoRef.current) videoRef.current.pause();
+        }
+    }
+  }, [timer, selectedTask, videoEnded, isVideoPaused, interactionTimestamp, interactionVisible]);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -108,7 +148,8 @@ export default function EarnPage() {
   const handlePromoSubmit = () => {
     if (!selectedTask) return;
     startTransition(async () => {
-      const isTask = selectedTask.taskType === "VIDEO"; // It could be a Mission now
+      // It's a task if it doesn't have a prize or has taskId
+      const isTask = !selectedTask.prize && !selectedTask.promoId; 
       
       if (selectedTask.requiresVerification) {
         if (!proofFile) {
@@ -130,7 +171,7 @@ export default function EarnPage() {
           alert(res.error);
         }
       } else {
-        const res = await claimSimplePromo(selectedTask.id);
+        const res = await (isTask ? completeTask(selectedTask.id) : claimSimplePromo(selectedTask.id));
         if (res.success) {
           setSelectedTask(null);
           fetchTasks();
@@ -535,26 +576,10 @@ export default function EarnPage() {
             {selectedTask.taskType === "VIDEO" ? (
               /* VIDEO TASK UI */
               <>
-                <GlassCard className="p-2 border-primary/20 overflow-hidden max-w-4xl mx-auto">
+                 <GlassCard className="p-2 border-primary/20 overflow-hidden max-w-4xl mx-auto relative">
                   <div className="aspect-video max-h-[60vh] bg-black relative rounded-2xl overflow-hidden shadow-2xl">
                      {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
-                        <iframe 
-                          className="w-full h-full border-0"
-                          src={(() => {
-                            const url = selectedTask.videoUrl.replace(/^(https?:\/\/)+/, 'https://');
-                            let base = "";
-                            if (url.includes('youtu.be/')) {
-                              const id = url.split('youtu.be/')[1]?.split('?')[0];
-                              base = `https://www.youtube.com/embed/${id}`;
-                            } else {
-                              base = url.replace('watch?v=', 'embed/').split('&')[0];
-                            }
-                            return `${base}?autoplay=1&rel=0&modestbranding=1&showinfo=0&iv_load_policy=3`;
-                          })()}
-                          title={selectedTask.title}
-                          allow="autoplay; encrypted-media"
-                          allowFullScreen
-                        ></iframe>
+                        <div id="yt-player" className="w-full h-full"></div>
                      ) : (
                        <video 
                          ref={videoRef}
@@ -562,48 +587,151 @@ export default function EarnPage() {
                          src={selectedTask.videoUrl} 
                          controls 
                          autoPlay
+                         onPlay={() => setIsVideoPaused(false)}
+                         onPause={() => setIsVideoPaused(true)}
                          onEnded={() => setVideoEnded(true)}
                        />
                      )}
                   </div>
+                  
+                  {/* Micro Interaction Overlay */}
+                  {interactionVisible && (
+                    <div className="absolute inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-6 animate-pulse border border-primary/30">
+                            <Zap size={40} className="text-primary" />
+                        </div>
+                        <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight mb-2">Verifying Link...</h3>
+                        <p className="text-sm text-on-surface-variant font-medium mb-8">Tap the button below to continue the uplink.</p>
+                        <button 
+                            onClick={() => {
+                                setInteractionVisible(false);
+                                setIsVideoPaused(false);
+                                if (player) player.playVideo();
+                                if (videoRef.current) videoRef.current.play();
+                            }}
+                            className="px-12 py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 transition-all"
+                        >
+                            Continue Mission
+                        </button>
+                    </div>
+                  )}
                 </GlassCard>
 
-                <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500",
-                        videoEnded ? "bg-emerald-500 text-slate-950 scale-110 shadow-[0_0_20px_#10b981]" : "bg-white/5 text-on-surface-variant"
-                      )}>
-                        {videoEnded ? <CheckCircle2 size={24} /> : <Clock size={24} className="animate-pulse" />}
-                      </div>
-                      <div>
-                        <p className="text-sm font-black text-on-surface uppercase">Completion Status</p>
-                        <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
-                          {videoEnded ? "Protocol Concluded" : "Mission In Progress"}
-                        </p>
-                      </div>
-                  </div>
+                {/* Effect to initialize YT Player */}
+                <script dangerouslySetInnerHTML={{ __html: `
+                    function initYT() {
+                        if (window.YT && window.YT.Player && document.getElementById('yt-player')) {
+                             new window.YT.Player('yt-player', {
+                                videoId: '${(() => {
+                                    const url = selectedTask.videoUrl;
+                                    if (url.includes('youtu.be/')) return url.split('youtu.be/')[1]?.split('?')[0];
+                                    return url.includes('v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
+                                })()}',
+                                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'modestbranding': 1 },
+                                events: {
+                                    'onReady': (event) => window.setYTPlayer(event.target),
+                                    'onStateChange': (event) => {
+                                        if (event.data == window.YT.PlayerState.PLAYING) window.setVideoStatus(false);
+                                        else window.setVideoStatus(true);
+                                        if (event.data == window.YT.PlayerState.ENDED) window.setVideoEndedProxy(true);
+                                    }
+                                }
+                             });
+                        } else {
+                            setTimeout(initYT, 500);
+                        }
+                    }
+                    initYT();
+                `}} />
+                
+                {/* Proxies for script communication */}
+                {useEffect(() => {
+                    (window as any).setYTPlayer = setPlayer;
+                    (window as any).setVideoStatus = setIsVideoPaused;
+                    (window as any).setVideoEndedProxy = setVideoEnded;
+                }, []) as any}
 
-                  <div className="flex gap-4 w-full md:w-auto">
-                       {!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')) && (
-                         <div className="px-6 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl">
-                            {timer > 0 ? `Verifying Protocol: ${timer}s` : "Protocol Verified"}
-                         </div>
-                       )}
-                      <button 
-                        disabled={(!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed') ? timer > 0 : true)) || isPending}
-                        onClick={handleClaimPoints}
-                        className={cn(
-                          "flex-1 md:flex-none px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-2xl flex items-center justify-center gap-3",
-                          (videoEnded || (timer === 0 && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')))) 
-                            ? "bg-primary text-background hover:scale-105 active:scale-95 shadow-primary/20" 
-                            : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed border border-white/5"
-                        )}
-                      >
-                        {isPending ? <Loader2 size={20} className="animate-spin" /> : <Trophy size={20} />}
-                        {isPending ? "EXTRACTING..." : "EXTRACT REWARD"}
-                      </button>
-                  </div>
+                <div className="mt-8 flex flex-col items-center justify-between gap-6">
+                   <div className="flex flex-col md:flex-row items-center gap-6 w-full">
+                      <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500",
+                            videoEnded ? "bg-emerald-500 text-slate-950 scale-110 shadow-[0_0_20px_#10b981]" : "bg-white/5 text-on-surface-variant"
+                          )}>
+                            {videoEnded ? <CheckCircle2 size={24} /> : <Clock size={24} className="animate-pulse" />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black text-on-surface uppercase tracking-tight">Completion Status</p>
+                            <p className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest">
+                              {videoEnded ? "Protocol Concluded" : isVideoPaused ? "Mission Paused" : "Mission In Progress"}
+                            </p>
+                          </div>
+                      </div>
+
+                      <div className="flex-1">
+                         {!videoEnded && (
+                            <div className="px-6 py-4 bg-white/5 border border-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl text-center md:text-left">
+                                {timer > 0 ? `Verifying Protocol: ${timer}s remaining` : "Protocol Verified. You can now extract reward."}
+                            </div>
+                         )}
+                      </div>
+
+                      <div className="flex gap-4 w-full md:w-auto">
+                          {selectedTask.requiresVerification ? (
+                             <div className="flex flex-col items-center gap-4 w-full md:w-auto">
+                                <div className="relative group rounded-xl overflow-hidden h-14 w-full md:w-48 bg-white/5 border border-white/10 hover:border-primary/50 transition-all flex items-center justify-center gap-2">
+                                    {proofPreview ? (
+                                      <img src={proofPreview} alt="Proof" className="w-full h-full object-cover" />
+                                    ) : (
+                                       <>
+                                        <Upload size={14} className="text-primary" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Upload Proof</span>
+                                       </>
+                                    )}
+                                    <input 
+                                      type="file" 
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          setProofFile(file);
+                                          setProofPreview(URL.createObjectURL(file));
+                                        }
+                                      }}
+                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    />
+                                </div>
+                                <button 
+                                  disabled={(timer > 0 && !videoEnded) || isPending}
+                                  onClick={handlePromoSubmit}
+                                  className={cn(
+                                    "px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-2xl flex items-center justify-center gap-3 w-full",
+                                    (videoEnded || timer === 0) 
+                                      ? "bg-primary text-background hover:scale-105 active:scale-95 shadow-primary/20" 
+                                      : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed border border-white/5"
+                                  )}
+                                >
+                                  {isPending ? <Loader2 size={20} className="animate-spin" /> : <Trophy size={20} />}
+                                  {isPending ? "SUBMITTING..." : "SUBMIT PROOF"}
+                                </button>
+                             </div>
+                          ) : (
+                            <button 
+                              disabled={(!videoEnded && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed') ? timer > 0 : true)) || isPending}
+                              onClick={handleClaimPoints}
+                              className={cn(
+                                "flex-1 md:flex-none px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-sm transition-all shadow-2xl flex items-center justify-center gap-3",
+                                (videoEnded || (timer === 0 && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be') || selectedTask.videoUrl?.includes('embed')))) 
+                                  ? "bg-primary text-background hover:scale-105 active:scale-95 shadow-primary/20" 
+                                  : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed border border-white/5"
+                              )}
+                            >
+                              {isPending ? <Loader2 size={20} className="animate-spin" /> : <Trophy size={20} />}
+                              {isPending ? "EXTRACTING..." : "EXTRACT REWARD"}
+                            </button>
+                          )}
+                      </div>
+                   </div>
                 </div>
               </>
             ) : (

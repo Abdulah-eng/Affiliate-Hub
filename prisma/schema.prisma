@@ -7,113 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User role definition
-enum Role {
-  AGENT
-  CSR
-  ADMIN
-}
-
-enum Currency {
-  PTS
-  GCASH
-}
-
-// Application status definition
-enum KycStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  REQUEST_REUPLOAD
-}
-
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role      @default(AGENT)
-
-  // Agent Specific
-  username String? @unique
-  password String?
-
-  // Profile Details
-  firstName         String?
-  lastName          String?
-  fbProfileName     String?
-  mobileNumber      String?
-  address           String?
-  city              String?
-  affiliateUsername String?
-  location          String?
-  referralSource    String?
-
-  // KYC Info
-  kycStatus      KycStatus @default(PENDING)
-  kycSubmittedAt DateTime?
-  kycReviewedAt  DateTime?
-  kycNotes       String?
-
-  // Primary ID
-  kycIdType   String?
-  kycIdNumber String?
-  idPhotoUrl  String? // Serving as Front URL for backwards compatibility
-  idBackUrl   String?
-
-  // Secondary ID 1
-  kycSecondaryId1Type     String?
-  kycSecondaryId1Number   String?
-  kycSecondaryId1FrontUrl String?
-  kycSecondaryId1BackUrl  String?
-
-  // Secondary ID 2
-  kycSecondaryId2Type     String?
-  kycSecondaryId2Number   String?
-  kycSecondaryId2FrontUrl String?
-  kycSecondaryId2BackUrl  String?
-
-  // Selfie
-  selfieUrl     String? // Selfie with ID
-  agreedToTerms Boolean @default(false)
-
-  referralCode String? @unique
-  referrerId   String?
-
-  // Relations
-  referrer  User?  @relation("Referrals", fields: [referrerId], references: [id])
-  referrals User[] @relation("Referrals")
-
-  platforms     PlatformAccess[]
-  transactions  PointTransaction[]
-  chatMessages  ChatMessage[]
-  notifications Notification[]
-  withdrawals   Withdrawal[]
-  taskProgress  UserTaskProgress[]
-  promoSubmissions PromoSubmission[]
-  dailyTasks    UserDailyTask[]
-  supportTickets SupportTicket[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // IP Tracking
-  registrationIp String?
-  lastLoginIp    String?
-}
-
 // Partner Brands
 model Brand {
-  id       String  @id @default(cuid())
-  name     String  @unique
-  logoUrl  String?
-  loginUrl String? // This is the Partner/Agent Login URL
+  id             String           @id @default(cuid())
+  name           String           @unique
+  logoUrl        String?
+  loginUrl       String? // This is the Partner/Agent Login URL
   playerLoginUrl String? // New field for Player Login URL
-  status   String  @default("ONLINE") // ONLINE, MAINTENANCE
-  useIframe Boolean @default(false)
-  description String?
-  isActive  Boolean @default(true)
+  status         String           @default("ONLINE") // ONLINE, MAINTENANCE
+  useIframe      Boolean          @default(false)
+  description    String?
+  isActive       Boolean          @default(true)
 
   accessItems PlatformAccess[]
 
@@ -140,17 +44,22 @@ model PlatformAccess {
 
 // Gamification and Wallet
 model PointTransaction {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   amount      Int
   currency    Currency @default(PTS)
   type        String // REFERRAL, CHAT, LOGIN_STREAK, REDEMPTION
   description String?
-  status      String  @default("COMPLETED") // COMPLETED, PENDING, FLAGGED
+  status      String   @default("COMPLETED") // COMPLETED, PENDING, FLAGGED
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
+}
+
+enum Currency {
+  PTS
+  GCASH
 }
 
 // Public Agent Chat
@@ -178,7 +87,7 @@ model ChatMessage {
 model SystemSetting {
   id          String  @id @default(cuid())
   key         String  @unique
-  value       String
+  value       String  @db.Text
   description String?
 
   updatedAt DateTime @updatedAt
@@ -215,28 +124,28 @@ model Withdrawal {
 }
 
 model Task {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  points      Int
-  type        String   @default("VIDEO") // VIDEO, SOCIAL, etc.
-  videoUrl    String?
-  externalLink String?
-  isExternal  Boolean  @default(false)
-  requiresVerification Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   String             @id @default(cuid())
+  title                String
+  description          String?
+  points               Int
+  type                 String             @default("VIDEO") // VIDEO, SOCIAL, etc.
+  videoUrl             String?
+  externalLink         String?
+  isExternal           Boolean            @default(false)
+  requiresVerification Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
   userProgress UserTaskProgress[]
 }
 
 model UserTaskProgress {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   taskId      String
-  status      String   @default("COMPLETED") // PENDING, COMPLETED, REJECTED
+  status      String    @default("COMPLETED") // PENDING, COMPLETED, REJECTED
   proofUrl    String?
-  completedAt DateTime @default(now())
+  completedAt DateTime  @default(now())
   reviewedAt  DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -246,45 +155,42 @@ model UserTaskProgress {
 }
 
 model Promo {
-  id          String   @id @default(cuid())
-  title       String
-  description String?  @db.Text
-  imageUrl    String?
-  externalLink String?
-  active      Boolean  @default(true)
-  
-  requiresVerification Boolean @default(false)
-  pointsAward          Int @default(0)
-  currency             Currency @default(PTS)
-
-  submissions PromoSubmission[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   String            @id @default(cuid())
+  title                String
+  description          String?           @db.Text
+  imageUrl             String?
+  pointsAward          Int               @default(0)
+  currency             Currency          @default(PTS)
+  active               Boolean           @default(true)
+  requiresVerification Boolean           @default(false)
+  externalLink         String?
+  submissions          PromoSubmission[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 }
 
 model PromoSubmission {
-  id           String   @id @default(cuid())
-  promoId      String
-  userId       String
+  id            String    @id @default(cuid())
+  promoId       String
+  userId        String
   screenshotUrl String
-  status       String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  reviewedAt   DateTime?
-  
-  promo        Promo    @relation(fields: [promoId], references: [id], onDelete: Cascade)
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  createdAt    DateTime @default(now())
+  status        String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  reviewedAt    DateTime?
+
+  promo Promo @relation(fields: [promoId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 model UserDailyTask {
   id          String   @id @default(cuid())
   userId      String
-  taskKey     String   // e.g., "DAILY_LOGIN", "FIRST_CHAT", "CHAT_LIKES"
+  taskKey     String // e.g., "DAILY_LOGIN", "FIRST_CHAT", "CHAT_LIKES"
   count       Int      @default(0)
   lastResetAt DateTime @default(now())
-  
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, taskKey])
 }
@@ -292,35 +198,117 @@ model UserDailyTask {
 model WhitelistEntry {
   id        String   @id @default(cuid())
   value     String   @unique // IP or Username
-  type      String   // IP, USERNAME
+  type      String // IP, USERNAME
   reason    String?
   addedBy   String?
   createdAt DateTime @default(now())
 }
 
 model SupportTicket {
-  id        String   @id @default(cuid())
-  userId    String?  // Optional for guest chat
-  guestId   String?  @unique // Session identifier for non-logged in users
-  guestName String?
+  id         String   @id @default(cuid())
+  userId     String? // Optional for guest chat
+  guestId    String?  @unique // Session identifier for non-logged in users
+  guestName  String?
   guestEmail String?
-  status    String   @default("OPEN") // OPEN, RESOLVED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages  SupportMessage[]
+  status     String   @default("OPEN") // OPEN, RESOLVED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user     User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages SupportMessage[]
 }
 
 model SupportMessage {
-  id        String   @id @default(cuid())
-  ticketId  String
-  senderId  String
-  content   String   @db.Text
-  isAdmin   Boolean  @default(false)
-  attachmentUrl String?
+  id             String   @id @default(cuid())
+  ticketId       String
+  senderId       String
+  content        String   @db.Text
+  isAdmin        Boolean  @default(false)
+  attachmentUrl  String?
   attachmentType String?
+  createdAt      DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          UserRole  @default(AGENT)
+
+  // Agent Specific Profile
+  username       String?        @unique
+  firstName      String?
+  lastName       String?
+  mobileNumber   String?
+  fbProfileName  String?
+  location       String? // Profile Location
+  address        String?
+  city           String?
+  referralSource String? // How did you hear about us?
+  agreedToTerms  Boolean        @default(false)
+  kycStatus      KycStatus      @default(PENDING)
+  kycIdType      String? // Passport, National ID, etc.
+  kycIdNumber    String?
+  idPhotoUrl     String? // URL to ID Front image
+  idBackUrl      String? // URL to ID Back image
+  selfieUrl      String? // URL to Selfie image
+  kycSubmittedAt DateTime?
+  kycReviewedAt  DateTime?
+  kycNotes       String?
+
+  // Additional 2nd ID Documents
+  kycSecondaryId1Type     String?
+  kycSecondaryId1Number   String?
+  kycSecondaryId1FrontUrl String?
+  kycSecondaryId1BackUrl  String?
+
+  kycSecondaryId2Type     String?
+  kycSecondaryId2Number   String?
+  kycSecondaryId2FrontUrl String?
+  kycSecondaryId2BackUrl  String?
+
+  // Game/Partner Profile Linking
+  affiliateUsername String? // Their username on the partner platforms
+
+  // Referral System
+  referralCode String? @unique
+  referrerId   String?
+  referrer     User?   @relation("Referrals", fields: [referrerId], references: [id])
+  referrals    User[]  @relation("Referrals")
+
+  // Wallet and Activity
+  pointTransactions PointTransaction[]
+  notifications     Notification[]
+  chatMessages      ChatMessage[]
+  withdrawals       Withdrawal[]
+  dailyTasks        UserDailyTask[]
+  userProgress      UserTaskProgress[]
+  promoSubmissions  PromoSubmission[]
+  platforms         PlatformAccess[]
+  supportTickets    SupportTicket[]
+
+  // Security Tracking
+  registrationIp String?
+  lastLoginIp    String?
+
   createdAt DateTime @default(now())
-  
-  ticket    SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  AGENT
+  CSR
+  ADMIN
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REQUEST_REUPLOAD
 }

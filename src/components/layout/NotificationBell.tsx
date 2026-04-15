@@ -26,6 +26,18 @@ export function NotificationBell({ userId }: NotificationProps) {
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
+  // Sound Notification Effect
+  const [lastCount, setLastCount] = useState(notifications.length);
+  useEffect(() => {
+    const unread = notifications.filter(n => !n.isRead).length;
+    if (unread > lastCount) {
+      const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+      audio.volume = 0.5;
+      audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+    }
+    setLastCount(unread);
+  }, [notifications]);
+
   // Handle outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

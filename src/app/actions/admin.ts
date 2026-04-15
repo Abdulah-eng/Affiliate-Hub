@@ -195,9 +195,9 @@ export async function updateSystemSettings(updates: Record<string, string>) {
     revalidatePath("/");
     revalidatePath("/admin/cms");
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Settings Update Error:", error);
-    return { success: false, error: "Failed to update internal system settings." };
+    return { success: false, error: `Failed to update settings: ${error.message}` };
   }
 }
 
