@@ -69,6 +69,7 @@ const REFERRAL_SOURCES = [
 
 import { KycDisclaimer } from "@/components/kyc/KycDisclaimer";
 import { IdUploadField } from "@/components/kyc/IdUploadField";
+import { SupportWidget } from "@/components/support/SupportWidget";
 
 import { Suspense } from "react";
 
@@ -743,29 +744,8 @@ function ApplyPageContent() {
         </div>
       </main>
 
-      {/* Floating Support Card */}
-      <div className="fixed bottom-8 right-8 z-50">
-        <GlassCard className="p-6 w-72 neon-glow-primary border-primary/20 backdrop-blur-2xl">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-primary shadow-[0_0_15px_rgba(129,236,255,0.4)]">
-              <Users size={24} />
-            </div>
-            <div>
-              <p className="text-[10px] font-black uppercase text-primary tracking-[0.2em]">Support Agent</p>
-              <p className="text-sm font-bold text-on-surface">Aileen Santos</p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 text-[10px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
-              Response: &lt; 5 mins
-            </div>
-            <button className="w-full py-4 bg-primary text-background rounded-xl text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-[1.02]">
-              <MessageSquare size={16} /> System Support Chat
-            </button>
-          </div>
-        </GlassCard>
-      </div>
+      {/* Functional Support Chat */}
+      <SupportWidget />
       {/* Initial Ad Pop-up */}
       {showInitialAd && (
         <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-6">

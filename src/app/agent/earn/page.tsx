@@ -206,30 +206,56 @@ export default function EarnPage() {
                   )}
                 </p>
               </div>
-              <GlassCard className="p-2 border-primary/20 overflow-hidden group">
-                <div className="aspect-video bg-black relative rounded-2xl overflow-hidden shadow-2xl">
-                  {/* Tutorial Video */}
-                  {settings['CMS_EARN_VIDEO'] ? (
-                    settings['CMS_EARN_VIDEO'].includes('youtube.com') || settings['CMS_EARN_VIDEO'].includes('youtu.be') ? (
-                      <iframe 
-                        src={`https://www.youtube.com/embed/${settings['CMS_EARN_VIDEO'].match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1]}?autoplay=0&rel=0`} 
-                        className="w-full h-full border-0"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <video src={settings['CMS_EARN_VIDEO']} controls className="w-full h-full" />
-                    )
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-black flex items-center justify-center">
-                      <div className="text-center">
-                         <PlayCircle size={80} className="text-primary opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 mx-auto mb-4" />
-                         <p className="text-primary font-black uppercase tracking-[0.3em] text-xs">Earning Protocol Video</p>
-                         <p className="text-[10px] text-on-surface-variant mt-2 italic opacity-60">Wait for Canva MP4 deployment...</p>
-                      </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 h-fit">
+                {[
+                  'CMS_EARN_VIDEO',
+                  'CMS_EARN_VIDEO_2',
+                  'CMS_EARN_VIDEO_3',
+                  'CMS_EARN_VIDEO_4',
+                  'CMS_EARN_VIDEO_5'
+                ].filter(key => settings[key]).map((key, index) => (
+                  <div key={key} className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-black text-primary">0{index + 1}</span>
+                      <h3 className="text-sm font-black uppercase tracking-widest text-on-surface">Transmission Protocol</h3>
                     </div>
-                  )}
-                </div>
-              </GlassCard>
+                    <GlassCard className="p-2 border-primary/20 overflow-hidden group">
+                      <div className="aspect-video bg-black relative rounded-2xl overflow-hidden shadow-2xl">
+                        {settings[key].includes('youtube.com') || settings[key].includes('youtu.be') ? (
+                          <iframe 
+                            src={`https://www.youtube.com/embed/${settings[key].match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1]}?autoplay=0&rel=0`} 
+                            className="w-full h-full border-0"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video src={settings[key]} controls className="w-full h-full" />
+                        )}
+                      </div>
+                    </GlassCard>
+                  </div>
+                ))}
+
+                {/* Fallback if no videos */}
+                {![
+                  'CMS_EARN_VIDEO',
+                  'CMS_EARN_VIDEO_2',
+                  'CMS_EARN_VIDEO_3',
+                  'CMS_EARN_VIDEO_4',
+                  'CMS_EARN_VIDEO_5'
+                ].some(key => settings[key]) && (
+                  <div className="md:col-span-2">
+                    <GlassCard className="p-2 border-primary/20 overflow-hidden group">
+                      <div className="aspect-video bg-gradient-to-br from-slate-900 via-slate-950 to-black flex items-center justify-center rounded-2xl">
+                        <div className="text-center">
+                           <PlayCircle size={80} className="text-primary opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700 mx-auto mb-4" />
+                           <p className="text-primary font-black uppercase tracking-[0.3em] text-xs">Earning Protocol Video</p>
+                           <p className="text-[10px] text-on-surface-variant mt-2 italic opacity-60">Wait for protocol deployment...</p>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </div>
+                )}
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
@@ -476,7 +502,21 @@ export default function EarnPage() {
                       <h3 className="text-sm font-black uppercase tracking-tight text-on-surface">Instruction</h3>
                    </div>
                    <p className="text-xs text-on-surface-variant font-medium leading-relaxed italic border-l-2 border-primary/30 pl-4 py-1">
-                      {selectedTask.description || "Watch the protocol transmission below and perform any secondary actions requested."}
+                      {(() => {
+                        const text = selectedTask.description || "Watch the protocol transmission below and perform any secondary actions requested.";
+                        const urlRegex = /(https?:\/\/[^\s]+)/g;
+                        const parts = text.split(urlRegex);
+                        return parts.map((part: string, i: number) => {
+                          if (part.match(urlRegex)) {
+                            return (
+                              <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold break-all">
+                                {part}
+                              </a>
+                            );
+                          }
+                          return part;
+                        });
+                      })()}
                    </p>
                 </div>
                 
@@ -567,7 +607,7 @@ export default function EarnPage() {
                 </div>
               </>
             ) : (
-              /* PROMO UI */
+              /* PROMO & SOCIAL TASK UI */
               <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                   <GlassCard className="p-0 overflow-hidden border-tertiary/20 flex flex-col items-center justify-center bg-slate-900/50 relative min-h-[350px] md:min-h-[500px] max-h-[75vh]">
                     <div className="flex-1 w-full flex items-center justify-center p-4">
@@ -575,7 +615,7 @@ export default function EarnPage() {
                         <img src={selectedTask.imageUrl} alt="" className="max-w-full max-h-full object-contain animate-in fade-in zoom-in-95 duration-500 shadow-2xl rounded-lg" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-tertiary/20">
-                           <Megaphone size={120} />
+                           {selectedTask.taskType === "PROMO" ? <Megaphone size={120} /> : <Zap size={120} />}
                         </div>
                       )}
                     </div>
@@ -588,7 +628,7 @@ export default function EarnPage() {
                              <Upload size={20} className="text-tertiary" />
                              <h3 className="text-xl font-black uppercase tracking-tight">Proof Required</h3>
                           </div>
-                          <p className="text-xs text-on-surface-variant font-medium">Please upload a screenshot showing your participation/support.</p>
+                          <p className="text-xs text-on-surface-variant font-medium">Please upload a screenshot (Proof of Work) showing your participation.</p>
                          
                          <div className="relative group rounded-2xl overflow-hidden aspect-video bg-white/5 border-2 border-dashed border-white/10 hover:border-tertiary/50 transition-all">
                             {proofPreview ? (
@@ -643,6 +683,7 @@ export default function EarnPage() {
                  </div>
               </div>
             )}
+
           </div>
         </div>
       )}

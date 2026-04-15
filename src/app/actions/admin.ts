@@ -127,10 +127,10 @@ export async function updateBrandStatus(brandId: string, status: string) {
   revalidatePath("/admin/brands");
 }
 
-export async function createBrand(name: string, loginUrl: string, logoUrl?: string) {
+export async function createBrand(name: string, loginUrl: string, logoUrl?: string, playerLoginUrl?: string) {
   try {
     await prisma.brand.create({
-      data: { name, loginUrl, logoUrl, status: 'ONLINE', isActive: true }
+      data: { name, loginUrl, logoUrl, playerLoginUrl, status: 'ONLINE', isActive: true }
     });
     revalidatePath("/admin/brands");
     return { success: true };
@@ -143,6 +143,7 @@ export async function createBrand(name: string, loginUrl: string, logoUrl?: stri
 export async function updateBrand(brandId: string, data: {
   name?: string,
   loginUrl?: string,
+  playerLoginUrl?: string,
   logoUrl?: string,
   description?: string,
   status?: string,
@@ -269,4 +270,19 @@ export async function uploadBrandLogo(formData: FormData) {
     console.error("Brand Logo Upload Error:", error);
     return { success: false, error: "Failed to upload brand logo." };
   }
+}
+
+export async function getAdminSidebarStats() {
+  const [pendingKyc, pendingTasks, pendingPromos, openTickets] = await Promise.all([
+    prisma.user.count({ where: { kycStatus: "PENDING" } }),
+    prisma.userTaskProgress.count({ where: { status: "PENDING" } }),
+    prisma.promoSubmission.count({ where: { status: "PENDING" } }),
+    prisma.supportTicket.count({ where: { status: "OPEN" } })
+  ]);
+
+  return {
+    pendingKyc,
+    pendingMissions: pendingTasks + pendingPromos,
+    openTickets
+  };
 }

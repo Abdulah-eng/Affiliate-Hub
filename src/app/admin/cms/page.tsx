@@ -89,7 +89,11 @@ const CMS_MAP: Record<string, CMSItem[]> = {
     { key: 'CMS_CTA_BTN_SECONDARY', label: 'Secondary Button Label', type: 'TEXT', desc: 'Text for "Support" style buttons.' },
   ],
   earn: [
-    { key: 'CMS_EARN_VIDEO', label: 'Tutorial Video', type: 'VIDEO', desc: 'Main protocol tutorial video for agents.' },
+    { key: 'CMS_EARN_VIDEO', label: 'Primary Tutorial Video', type: 'VIDEO', desc: 'Main protocol tutorial video for agents.' },
+    { key: 'CMS_EARN_VIDEO_2', label: 'Protocol Video 2', type: 'VIDEO', desc: 'Secondary instructional video.' },
+    { key: 'CMS_EARN_VIDEO_3', label: 'Protocol Video 3', type: 'VIDEO', desc: 'Tactical briefing video.' },
+    { key: 'CMS_EARN_VIDEO_4', label: 'Protocol Video 4', type: 'VIDEO', desc: 'Advanced operations video.' },
+    { key: 'CMS_EARN_VIDEO_5', label: 'Protocol Video 5', type: 'VIDEO', desc: 'Support protocol video.' },
     { key: 'CMS_EARN_TITLE', label: 'Banner Title', type: 'TEXT', desc: 'Headline for the tutorial tab.' },
     { key: 'CMS_EARN_DESC', label: 'Banner Description', type: 'TEXTAREA', desc: 'Body text for the earning instructions.' },
   ]

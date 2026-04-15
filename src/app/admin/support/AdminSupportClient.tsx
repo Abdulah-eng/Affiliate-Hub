@@ -10,10 +10,12 @@ import {
   Trash2,
   AlertCircle,
   MessageSquare,
-  ArrowLeft
+  ArrowLeft,
+  Paperclip,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { sendSupportMessage, getTicketMessages, adminResolveTicket } from "@/app/actions/support";
+import { sendSupportMessage, getTicketMessages, adminResolveTicket, uploadSupportAsset } from "@/app/actions/support";
 import { useRouter } from "next/navigation";
 
 export default function AdminSupportClient({ initialTickets }: { initialTickets: any[] }) {
@@ -21,8 +23,9 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,17 +47,33 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
     setMessages(msgs);
   };
 
-  const handleSend = () => {
-    if (!input.trim() || !selectedTicket || isPending) return;
+  const handleSend = (attachmentUrl?: string, attachmentType?: string) => {
+    if ((!input.trim() && !attachmentUrl) || !selectedTicket || isPending) return;
 
     startTransition(async () => {
       const content = input;
       setInput("");
-      const res = await sendSupportMessage(selectedTicket.id, content);
+      const res = await sendSupportMessage(selectedTicket.id, content, attachmentUrl, attachmentType);
       if (res.success) {
         loadMessages(selectedTicket.id);
       }
     });
+  };
+
+  const onFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedTicket) return;
+
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await uploadSupportAsset(formData);
+    if (res.success && res.url) {
+      handleSend(res.url, res.type);
+    }
+    setIsUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleResolve = () => {
@@ -71,7 +90,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-[600px]">
+    <div className="flex flex-col lg:flex-row gap-8 h-[700px]">
       {/* Ticket List */}
       <GlassCard className={cn(
         "lg:w-1/3 overflow-y-auto no-scrollbar border-white/5",
@@ -91,11 +110,19 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                 selectedTicket?.id === ticket.id ? "bg-primary/5 border-l-2 border-primary" : ""
               )}
             >
-              <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary font-black border border-primary/10 group-hover:scale-110 transition-transform">
-                {ticket.user?.name?.[0] || ticket.user?.username?.[0] || "?"}
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center text-primary font-black border group-hover:scale-110 transition-transform",
+                ticket.userId ? "bg-surface-container-high border-primary/10" : "bg-amber-500/10 border-amber-500/20 text-amber-500"
+              )}>
+                {ticket.user?.name?.[0] || ticket.user?.username?.[0] || ticket.guestName?.[0] || "G"}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-black text-on-surface truncate uppercase tracking-tight">@{ticket.user?.username}</p>
+                <p className={cn(
+                  "text-xs font-black truncate uppercase tracking-tight flex items-center gap-1.5",
+                  ticket.userId ? "text-on-surface" : "text-amber-500"
+                )}>
+                  {ticket.userId ? `@${ticket.user?.username}` : `[GUEST] ${ticket.guestName || ticket.guestId?.slice(0,8)}`}
+                </p>
                 <p className="text-[10px] text-on-surface-variant line-clamp-1 mt-1 font-medium italic opacity-60">
                   {ticket.messages[0]?.content || "Empty uplink..."}
                 </p>
@@ -130,9 +157,12 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                 <ArrowLeft size={18} />
               </button>
               <div>
-                <h4 className="text-xs font-black uppercase text-on-surface tracking-widest">Synchronizing: @{selectedTicket.user?.username}</h4>
+                <h4 className="text-xs font-black uppercase text-on-surface tracking-widest">
+                  Synchronizing: {selectedTicket.userId ? `@${selectedTicket.user?.username}` : `${selectedTicket.guestName} (${selectedTicket.guestEmail || "No Email"})`}
+                </h4>
                 <p className="text-[10px] text-on-surface-variant font-black flex items-center gap-1.5 ">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ACTIVE NODE UPLINK
+                  <span className={cn("w-1.5 h-1.5 rounded-full", selectedTicket.userId ? "bg-emerald-500" : "bg-amber-500")}></span> 
+                  {selectedTicket.userId ? "AUTHENTICATED AGENT" : "UNAUTHENTICATED GUEST"}
                 </p>
               </div>
             </div>
@@ -159,48 +189,89 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                 )}
               >
                 <div className={cn(
-                  "px-5 py-3 rounded-2xl text-sm leading-relaxed",
+                  "px-5 py-3 rounded-2xl text-sm flex flex-col gap-2 shadow-xl",
                   msg.isAdmin 
-                    ? "bg-primary text-slate-950 font-bold rounded-tr-none shadow-[0_5px_15px_rgba(129,236,255,0.1)]" 
-                    : "bg-white/5 border border-white/10 text-on-surface rounded-tl-none font-medium"
+                    ? "bg-primary text-slate-950 font-bold rounded-tr-none shadow-primary/10" 
+                    : "bg-surface-container border border-outline-variant/30 text-on-surface rounded-tl-none font-medium"
                 )}>
-                  {msg.content}
+                  {msg.attachmentUrl && (
+                    <div className="rounded-lg overflow-hidden border border-black/10 bg-black/5 mb-1 max-w-full">
+                      {msg.attachmentType?.startsWith('image/') ? (
+                        <img 
+                          src={msg.attachmentUrl} 
+                          alt="Attachment" 
+                          className="max-h-60 w-auto object-contain cursor-pointer hover:brightness-110 active:scale-95 transition-all"
+                          onClick={() => window.open(msg.attachmentUrl, '_blank')}
+                        />
+                      ) : (
+                        <a 
+                          href={msg.attachmentUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 px-3 py-2 text-[10px] uppercase font-black tracking-widest"
+                        >
+                          <Paperclip size={14} /> Open Secure Asset
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
                 <span className="text-[9px] font-black uppercase tracking-widest mt-2 opacity-30">
-                  {msg.isAdmin ? "Administrator" : "Agent"} • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.isAdmin ? "Nexus Command" : (selectedTicket.userId ? "Agent" : "Guest")} • {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             ))}
           </div>
 
           <div className="p-6 bg-slate-950/40 border-t border-white/5">
-            <div className="relative">
-              <textarea 
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Compose directive..."
-                className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-5 pr-16 text-sm outline-none focus:border-primary transition-all font-medium h-24 no-scrollbar resize-none"
+            <div className="flex gap-4 items-end">
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                className="hidden" 
+                onChange={onFileSelect}
+                accept="image/*,application/pdf"
               />
               <button 
-                onClick={handleSend}
-                disabled={!input.trim() || isPending}
-                className="absolute right-4 bottom-4 p-3 bg-primary text-slate-950 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading || isPending}
+                className="p-4 bg-white/5 border border-white/10 rounded-2xl text-on-surface-variant hover:text-primary transition-all active:scale-90"
+                title="Send Logistic Asset"
               >
-                {isPending ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+                {isUploading ? <Loader2 size={24} className="animate-spin" /> : <Paperclip size={24} />}
               </button>
+
+              <div className="relative flex-1">
+                <textarea 
+                  rows={1}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Relay tactical directive..."
+                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 pr-16 text-sm outline-none focus:border-primary transition-all font-medium h-14 no-scrollbar resize-none"
+                />
+                <button 
+                  onClick={() => handleSend()}
+                  disabled={(!input.trim() && !isUploading) || isPending}
+                  className="absolute right-2 bottom-2 p-3 bg-primary text-slate-950 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 shadow-lg shadow-primary/20"
+                >
+                  {isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                </button>
+              </div>
             </div>
           </div>
         </GlassCard>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center opacity-20 text-center animate-pulse">
-          <MessageSquare size={80} className="mb-6" />
-          <h3 className="text-xl font-black uppercase tracking-[0.4em]">Select Node to Synchronize</h3>
+          <ShieldAlert size={80} className="mb-6 text-primary" />
+          <h3 className="text-xl font-black uppercase tracking-[0.4em] text-on-surface">Initialize Uplink Synchronization</h3>
+          <p className="text-xs font-bold uppercase tracking-widest mt-2">Select a communication node from the queue</p>
         </div>
       )}
     </div>

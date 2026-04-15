@@ -5,6 +5,7 @@ import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { Bell, Search, Settings, ShieldCheck, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { AdminNotificationSync } from "@/components/admin/AdminNotificationSync";
 
 export default function AdminLayout({
   children,
@@ -15,6 +16,7 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-background">
+      <AdminNotificationSync />
       {/* Admin Navbar */}
       <header className="fixed top-0 w-full z-50 bg-[#060e20]/80 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_40px_rgba(110,155,255,0.08)] flex justify-between items-center h-16 px-6">
         <div className="flex items-center gap-4">

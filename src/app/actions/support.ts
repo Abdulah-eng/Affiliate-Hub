@@ -4,52 +4,85 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
+import { writeFile, mkdir } from "node:fs/promises";
+import { join } from "node:path";
 
-export async function getOrCreateSupportTicket() {
+export async function getOrCreateSupportTicket(guestInfo?: { guestId?: string, name?: string, email?: string }) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user) return { success: false, error: "Unauthorized" };
-
+  
   try {
-    const userId = session.user.id;
-    let ticket = await prisma.supportTicket.findFirst({
-      where: { userId, status: "OPEN" },
-      include: { 
-        messages: {
-          orderBy: { createdAt: "asc" }
-        } 
-      }
-    });
-
-    if (!ticket) {
-      ticket = await prisma.supportTicket.create({
-        data: { userId },
+    if (session?.user) {
+      const userId = session.user.id;
+      let ticket = await prisma.supportTicket.findFirst({
+        where: { userId, status: "OPEN" },
         include: { 
           messages: {
             orderBy: { createdAt: "asc" }
           } 
         }
       });
+
+      if (!ticket) {
+        ticket = await prisma.supportTicket.create({
+          data: { userId },
+          include: { 
+            messages: {
+              orderBy: { createdAt: "asc" }
+            } 
+          }
+        });
+      }
+
+      return { success: true, ticket };
+    } else if (guestInfo?.guestId) {
+      // Guest logic
+      let ticket = await prisma.supportTicket.findUnique({
+        where: { guestId: guestInfo.guestId },
+        include: { 
+          messages: {
+            orderBy: { createdAt: "asc" }
+          } 
+        }
+      });
+
+      if (!ticket) {
+        ticket = await prisma.supportTicket.create({
+          data: { 
+            guestId: guestInfo.guestId,
+            guestName: guestInfo.name,
+            guestEmail: guestInfo.email
+          },
+          include: { 
+            messages: {
+              orderBy: { createdAt: "asc" }
+            } 
+          }
+        });
+      }
+
+      return { success: true, ticket };
     }
 
-    return { success: true, ticket };
+    return { success: false, error: "Unauthorized or missing guest info" };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
 
-export async function sendSupportMessage(ticketId: string, content: string) {
+export async function sendSupportMessage(ticketId: string, content: string, attachmentUrl?: string, attachmentType?: string) {
   const session = await getServerSession(authOptions);
-  if (!session || !session.user) return { success: false, error: "Unauthorized" };
-
+  
   try {
-    const isAdmin = session.user.role === "ADMIN" || session.user.role === "CSR";
+    const isAdmin = session?.user && (session.user.role === "ADMIN" || session.user.role === "CSR");
     
     const message = await prisma.supportMessage.create({
       data: {
         ticketId,
-        senderId: session.user.id,
+        senderId: session?.user?.id || "GUEST",
         content,
-        isAdmin
+        isAdmin: !!isAdmin,
+        attachmentUrl,
+        attachmentType
       }
     });
 
@@ -109,11 +142,30 @@ export async function adminResolveTicket(ticketId: string) {
 }
 
 export async function getTicketMessages(ticketId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session || !session.user) return [];
-
   return prisma.supportMessage.findMany({
     where: { ticketId },
     orderBy: { createdAt: "asc" }
   });
+}
+
+export async function uploadSupportAsset(formData: FormData) {
+  try {
+    const file = formData.get("file") as File;
+    if (!file) return { success: false, error: "No file provided" };
+
+    const uploadDir = join(process.cwd(), "public", "uploads", "support");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    
+    await writeFile(filePath, buffer);
+    const url = `/uploads/support/${fileName}`;
+
+    return { success: true, url, type: file.type };
+  } catch (error: any) {
+    console.error("Support Upload Error:", error);
+    return { success: false, error: "Failed to upload asset." };
+  }
 }

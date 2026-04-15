@@ -329,7 +329,7 @@ export default async function LandingPage() {
                 <Link href="/apply" className="w-full sm:w-auto px-12 py-5 bg-primary text-background rounded-full font-bold text-xl hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(129,236,255,0.4)]">
                   {heroBtnPrimary}
                 </Link>
-                <Link href="/support" className="w-full sm:w-auto px-12 py-5 border border-outline-variant text-on-surface rounded-full font-bold text-xl hover:bg-surface-container-high transition-all">
+                <Link href="/login" className="w-full sm:w-auto px-12 py-5 border border-outline-variant text-on-surface rounded-full font-bold text-xl hover:bg-surface-container-high transition-all">
                   {heroBtnSecondary}
                 </Link>
               </div>

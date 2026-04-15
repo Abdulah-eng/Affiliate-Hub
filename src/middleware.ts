@@ -11,6 +11,19 @@ export default withAuth(
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
+    // --- KYC REDIRECTION LOGIC ---
+    // If agent is not approved, they must stay in /apply or /agent/help
+    if (
+      token.role === "AGENT" && 
+      (token as any).kycStatus !== "APPROVED" &&
+      !pathname.startsWith("/apply") &&
+      !pathname.startsWith("/agent/help") &&
+      pathname !== "/favicon.ico"
+    ) {
+      return NextResponse.redirect(new URL("/apply", req.url));
+    }
+    // ----------------------------
+
     // Only ADMIN or CSR can access /admin
     if (
       pathname.startsWith("/admin") &&
@@ -33,6 +46,7 @@ export default withAuth(
     }
   }
 );
+
 
 export const config = {
   matcher: ["/agent/:path*", "/admin/:path*"]

@@ -32,7 +32,7 @@ export default function BrandManagerPage() {
   const [editingBrand, setEditingBrand] = useState<any>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newBrandForm, setNewBrandForm] = useState({ name: "", loginUrl: "", logoUrl: "" });
+  const [newBrandForm, setNewBrandForm] = useState({ name: "", loginUrl: "", playerLoginUrl: "", logoUrl: "" });
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   
   // File states for Add
@@ -73,9 +73,21 @@ export default function BrandManagerPage() {
         }
       }
 
-      const res = await updateBrand(id, { ...data, logoUrl: finalLogoUrl });
+      // Explicitly pick allowed fields to avoid Prisma errors with extra fields
+      const updateData = {
+        name: data.name,
+        loginUrl: data.loginUrl,
+        playerLoginUrl: data.playerLoginUrl,
+        logoUrl: finalLogoUrl,
+        description: data.description,
+        status: data.status,
+        useIframe: data.useIframe,
+        isActive: data.isActive
+      };
+
+      const res = await updateBrand(id, updateData);
       if (res.success) {
-        showFeedback('success', 'Brand updated.');
+        showFeedback('success', 'Brand configuration synced.');
         setEditingBrand(null);
         setEditFile(null);
         setEditPreview(null);
@@ -116,11 +128,11 @@ export default function BrandManagerPage() {
         }
       }
 
-      const res = await createBrand(newBrandForm.name, newBrandForm.loginUrl, finalLogoUrl);
+      const res = await createBrand(newBrandForm.name, newBrandForm.loginUrl, finalLogoUrl, newBrandForm.playerLoginUrl);
       if (res.success) {
         showFeedback('success', `Brand added.`);
         setShowAddModal(false);
-        setNewBrandForm({ name: "", loginUrl: "", logoUrl: "" });
+        setNewBrandForm({ name: "", loginUrl: "", playerLoginUrl: "", logoUrl: "" });
         setAddFile(null);
         setAddPreview(null);
         await fetchBrands();
@@ -170,13 +182,24 @@ export default function BrandManagerPage() {
                    onChange={e => setEditingBrand({...editingBrand, name: e.target.value})}
                  />
                </div>
-               <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Partner Login URL</label>
-                 <input 
-                   className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-primary font-mono text-sm outline-none focus:border-primary transition-all"
-                   value={editingBrand.loginUrl}
-                   onChange={e => setEditingBrand({...editingBrand, loginUrl: e.target.value})}
-                 />
+               <div className="space-y-4">
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Partner Login URL</label>
+                   <input 
+                     className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-primary font-mono text-sm outline-none focus:border-primary transition-all"
+                     value={editingBrand.loginUrl || ""}
+                     onChange={e => setEditingBrand({...editingBrand, loginUrl: e.target.value})}
+                   />
+                 </div>
+                 <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase text-emerald-400 tracking-[0.2em] ml-1">Player Login URL</label>
+                   <input 
+                     className="w-full bg-slate-950/50 border border-emerald-500/20 p-4 rounded-xl text-emerald-400 font-mono text-sm outline-none focus:border-emerald-500 transition-all"
+                     value={editingBrand.playerLoginUrl || ""}
+                     onChange={e => setEditingBrand({...editingBrand, playerLoginUrl: e.target.value})}
+                     placeholder="Direct Play URL..."
+                   />
+                 </div>
                </div>
                <div className="space-y-2 md:col-span-2">
                  <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Brand Branding (URL or Upload)</label>
@@ -313,15 +336,27 @@ export default function BrandManagerPage() {
                     className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-sm font-bold"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1 block">Login URL</label>
-                  <input
-                    type="text"
-                    value={newBrandForm.loginUrl}
-                    onChange={(e) => setNewBrandForm({...newBrandForm, loginUrl: e.target.value})}
-                    placeholder="partner.ph/login"
-                    className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-xs font-mono"
-                  />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1 block">Login URL</label>
+                    <input
+                      type="text"
+                      value={newBrandForm.loginUrl}
+                      onChange={(e) => setNewBrandForm({...newBrandForm, loginUrl: e.target.value})}
+                      placeholder="partner.ph/login"
+                      className="w-full bg-surface-container border border-outline-variant/30 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-primary transition-all text-xs font-mono"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-1 block">Player URL</label>
+                    <input
+                      type="text"
+                      value={newBrandForm.playerLoginUrl}
+                      onChange={(e) => setNewBrandForm({...newBrandForm, playerLoginUrl: e.target.value})}
+                      placeholder="play.ph/login"
+                      className="w-full bg-surface-container border border-emerald-500/20 text-on-surface px-4 py-3 rounded-xl outline-none focus:border-emerald-500 transition-all text-xs font-mono"
+                    />
+                  </div>
                 </div>
               </div>
               <div>
@@ -435,7 +470,12 @@ export default function BrandManagerPage() {
                    <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight">{brand.name}</h3>
                    {!brand.isActive && <span className="px-2 py-0.5 bg-red-500/10 text-red-500 text-[8px] font-black uppercase rounded">Hidden</span>}
                  </div>
-                 <p className="font-mono text-[10px] text-primary mb-4 truncate italic">{brand.loginUrl || "NO_GATEWAY_CONFIGURED"}</p>
+                 <div className="space-y-1 mb-4">
+                   <p className="font-mono text-[9px] text-primary truncate italic">Partner: {brand.loginUrl || "NO_GATEWAY"}</p>
+                   {brand.playerLoginUrl && (
+                     <p className="font-mono text-[9px] text-emerald-400 truncate italic">Player: {brand.playerLoginUrl}</p>
+                   )}
+                 </div>
                  <p className="text-xs text-on-surface-variant line-clamp-3 leading-relaxed mb-6 italic opacity-60">
                     {brand.description || "No tactical intel provided for this gateway."}
                  </p>

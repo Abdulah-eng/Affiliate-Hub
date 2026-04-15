@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
   ShieldCheck, 
-  Users, 
   CreditCard, 
   HelpCircle, 
   FileText, 
@@ -15,34 +14,50 @@ import {
   History,
   Layout,
   Radio,
-  MessageSquare,
   X,
   Trophy,
   Headphones
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
+import { getAdminSidebarStats } from '@/app/actions/admin';
 
 export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const [stats, setStats] = useState({ pendingKyc: 0, pendingMissions: 0, openTickets: 0 });
 
-  const MENU_ITEMS = [
-    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin' },
-    { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands' },
-    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews' },
-    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions' },
-    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support' },
-    { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history' },
-    { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts' },
-    { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks' },
-    { name: 'Promo Manager', icon: <Layout size={18} />, href: '/admin/promos' },
-    { name: 'Raffle Matrix', icon: <Settings size={18} />, href: '/admin/raffle-settings' },
-    { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast' },
-    { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms' },
-    { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit' },
-    { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings' },
+  useEffect(() => {
+    const fetchStats = async () => {
+      const data = await getAdminSidebarStats();
+      setStats(data);
+    };
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000); // Check every 30s
+    return () => clearInterval(interval);
+  }, []);
+
+  const isCSR = session?.user?.role === 'CSR';
+
+  const ALL_MENU_ITEMS = [
+    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin', roles: ['ADMIN', 'CSR'] },
+    { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR'] },
+    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR'], badge: stats.pendingKyc },
+    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR'], badge: stats.pendingMissions },
+    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR'], badge: stats.openTickets },
+    { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history', roles: ['ADMIN', 'CSR'] },
+    { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts', roles: ['ADMIN'] },
+    { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks', roles: ['ADMIN', 'CSR'] },
+    { name: 'Promo Manager', icon: <Layout size={18} />, href: '/admin/promos', roles: ['ADMIN', 'CSR'] },
+    { name: 'Raffle Matrix', icon: <Settings size={18} />, href: '/admin/raffle-settings', roles: ['ADMIN'] },
+    { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast', roles: ['ADMIN', 'CSR'] },
+    { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms', roles: ['ADMIN', 'CSR'] },
+    { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit', roles: ['ADMIN'] },
+    { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN'] },
   ];
+
+  const MENU_ITEMS = ALL_MENU_ITEMS.filter(item => item.roles.includes(session?.user?.role || ''));
 
   return (
     <>
@@ -60,7 +75,9 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         <div className="px-6 mb-8 flex items-center justify-between">
           <div className="mb-2">
             <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold italic">Admin Level Access</p>
+            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold italic">
+              {isCSR ? 'Field Operations (CSR)' : 'Admin Level Access'}
+            </p>
           </div>
           {setIsOpen && (
             <button 
@@ -89,6 +106,13 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
             >
               {item.icon}
               <span className="font-medium text-sm">{item.name}</span>
+              
+              {item.badge && item.badge > 0 ? (
+                <span className="ml-auto bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
+                  {item.badge}
+                </span>
+              ) : null}
+
               {isActive && <div className="absolute right-4 w-1 h-4 bg-primary rounded-full blur-sm animate-pulse"></div>}
             </Link>
           );
@@ -117,3 +141,4 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     </>
   );
 };
+
