@@ -121,7 +121,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                   "text-xs font-black truncate uppercase tracking-tight flex items-center gap-1.5",
                   ticket.userId ? "text-on-surface" : "text-amber-500"
                 )}>
-                  {ticket.userId ? `@${ticket.user?.username}` : `[GUEST] ${ticket.guestName || ticket.guestId?.slice(0,8)}`}
+                  {ticket.userId ? `@${ticket.user?.username || ticket.user?.name || ticket.userId.slice(0, 8)}` : `[GUEST] ${ticket.guestName || ticket.guestId?.slice(0,8)}`}
                 </p>
                 <p className="text-[10px] text-on-surface-variant line-clamp-1 mt-1 font-medium italic opacity-60">
                   {ticket.messages[0]?.content || "Empty uplink..."}
@@ -158,7 +158,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
               </button>
               <div>
                 <h4 className="text-xs font-black uppercase text-on-surface tracking-widest">
-                  Synchronizing: {selectedTicket.userId ? `@${selectedTicket.user?.username}` : `${selectedTicket.guestName} (${selectedTicket.guestEmail || "No Email"})`}
+                  Synchronizing: {selectedTicket.userId ? `@${selectedTicket.user?.username || selectedTicket.user?.name || selectedTicket.userId.slice(0, 8)}` : `${selectedTicket.guestName} (${selectedTicket.guestEmail || "No Email"})`}
                 </h4>
                 <p className="text-[10px] text-on-surface-variant font-black flex items-center gap-1.5 ">
                   <span className={cn("w-1.5 h-1.5 rounded-full", selectedTicket.userId ? "bg-emerald-500" : "bg-amber-500")}></span> 

@@ -63,6 +63,7 @@ export default async function AgentDashboard() {
         brandName: p.brand.name,
         brandLogo: p.brand.logoUrl,
         loginUrl: p.brand.loginUrl || "",
+        playerLoginUrl: p.brand.playerLoginUrl || "",
         useIframe: p.brand.useIframe,
         username: p.username || "",
         password: p.password || "",

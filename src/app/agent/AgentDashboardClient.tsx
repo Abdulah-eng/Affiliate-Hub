@@ -38,6 +38,7 @@ type Platform = {
   brandName: string;
   brandLogo: string | null;
   loginUrl: string;
+  playerLoginUrl: string;
   useIframe: boolean;
   username: string;
   password: string;
@@ -362,7 +363,9 @@ export default function AgentDashboardClient({
                             isApproved ? "text-primary" : "text-on-surface/40"
                           )}
                         >
-                          {isApproved ? platform.loginUrl || "—" : "Locked"}
+                          {isApproved 
+                            ? (tab === 'agent' ? platform.loginUrl : platform.playerLoginUrl) || "—" 
+                            : "Locked"}
                         </p>
                       </div>
                       <div className="space-y-1">
@@ -447,18 +450,20 @@ export default function AgentDashboardClient({
 
                     <div className="shrink-0 flex items-center justify-end">
                       <button
-                        disabled={!isApproved || !platform.loginUrl}
+                        disabled={!isApproved || (tab === 'agent' ? !platform.loginUrl : !platform.playerLoginUrl)}
                         onClick={() => {
-                          if (!isApproved || !platform.loginUrl) return;
+                          const targetUrl = tab === 'agent' ? platform.loginUrl : platform.playerLoginUrl;
+                          if (!isApproved || !targetUrl) return;
+                          
                           if (platform.useIframe) {
-                            setLaunchPlatform(platform);
+                            setLaunchPlatform({ ...platform, loginUrl: targetUrl });
                           } else {
-                            window.open(safeUrl(platform.loginUrl), "_blank");
+                            window.open(safeUrl(targetUrl), "_blank");
                           }
                         }}
                         className={cn(
                           "px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all duration-300",
-                          isApproved && platform.loginUrl
+                          isApproved && (tab === 'agent' ? platform.loginUrl : platform.playerLoginUrl)
                             ? "bg-primary/5 hover:bg-primary text-primary hover:text-background border border-primary/20"
                             : "bg-white/5 text-on-surface-variant/40 cursor-not-allowed"
                         )}
