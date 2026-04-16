@@ -124,7 +124,10 @@ export function SupportWidget() {
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
       {/* Chat Window */}
       {isOpen && (
-        <GlassCard className="w-[350px] sm:w-[500px] h-[600px] mb-4 overflow-hidden border-primary/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)] flex flex-col animate-in slide-in-from-bottom-5 duration-300">
+        <GlassCard 
+          className="w-[350px] sm:w-[500px] h-[80vh] max-h-[600px] mb-4 overflow-hidden border-primary/20 shadow-[0_20px_60px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom-5 duration-300"
+          innerClassName="flex flex-col h-full !p-0"
+        >
           {/* Header */}
           <div className="p-4 bg-primary/10 border-b border-primary/20 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -150,7 +153,7 @@ export function SupportWidget() {
           {/* Messages Feed */}
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar"
+            className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
           >
             {loading ? (
               <div className="h-full flex items-center justify-center">

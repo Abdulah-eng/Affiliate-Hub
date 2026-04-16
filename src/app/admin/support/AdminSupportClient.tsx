@@ -99,10 +99,10 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-[700px]">
+    <div className="flex flex-col lg:flex-row gap-8 h-[calc(100vh-320px)] min-h-[500px] max-h-[850px]">
       {/* Ticket List */}
       <GlassCard className={cn(
-        "lg:w-1/3 overflow-y-auto no-scrollbar border-white/5",
+        "lg:w-1/3 overflow-y-auto custom-scrollbar border-white/5",
         selectedTicket ? "hidden lg:block" : "w-full"
       )}>
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -156,7 +156,10 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
 
       {/* Chat Area */}
       {selectedTicket ? (
-        <GlassCard className="flex-1 flex flex-col overflow-hidden border-primary/10">
+        <GlassCard 
+          className="flex-1 overflow-hidden border-primary/10"
+          innerClassName="flex flex-col h-full !p-0"
+        >
           <div className="p-4 bg-primary/5 border-b border-primary/10 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
@@ -187,7 +190,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
 
           <div 
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-8 space-y-6 no-scrollbar bg-slate-950/20"
+            className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar bg-slate-950/20"
           >
             {messages.map((msg) => (
               <div 
@@ -264,7 +267,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                     }
                   }}
                   placeholder="Relay tactical directive..."
-                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 pr-16 text-sm outline-none focus:border-primary transition-all font-medium h-14 no-scrollbar resize-none"
+                  className="w-full bg-slate-950/50 border border-white/10 rounded-2xl p-4 pr-16 text-sm outline-none focus:border-primary transition-all font-medium h-14 custom-scrollbar resize-none"
                 />
                 <button 
                   onClick={() => handleSend()}
