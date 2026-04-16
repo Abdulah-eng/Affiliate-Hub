@@ -173,7 +173,9 @@ export async function uploadSupportAsset(formData: FormData) {
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/support/${fileName}`;
+    // Use /api/uploads route for runtime file serving — required for Next.js standalone Docker builds
+    // where the static /public directory is not live-updated after container startup.
+    const url = `/api/uploads/support/${fileName}`;
 
     return { success: true, url, type: file.type };
   } catch (error: any) {
