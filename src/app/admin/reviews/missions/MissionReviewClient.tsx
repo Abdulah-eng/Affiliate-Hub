@@ -145,7 +145,7 @@ export default function MissionReviewClient({
           <div className="max-w-4xl max-h-[90vh] relative group">
             <img 
               src={selectedProof} 
-              alt="Mission Proof" 
+              alt="Mission Verification Proof" 
               className="w-full h-full object-contain rounded-2xl shadow-[0_0_100px_rgba(129,236,255,0.2)]" 
             />
             <div className="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-slate-950 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">

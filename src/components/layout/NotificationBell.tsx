@@ -36,7 +36,7 @@ export function NotificationBell({ userId }: NotificationProps) {
       audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
     }
     setLastCount(unread);
-  }, [notifications]);
+  }, [notifications, lastCount]);
 
   // Handle outside click
   useEffect(() => {

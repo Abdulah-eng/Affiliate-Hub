@@ -70,7 +70,7 @@ export default function EarnPage() {
       // setTimer(0); // Don't clear timer so it resumes
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [selectedTask, videoEnded, isVideoPaused]);
+  }, [selectedTask, videoEnded, isVideoPaused, timer]);
 
   // YouTube API Loader
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function EarnPage() {
             if (videoRef.current) videoRef.current.pause();
         }
     }
-  }, [timer, selectedTask, videoEnded, isVideoPaused, interactionTimestamp, interactionVisible]);
+  }, [timer, selectedTask, videoEnded, isVideoPaused, interactionTimestamp, interactionVisible, player]);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -126,6 +126,13 @@ export default function EarnPage() {
   };
 
   useEffect(() => { fetchTasks(); }, []);
+
+  // Proxies for script communication
+  useEffect(() => {
+    (window as any).setYTPlayer = setPlayer;
+    (window as any).setVideoStatus = setIsVideoPaused;
+    (window as any).setVideoEndedProxy = setVideoEnded;
+  }, []);
 
   const handleClaimPoints = () => {
     if (!selectedTask || !videoEnded) return;
@@ -644,12 +651,7 @@ export default function EarnPage() {
                     initYT();
                 `}} />
                 
-                {/* Proxies for script communication */}
-                {useEffect(() => {
-                    (window as any).setYTPlayer = setPlayer;
-                    (window as any).setVideoStatus = setIsVideoPaused;
-                    (window as any).setVideoEndedProxy = setVideoEnded;
-                }, []) as any}
+                {/* Proxies for script communication moved to top level */}
 
                 <div className="mt-8 flex flex-col items-center justify-between gap-6">
                    <div className="flex flex-col md:flex-row items-center gap-6 w-full">

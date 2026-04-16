@@ -71,7 +71,7 @@ export function SupportWidget() {
     }
 
     return () => { if (pollInterval.current) clearInterval(pollInterval.current); };
-  }, [isOpen, ticket, messages.length, session]);
+  }, [isOpen, ticket, messages.length, session, initializeSupport]);
 
   const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
     if (scrollRef.current) {
