@@ -43,16 +43,22 @@ export default function EarnPage() {
   const [isVideoPaused, setIsVideoPaused] = useState(true);
   const [interactionTimestamp, setInteractionTimestamp] = useState<number | null>(null);
   const [interactionVisible, setInteractionVisible] = useState(false);
-  const [timer, setTimer] = useState(0);
+  const [timer, setTimer] = useState(-1); // -1 = not started, 0 = done, >0 = counting
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const showToast = (type: "success" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   // Timer Effect
   useEffect(() => {
     if (selectedTask && selectedTask.taskType === "VIDEO" && !videoEnded) {
       if (!isVideoPaused) {
-        if (timer === 0) setTimer(30); // Reset timer if not set
+        if (timer <= 0) setTimer(30); // Initialize timer when video first plays
         timerRef.current = setInterval(() => {
           setTimer(prev => {
             if (prev <= 1) {
@@ -138,19 +144,22 @@ export default function EarnPage() {
     const isYoutube = selectedTask?.videoUrl?.includes('youtube') || selectedTask?.videoUrl?.includes('youtu.be') || selectedTask?.videoUrl?.includes('embed');
     const canClaim = videoEnded || (isYoutube && timer === 0);
     
-    if (!selectedTask || !canClaim) return;
+    if (!selectedTask || !canClaim) {
+      showToast("error", "Protocol not verified yet. Please watch the video.");
+      return;
+    }
     startTransition(async () => {
       const res = await completeTask(selectedTask.id);
       if (res.success) {
-        if ((res as any).pending) {
-           // Mission submitted, don't clear until proof is uploaded? 
-           // No, completeTask marks it PENDING.
-        }
+        showToast("success", "Reward extracted! Points have been added to your wallet.");
         setSelectedTask(null);
         setVideoEnded(false);
+        setTimer(-1);
+        setInteractionTimestamp(null);
+        setInteractionVisible(false);
         fetchTasks();
       } else {
-        alert(res.error);
+        showToast("error", res.error || "Failed to extract reward. Please try again.");
       }
     });
   };
@@ -201,6 +210,18 @@ export default function EarnPage() {
 
   return (
     <div className="animate-vapor max-w-7xl mx-auto space-y-10 pb-20 px-4 md:px-0">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={cn(
+          "fixed bottom-24 left-1/2 -translate-x-1/2 z-[200] px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-sm shadow-2xl animate-in slide-in-from-bottom-4 duration-300 flex items-center gap-3",
+          toast.type === "success" 
+            ? "bg-emerald-500 text-slate-950 shadow-emerald-500/30" 
+            : "bg-red-500/90 text-white shadow-red-500/30"
+        )}>
+          {toast.type === "success" ? <CheckCircle size={18} /> : <AlertTriangle size={18} />}
+          {toast.message}
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
