@@ -13,17 +13,43 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { adminReviewTaskProgress } from "@/app/actions/tasks";
+import { adminReviewSubmission as adminReviewPromoSubmission } from "@/app/actions/promos";
 import { useRouter } from "next/navigation";
 
-export default function MissionReviewClient({ initialSubmissions }: { initialSubmissions: any[] }) {
+export default function MissionReviewClient({ 
+  initialTaskSubmissions,
+  initialPromoSubmissions 
+}: { 
+  initialTaskSubmissions: any[],
+  initialPromoSubmissions: any[]
+}) {
   const [selectedProof, setSelectedProof] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const handleReview = (id: string, status: "COMPLETED" | "REJECTED") => {
+  // Normalize and merge submissions
+  const allSubmissions = [
+    ...initialTaskSubmissions.map(s => ({ ...s, type: 'TASK' })),
+    ...initialPromoSubmissions.map(p => ({ 
+      ...p, 
+      type: 'PROMO',
+      task: { title: p.promo.title, points: p.promo.pointsAward },
+      proofUrl: p.screenshotUrl 
+    }))
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const handleReview = (id: string, status: "COMPLETED" | "REJECTED", type: string) => {
     if (isPending) return;
     startTransition(async () => {
-      const res = await adminReviewTaskProgress(id, status);
+      let res;
+      if (type === 'TASK') {
+        res = await adminReviewTaskProgress(id, status);
+      } else {
+        // Map status for promos: COMPLETED -> APPROVED
+        const promoStatus = status === "COMPLETED" ? "APPROVED" : "REJECTED";
+        res = await adminReviewPromoSubmission(id, promoStatus);
+      }
+      
       if (res.success) {
         router.refresh();
       } else {
@@ -32,7 +58,7 @@ export default function MissionReviewClient({ initialSubmissions }: { initialSub
     });
   };
 
-  if (initialSubmissions.length === 0) {
+  if (allSubmissions.length === 0) {
     return (
       <GlassCard className="py-20 flex flex-col items-center justify-center text-center opacity-60">
         <Trophy size={48} className="mb-4" />
@@ -45,16 +71,27 @@ export default function MissionReviewClient({ initialSubmissions }: { initialSub
   return (
     <>
       <div className="grid grid-cols-1 gap-6">
-        {initialSubmissions.map((sub: any) => (
-          <GlassCard key={sub.id} className="p-6 border-white/5 hover:border-primary/20 transition-all flex flex-col md:flex-row items-center justify-between gap-6">
+        {allSubmissions.map((sub: any) => (
+          <GlassCard key={`${sub.type}-${sub.id}`} className="p-6 border-white/5 hover:border-primary/20 transition-all flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4 w-full md:w-auto">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black">
-                {sub.user?.name?.[0] || sub.user?.username?.[0] || "?"}
+              <div className={cn(
+                "w-12 h-12 rounded-xl border flex items-center justify-center font-black",
+                sub.type === 'TASK' ? "bg-primary/10 border-primary/20 text-primary" : "bg-purple-500/10 border-purple-500/20 text-purple-400"
+              )}>
+                {sub.type === 'TASK' ? 'T' : 'P'}
               </div>
               <div className="flex-1">
-                <p className="font-headline font-black text-on-surface uppercase tracking-tight">{sub.task?.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-headline font-black text-on-surface uppercase tracking-tight">{sub.task?.title}</p>
+                  <span className={cn(
+                    "text-[8px] px-1.5 py-0.5 rounded font-black uppercase tracking-widest",
+                    sub.type === 'TASK' ? "bg-primary/10 text-primary" : "bg-purple-500/10 text-purple-400"
+                  )}>
+                    {sub.type === 'TASK' ? 'Mission' : 'Promo'}
+                  </span>
+                </div>
                 <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-0.5">
-                  @{sub.user?.username} • {sub.task?.points} PTS
+                  @{sub.user?.username || sub.user?.name} • {sub.task?.points} PTS
                 </p>
               </div>
             </div>
@@ -75,7 +112,7 @@ export default function MissionReviewClient({ initialSubmissions }: { initialSub
 
               <div className="flex items-center gap-2">
                 <button 
-                  onClick={() => handleReview(sub.id, "REJECTED")}
+                  onClick={() => handleReview(sub.id, "REJECTED", sub.type)}
                   disabled={isPending}
                   className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-xl transition-all active:scale-95"
                   title="Reject"
@@ -83,7 +120,7 @@ export default function MissionReviewClient({ initialSubmissions }: { initialSub
                   <XCircle size={20} />
                 </button>
                 <button 
-                  onClick={() => handleReview(sub.id, "COMPLETED")}
+                  onClick={() => handleReview(sub.id, "COMPLETED", sub.type)}
                   disabled={isPending}
                   className="p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 border border-emerald-500/20 rounded-xl transition-all active:scale-95"
                   title="Approve"

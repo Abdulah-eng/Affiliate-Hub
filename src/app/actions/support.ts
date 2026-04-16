@@ -81,7 +81,7 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
         senderId: session?.user?.id || "GUEST",
         content,
         isAdmin: !!isAdmin,
-        attachmentUrl,
+        attachmentUrl: attachmentUrl ? (attachmentUrl.startsWith('/') ? attachmentUrl : `/${attachmentUrl}`) : undefined,
         attachmentType
       }
     });

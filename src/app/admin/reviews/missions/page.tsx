@@ -1,4 +1,5 @@
-import { adminGetPendingTaskSubmissions, adminReviewTaskProgress } from "@/app/actions/tasks";
+import { adminGetPendingTaskSubmissions } from "@/app/actions/tasks";
+import { adminGetPendingSubmissions as adminGetPendingPromoSubmissions } from "@/app/actions/promos";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
   Trophy, 
@@ -16,7 +17,12 @@ import MissionReviewClient from "./MissionReviewClient";
 export const dynamic = 'force-dynamic';
 
 export default async function MissionReviewPage() {
-  const submissions = await adminGetPendingTaskSubmissions();
+  const [taskSubmissions, promoSubmissions] = await Promise.all([
+    adminGetPendingTaskSubmissions(),
+    adminGetPendingPromoSubmissions()
+  ]);
+
+  const totalPending = taskSubmissions.length + promoSubmissions.length;
 
   return (
     <div className="animate-vapor">
@@ -36,12 +42,15 @@ export default async function MissionReviewPage() {
           </div>
           <div>
             <p className="text-[10px] font-bold uppercase text-on-surface-variant tracking-widest">Pending Verification</p>
-            <p className="text-2xl font-black text-on-surface">{submissions.length}</p>
+            <p className="text-2xl font-black text-on-surface">{totalPending}</p>
           </div>
         </GlassCard>
       </div>
 
-      <MissionReviewClient initialSubmissions={submissions} />
+      <MissionReviewClient 
+        initialTaskSubmissions={taskSubmissions} 
+        initialPromoSubmissions={promoSubmissions} 
+      />
     </div>
   );
 }

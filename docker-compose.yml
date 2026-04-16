@@ -30,6 +30,8 @@ services:
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+    volumes:
+      - ./public/uploads:/app/public/uploads
     depends_on:
       - db
       - redis

@@ -36,10 +36,17 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
     }
   }, [selectedTicket]);
 
-  useEffect(() => {
+  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior
+      });
     }
+  };
+
+  useEffect(() => {
+    scrollToBottom('smooth');
   }, [messages]);
 
   const loadMessages = async (id: string) => {
@@ -203,6 +210,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                           src={msg.attachmentUrl} 
                           alt="Attachment" 
                           className="max-h-60 w-auto object-contain cursor-pointer hover:brightness-110 active:scale-95 transition-all"
+                          onLoad={() => scrollToBottom()}
                           onClick={() => window.open(msg.attachmentUrl, '_blank')}
                         />
                       ) : (

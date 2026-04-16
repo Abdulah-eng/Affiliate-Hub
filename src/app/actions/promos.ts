@@ -198,6 +198,8 @@ export async function adminReviewSubmission(submissionId: string, status: "APPRO
       }
     });
 
+    revalidatePath("/admin/reviews/missions");
+    revalidatePath("/agent/tasks");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

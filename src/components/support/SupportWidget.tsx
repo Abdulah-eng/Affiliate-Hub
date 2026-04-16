@@ -73,11 +73,20 @@ export function SupportWidget() {
     return () => { if (pollInterval.current) clearInterval(pollInterval.current); };
   }, [isOpen, ticket, messages.length, session]);
 
-  useEffect(() => {
+  const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior
+      });
     }
+  };
+
+  useEffect(() => {
+    scrollToBottom('smooth');
   }, [messages]);
+
+  // Handle outside click
 
   const handleSend = (attachmentUrl?: string, attachmentType?: string) => {
     if ((!input.trim() && !attachmentUrl) || !ticket || isPending) return;
@@ -175,6 +184,7 @@ export function SupportWidget() {
                             src={msg.attachmentUrl} 
                             alt="Attachment" 
                             className="max-h-60 w-auto object-contain cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                            onLoad={() => scrollToBottom()}
                             onClick={() => window.open(msg.attachmentUrl, '_blank')}
                           />
                         ) : (
