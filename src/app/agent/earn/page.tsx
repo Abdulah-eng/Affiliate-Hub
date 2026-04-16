@@ -135,7 +135,10 @@ export default function EarnPage() {
   }, []);
 
   const handleClaimPoints = () => {
-    if (!selectedTask || !videoEnded) return;
+    const isYoutube = selectedTask?.videoUrl?.includes('youtube') || selectedTask?.videoUrl?.includes('youtu.be') || selectedTask?.videoUrl?.includes('embed');
+    const canClaim = videoEnded || (isYoutube && timer === 0);
+    
+    if (!selectedTask || !canClaim) return;
     startTransition(async () => {
       const res = await completeTask(selectedTask.id);
       if (res.success) {

@@ -75,13 +75,18 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
   try {
     const isAdmin = session?.user && (session.user.role === "ADMIN" || session.user.role === "CSR");
     
+    // Ensure attachmentUrl always has a leading slash if present
+    const normalizedUrl = attachmentUrl 
+      ? (attachmentUrl.startsWith('/') ? attachmentUrl : `/${attachmentUrl}`) 
+      : undefined;
+
     const message = await prisma.supportMessage.create({
       data: {
         ticketId,
         senderId: session?.user?.id || "GUEST",
         content,
         isAdmin: !!isAdmin,
-        attachmentUrl: attachmentUrl ? (attachmentUrl.startsWith('/') ? attachmentUrl : `/${attachmentUrl}`) : undefined,
+        attachmentUrl: normalizedUrl,
         attachmentType
       }
     });
@@ -157,7 +162,14 @@ export async function uploadSupportAsset(formData: FormData) {
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    
+    // Robust sanitization: Remove all characters that might cause pathing/URL issues
+    // Keep only alphanumeric, dots, dashes and underscores
+    const sanitizedOriginalName = file.name
+      .replace(/[^a-zA-Z0-9.\-_]/g, "_")
+      .replace(/_{2,}/g, "_"); // Remove consecutive underscores
+
+    const fileName = `${Date.now()}-${sanitizedOriginalName}`;
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
@@ -166,6 +178,6 @@ export async function uploadSupportAsset(formData: FormData) {
     return { success: true, url, type: file.type };
   } catch (error: any) {
     console.error("Support Upload Error:", error);
-    return { success: false, error: "Failed to upload asset." };
+    return { success: false, error: "Failed to upload asset. Please check file permissions or size." };
   }
 }
