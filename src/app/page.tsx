@@ -259,19 +259,25 @@ export default async function LandingPage() {
         </section>
 
         {/* Partner Brands */}
-        <section className="py-24 border-y border-outline-variant/10 bg-surface-container-lowest">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <p className="text-xs font-bold tracking-[0.3em] uppercase text-on-surface-variant mb-12">{partnersLabel}</p>
-            <div className="flex flex-wrap justify-center gap-12 md:gap-16 items-center opacity-60 hover:opacity-100 transition-opacity duration-500">
+        <section className="py-32 border-y border-outline-variant/10 bg-surface-container-lowest/30 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
+          <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <p className="text-sm font-black tracking-[0.4em] uppercase text-primary mb-16 animate-pulse">{partnersLabel}</p>
+            <div className="flex flex-wrap justify-center gap-16 md:gap-24 items-center opacity-80 hover:opacity-100 transition-all duration-700">
               {partnersList.map((brand, i) => (
-                <div key={i} className="flex flex-col items-center gap-2">
+                <div key={i} className="flex flex-col items-center gap-4 group/partner hover:scale-110 transition-transform duration-500">
                   {brand.logo ? (
-                    <img src={brand.logo} alt={brand.name} className="h-10 object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all" />
+                    <img 
+                      src={brand.logo} 
+                      alt={brand.name} 
+                      className="h-16 md:h-20 object-contain filter brightness-0 invert opacity-60 group-hover:opacity-100 transition-all grayscale group-hover:grayscale-0" 
+                    />
                   ) : (
-                    <span className="text-2xl font-black font-headline tracking-tighter text-on-surface hover:text-primary cursor-default transition-colors">
+                    <span className="text-3xl md:text-5xl font-black font-headline tracking-tighter text-on-surface hover:text-primary cursor-default transition-all duration-300">
                       {brand.name}
                     </span>
                   )}
+                  <div className="h-1 w-0 group-hover:w-full bg-primary/40 transition-all duration-500 rounded-full"></div>
                 </div>
               ))}
             </div>
