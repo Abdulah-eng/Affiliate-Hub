@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/authOptions";
+import bcrypt from "bcryptjs";
 
 export async function getPendingApplications() {
   return prisma.user.findMany({
@@ -285,4 +288,49 @@ export async function getAdminSidebarStats() {
     pendingMissions: pendingTasks + pendingPromos,
     openTickets
   };
+}
+
+export async function updateAdminPassword(formData: FormData) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    const currentPassword = formData.get("currentPassword") as string;
+    const newPassword = formData.get("newPassword") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return { success: false, error: "All fields are required" };
+    }
+
+    if (newPassword !== confirmPassword) {
+      return { success: false, error: "New passwords do not match" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: (session.user as any).id }
+    });
+
+    if (!user || !user.password) {
+      return { success: false, error: "User not found" };
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return { success: false, error: "Incorrect current password" };
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword }
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Change Password Error:", error);
+    return { success: false, error: "Failed to update password" };
+  }
 }

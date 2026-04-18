@@ -21,13 +21,16 @@ import {
   Loader2
 } from "lucide-react";
 import { cn } from '@/lib/utils';
-import { getSystemSettings, updateSystemSettings } from '@/app/actions/admin';
+import { getSystemSettings, updateSystemSettings, updateAdminPassword } from '@/app/actions/admin';
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [pwPending, startPwTransition] = useTransition();
+  const [pwSuccess, setPwSuccess] = useState(false);
+  const [pwError, setPwError] = useState<string | null>(null);
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -53,6 +56,23 @@ export default function AdminSettingsPage() {
 
   const updateVal = (key: string, val: string) => {
     setSettings(prev => ({ ...prev, [key]: val }));
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPwError(null);
+    const formData = new FormData(e.currentTarget);
+    
+    startPwTransition(async () => {
+      const res = await updateAdminPassword(formData);
+      if (res.success) {
+        setPwSuccess(true);
+        (e.target as HTMLFormElement).reset();
+        setTimeout(() => setPwSuccess(false), 3000);
+      } else {
+        setPwError(res.error || "Failed to update password");
+      }
+    });
   };
 
   if (loading) {
@@ -224,9 +244,71 @@ export default function AdminSettingsPage() {
           <div className="p-8 rounded-3xl bg-slate-950 border border-white/5 flex flex-col gap-6">
              <div className="flex items-center gap-4">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
-                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em]">Vault Service Status: Optimal</span>
+                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Vault Service Status: Optimal</span>
              </div>
           </div>
+
+          <GlassCard className="p-10 border-primary/20 bg-surface-container-low/40">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="p-3 bg-primary/10 text-primary rounded-2xl border border-primary/20">
+                <Lock size={20} />
+              </div>
+              <h3 className="text-lg font-black text-on-surface uppercase tracking-tight">Account Security</h3>
+            </div>
+
+            <form onSubmit={handlePasswordChange} className="space-y-6">
+              <div className="space-y-4">
+                <label className="block">
+                  <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Current Password</span>
+                  <input 
+                    name="currentPassword"
+                    type="password" 
+                    required
+                    className="w-full mt-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-primary focus:border-primary outline-none transition-all" 
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">New Password</span>
+                  <input 
+                    name="newPassword"
+                    type="password" 
+                    required
+                    className="w-full mt-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-primary focus:border-primary outline-none transition-all" 
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Confirm New Password</span>
+                  <input 
+                    name="confirmPassword"
+                    type="password" 
+                    required
+                    className="w-full mt-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-primary focus:border-primary outline-none transition-all" 
+                  />
+                </label>
+              </div>
+
+              {pwError && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[10px] font-bold uppercase tracking-widest">
+                  {pwError}
+                </div>
+              )}
+
+              {pwSuccess && (
+                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                  <ShieldCheck size={14} /> Password Updated Successfully
+                </div>
+              )}
+
+              <button 
+                type="submit"
+                disabled={pwPending}
+                className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_0_20px_rgba(129,236,255,0.3)] transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+              >
+                {pwPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                Update Security Credentials
+              </button>
+            </form>
+          </GlassCard>
         </div>
       </div>
     </div>

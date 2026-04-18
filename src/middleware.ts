@@ -28,7 +28,8 @@ export default withAuth(
     if (
       pathname.startsWith("/admin") &&
       token.role !== "ADMIN" &&
-      token.role !== "CSR"
+      token.role !== "CSR" &&
+      token.role !== "SEMI_ADMIN"
     ) {
       return NextResponse.redirect(new URL("/agent", req.url));
     }

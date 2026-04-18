@@ -41,20 +41,20 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
   const isCSR = session?.user?.role === 'CSR';
 
   const ALL_MENU_ITEMS = [
-    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin', roles: ['ADMIN', 'CSR'] },
-    { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR'] },
-    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR'], badge: stats.pendingKyc },
-    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR'], badge: stats.pendingMissions },
-    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR'], badge: stats.openTickets },
-    { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history', roles: ['ADMIN', 'CSR'] },
-    { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts', roles: ['ADMIN'] },
-    { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks', roles: ['ADMIN', 'CSR'] },
-    { name: 'Promo Manager', icon: <Layout size={18} />, href: '/admin/promos', roles: ['ADMIN', 'CSR'] },
-    { name: 'Raffle Matrix', icon: <Settings size={18} />, href: '/admin/raffle-settings', roles: ['ADMIN'] },
-    { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast', roles: ['ADMIN', 'CSR'] },
-    { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms', roles: ['ADMIN', 'CSR'] },
-    { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit', roles: ['ADMIN'] },
-    { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN'] },
+    { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingKyc },
+    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingMissions },
+    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.openTickets },
+    { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts', roles: ['ADMIN', 'SEMI_ADMIN'] },
+    { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Promo Manager', icon: <Layout size={18} />, href: '/admin/promos', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Raffle Matrix', icon: <Settings size={18} />, href: '/admin/raffle-settings', roles: ['ADMIN', 'SEMI_ADMIN'] },
+    { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit', roles: ['ADMIN', 'SEMI_ADMIN'] },
+    { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN', 'SEMI_ADMIN'] },
   ];
 
   const MENU_ITEMS = ALL_MENU_ITEMS.filter(item => item.roles.includes(session?.user?.role || ''));
