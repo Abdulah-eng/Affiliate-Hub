@@ -16,9 +16,23 @@ export default async function RaffleArenaPage() {
   const userPoints = wallet?.totalPoints ?? 0;
   const userTickets = Math.floor(userPoints / 1000);
 
+  // Fetch prizes from settings
+  const { prisma } = await import("@/lib/prisma");
+  const settings = await prisma.systemSetting.findMany({
+    where: { key: { in: ["CMS_RAFFLE_STANDARD_PRIZES", "CMS_RAFFLE_GRAND_PRIZES"] } }
+  });
+  
+  const standardPrizes = settings.find(s => s.key === "CMS_RAFFLE_STANDARD_PRIZES")?.value;
+  const grandPrizes = settings.find(s => s.key === "CMS_RAFFLE_GRAND_PRIZES")?.value;
+
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto w-full max-w-full overflow-hidden">
-      <RaffleArenaClient userPoints={userPoints} userTickets={userTickets} />
+      <RaffleArenaClient 
+        userPoints={userPoints} 
+        userTickets={userTickets} 
+        standardPrizesJson={standardPrizes}
+        grandPrizesJson={grandPrizes}
+      />
     </div>
   );
 }

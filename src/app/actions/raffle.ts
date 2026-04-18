@@ -25,15 +25,35 @@ export async function spinStandardRaffle() {
   }
 
   // 2. Determine prize
-  // Default Probability: 20% 500, 40% NO WIN, 30% 200, 10% 1000
-  const settings = await prisma.systemSetting.findMany({
-    where: { key: { startsWith: "raffle_standard_" } }
+  const allSettings = await prisma.systemSetting.findMany({
+    where: { key: { in: [
+      "raffle_standard_500", "raffle_standard_nowin", "raffle_standard_200", "raffle_standard_1000",
+      "CMS_RAFFLE_STANDARD_PRIZES"
+    ] } }
   });
 
   const getProb = (key: string, def: number) => {
-    const s = settings.find(x => x.key === key);
+    const s = allSettings.find(x => x.key === key);
     return s ? parseFloat(s.value) / 100 : def;
   };
+
+  // Prizes mapping
+  let prizes = [
+    { label: "500 PTS", type: "POINTS", val: 500, angle: 315 },
+    { label: "NO WIN", type: "POINTS", val: 0, angle: 45 },
+    { label: "200 PTS", type: "POINTS", val: 200, angle: 225 },
+    { label: "1000 PTS", type: "POINTS", val: 1000, angle: 135 },
+  ];
+
+  try {
+    const customPrizes = allSettings.find(x => x.key === "CMS_RAFFLE_STANDARD_PRIZES");
+    if (customPrizes) {
+      const parsed = JSON.parse(customPrizes.value);
+      if (Array.isArray(parsed) && parsed.length === 4) {
+        prizes = parsed.map((p, i) => ({ ...p, angle: prizes[i].angle }));
+      }
+    }
+  } catch {}
 
   const prob500 = getProb("raffle_standard_500", 0.2);
   const probNoWin = getProb("raffle_standard_nowin", 0.4);
@@ -41,31 +61,17 @@ export async function spinStandardRaffle() {
   const prob1000 = getProb("raffle_standard_1000", 0.1);
 
   const rng = Math.random();
-  let prizeLabel = "";
-  let prizePoints = 0;
-  let stopAngle = 0;
+  let winIdx = 0;
 
-  if (rng < prob500) {
-    prizeLabel = "500 PTS";
-    prizePoints = 500;
-    stopAngle = 315;
-  } else if (rng < prob500 + probNoWin) {
-    prizeLabel = "NO WIN";
-    prizePoints = 0;
-    stopAngle = 45;
-  } else if (rng < prob500 + probNoWin + prob200) {
-    prizeLabel = "200 PTS";
-    prizePoints = 200;
-    stopAngle = 225;
-  } else {
-    prizeLabel = "1000 PTS";
-    prizePoints = 1000;
-    stopAngle = 135;
-  }
+  if (rng < prob500) winIdx = 0;
+  else if (rng < prob500 + probNoWin) winIdx = 1;
+  else if (rng < prob500 + probNoWin + prob200) winIdx = 2;
+  else winIdx = 3;
+
+  const winner = prizes[winIdx];
 
   // 3. Record Transactions
   await prisma.$transaction([
-    // Deduct entry fee
     prisma.pointTransaction.create({
       data: {
         userId,
@@ -74,14 +80,15 @@ export async function spinStandardRaffle() {
         description: "Standard Raffle Spin Entry"
       }
     }),
-    // Credit prize if any
-    ...(prizePoints > 0 ? [
+    ...(winner.val > 0 || winner.type === "MANUAL" ? [
       prisma.pointTransaction.create({
         data: {
           userId,
-          amount: prizePoints,
+          amount: winner.type === "POINTS" ? winner.val : 0,
+          currency: winner.type === "GCASH" ? "GCASH" : "PTS",
           type: "RAFFLE_WIN",
-          description: `Standard Raffle Win: ${prizeLabel}`
+          status: winner.type === "MANUAL" ? "PENDING" : "COMPLETED",
+          description: `Standard Raffle Win: ${winner.label}`
         }
       })
     ] : [])
@@ -89,7 +96,7 @@ export async function spinStandardRaffle() {
 
   revalidatePath("/agent/raffle");
   revalidatePath("/agent", "layout");
-  return { success: true, prize: prizeLabel, angle: stopAngle, points: prizePoints };
+  return { success: true, prize: winner.label, angle: winner.angle, points: winner.type === "POINTS" ? winner.val : 0 };
 }
 
 export async function spinGrandRaffle() {
@@ -100,7 +107,6 @@ export async function spinGrandRaffle() {
 
   const userId = (session.user as any).id;
 
-  // For Grand Raffle, let's say it costs 5000 points per spin
   const transactions = await prisma.pointTransaction.findMany({
     where: { userId, status: "COMPLETED", currency: "PTS" }
   });
@@ -110,15 +116,34 @@ export async function spinGrandRaffle() {
     return { success: false, error: "Insufficient Kinetic Points (Need 5,000 PTS for Grand Arena)" };
   }
 
-  // Outcomes: iPhone 15+, 10k GCash, 1k Chips, 200 GCash
-  const settings = await prisma.systemSetting.findMany({
-    where: { key: { startsWith: "raffle_grand_" } }
+  const allSettings = await prisma.systemSetting.findMany({
+    where: { key: { in: [
+      "raffle_grand_iphone", "raffle_grand_10kgcash", "raffle_grand_1kchips", "raffle_grand_200gcash",
+      "CMS_RAFFLE_GRAND_PRIZES"
+    ] } }
   });
 
   const getProb = (key: string, def: number) => {
-    const s = settings.find(x => x.key === key);
+    const s = allSettings.find(x => x.key === key);
     return s ? parseFloat(s.value) / 100 : def;
   };
+
+  let prizes = [
+    { label: "iPhone 15+", type: "MANUAL", val: 0, angle: 0 },
+    { label: "10k GCash", type: "GCASH", val: 10000, angle: 90 },
+    { label: "1k Chips", type: "POINTS", val: 1000, angle: 180 },
+    { label: "200 GCash", type: "GCASH", val: 200, angle: 270 },
+  ];
+
+  try {
+    const customPrizes = allSettings.find(x => x.key === "CMS_RAFFLE_GRAND_PRIZES");
+    if (customPrizes) {
+      const parsed = JSON.parse(customPrizes.value);
+      if (Array.isArray(parsed) && parsed.length === 4) {
+        prizes = parsed.map((p, i) => ({ ...p, angle: prizes[i].angle }));
+      }
+    }
+  } catch {}
 
   const pIphone = getProb("raffle_grand_iphone", 0.001);
   const p10k = getProb("raffle_grand_10kgcash", 0.01);
@@ -126,53 +151,25 @@ export async function spinGrandRaffle() {
   const p200 = getProb("raffle_grand_200gcash", 0.8);
 
   const rng = Math.random();
-  let prizeLabel = "";
-  let stopAngle = 0;
+  let winIdx = 0;
 
-  // Probability distribution based on explicit totals
-  if (rng < pIphone) {
-    prizeLabel = "iPhone 15+";
-    stopAngle = 0; // Top
-  } else if (rng < pIphone + p10k) {
-    prizeLabel = "10k GCash";
-    stopAngle = 90; // Right
-  } else if (rng < pIphone + p10k + p1k) {
-    prizeLabel = "1k Chips";
-    stopAngle = 180; // Bottom
-  } else if (rng < pIphone + p10k + p1k + p200) {
-    prizeLabel = "200 GCash";
-    stopAngle = 270; // Left
-  } else {
-    // Fallback if total < 1.0 (though ideally it should be 1.0)
-    prizeLabel = "200 GCash";
-    stopAngle = 270;
-  }
+  if (rng < pIphone) winIdx = 0;
+  else if (rng < pIphone + p10k) winIdx = 1;
+  else if (rng < pIphone + p10k + p1k) winIdx = 2;
+  else winIdx = 3;
+
+  const winner = prizes[winIdx];
 
   // Record transaction
   const winTransactions = [];
-  if (prizeLabel === "10k GCash") {
+  if (winner.val > 0 || winner.type === "MANUAL") {
     winTransactions.push({
       userId,
-      amount: 10000,
-      currency: "GCASH",
+      amount: (winner.type === "POINTS" || winner.type === "GCASH") ? winner.val : 0,
+      currency: winner.type === "GCASH" ? "GCASH" : "PTS",
       type: "RAFFLE_WIN",
-      description: "Grand Raffle Win: 10k GCash"
-    });
-  } else if (prizeLabel === "200 GCash") {
-    winTransactions.push({
-      userId,
-      amount: 200,
-      currency: "GCASH",
-      type: "RAFFLE_WIN",
-      description: "Grand Raffle Win: 200 GCash"
-    });
-  } else if (prizeLabel === "1k Chips") {
-    winTransactions.push({
-      userId,
-      amount: 1000,
-      currency: "PTS",
-      type: "RAFFLE_WIN",
-      description: "Grand Raffle Win: 1k Chips"
+      status: winner.type === "MANUAL" ? "PENDING" : "COMPLETED",
+      description: `Grand Raffle Win: ${winner.label}`
     });
   }
 
@@ -182,7 +179,7 @@ export async function spinGrandRaffle() {
         userId,
         amount: -5000,
         type: "REDEMPTION",
-        description: `Grand Raffle Spin Entry - Won ${prizeLabel}`
+        description: `Grand Raffle Spin Entry - Won ${winner.label}`
       }
     }),
     ...winTransactions.map(tx => prisma.pointTransaction.create({ data: tx as any }))
@@ -190,5 +187,5 @@ export async function spinGrandRaffle() {
 
   revalidatePath("/agent/raffle");
   revalidatePath("/agent", "layout");
-  return { success: true, prize: prizeLabel, angle: stopAngle };
+  return { success: true, prize: winner.label, angle: winner.angle };
 }

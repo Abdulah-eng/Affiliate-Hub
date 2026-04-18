@@ -78,7 +78,7 @@ export default function EarnPage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [selectedTask, videoEnded, isVideoPaused, timer]);
 
-  // YouTube API Loader
+  // YouTube API Loader & Player Initialization
   useEffect(() => {
     if (selectedTask?.taskType === "VIDEO" && (selectedTask.videoUrl?.includes('youtube') || selectedTask.videoUrl?.includes('youtu.be'))) {
       if (!(window as any).YT) {
@@ -88,8 +88,50 @@ export default function EarnPage() {
         firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
       }
 
-      (window as any).onYouTubeIframeAPIReady = () => {
-         // This might not fire if script already loaded, handled by manual check
+      let playerInstance: any = null;
+      let checkCount = 0;
+
+      const initPlayer = () => {
+        if ((window as any).YT && (window as any).YT.Player && document.getElementById('yt-player')) {
+          const videoId = selectedTask.videoUrl?.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|u\/\w\/))([^\?&"'>]+)/)?.[1];
+          if (!videoId) return;
+
+          playerInstance = new (window as any).YT.Player('yt-player', {
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: {
+              autoplay: 1,
+              controls: 1,
+              modestbranding: 1,
+              rel: 0,
+              origin: window.location.origin
+            },
+            events: {
+              onStateChange: (event: any) => {
+                if (event.data === (window as any).YT.PlayerState.ENDED) {
+                  setVideoEnded(true);
+                }
+                if (event.data === (window as any).YT.PlayerState.PLAYING) {
+                   setIsVideoPaused(false);
+                } else {
+                   setIsVideoPaused(true);
+                }
+              }
+            }
+          });
+          setPlayer(playerInstance);
+        } else if (checkCount < 20) {
+          checkCount++;
+          setTimeout(initPlayer, 500);
+        }
+      };
+
+      const timer = setTimeout(initPlayer, 500);
+      return () => {
+        clearTimeout(timer);
+        if (playerInstance && playerInstance.destroy) playerInstance.destroy();
+        setPlayer(null);
       };
     }
   }, [selectedTask]);
@@ -97,15 +139,14 @@ export default function EarnPage() {
   // Interaction Logic
   useEffect(() => {
     if (selectedTask && !videoEnded && !isVideoPaused) {
-        // Randomly set interaction pulse between 10-25 seconds left
         if (interactionTimestamp === null) {
             setInteractionTimestamp(Math.floor(Math.random() * 15) + 10);
         }
         
         if (timer === interactionTimestamp && !interactionVisible) {
             setInteractionVisible(true);
-            setIsVideoPaused(true); // Forced pause
-            if (player) player.pauseVideo();
+            setIsVideoPaused(true);
+            if (player && player.pauseVideo) player.pauseVideo();
             if (videoRef.current) videoRef.current.pause();
         }
     }
@@ -132,13 +173,6 @@ export default function EarnPage() {
   };
 
   useEffect(() => { fetchTasks(); }, []);
-
-  // Proxies for script communication
-  useEffect(() => {
-    (window as any).setYTPlayer = setPlayer;
-    (window as any).setVideoStatus = setIsVideoPaused;
-    (window as any).setVideoEndedProxy = setVideoEnded;
-  }, []);
 
   const handleClaimPoints = () => {
     const isYoutube = selectedTask?.videoUrl?.includes('youtube') || selectedTask?.videoUrl?.includes('youtu.be') || selectedTask?.videoUrl?.includes('embed');
@@ -604,80 +638,51 @@ export default function EarnPage() {
                 )}
             </div>
 
-            {selectedTask.taskType === "VIDEO" ? (
-              /* VIDEO TASK UI */
-              <>
-                 <GlassCard className="p-2 border-primary/20 overflow-hidden max-w-4xl mx-auto relative">
-                  <div className="aspect-video max-h-[60vh] bg-black relative rounded-2xl overflow-hidden shadow-2xl">
-                     {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
-                        <div id="yt-player" className="w-full h-full"></div>
-                     ) : (
-                       <video 
-                         ref={videoRef}
-                         className="w-full h-full"
-                         src={selectedTask.videoUrl} 
-                         controls 
-                         autoPlay
-                         onPlay={() => setIsVideoPaused(false)}
-                         onPause={() => setIsVideoPaused(true)}
-                         onEnded={() => setVideoEnded(true)}
-                       />
-                     )}
-                  </div>
-                  
-                  {/* Micro Interaction Overlay */}
-                  {interactionVisible && (
-                    <div className="absolute inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 animate-in zoom-in duration-300">
-                        <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-6 animate-pulse border border-primary/30">
-                            <Zap size={40} className="text-primary" />
-                        </div>
-                        <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight mb-2">Verifying Link...</h3>
-                        <p className="text-sm text-on-surface-variant font-medium mb-8">Tap the button below to continue the uplink.</p>
-                        <button 
-                            onClick={() => {
-                                setInteractionVisible(false);
-                                setIsVideoPaused(false);
-                                if (player) player.playVideo();
-                                if (videoRef.current) videoRef.current.play();
-                            }}
-                            className="px-12 py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 transition-all"
-                        >
-                            Continue Mission
-                        </button>
-                    </div>
-                  )}
-                </GlassCard>
+             {selectedTask.taskType === "VIDEO" ? (
+               /* VIDEO TASK UI */
+               <>
+                  <GlassCard className="p-2 border-primary/20 overflow-hidden max-w-4xl mx-auto relative">
+                   <div className="aspect-video max-h-[60vh] bg-black relative rounded-2xl overflow-hidden shadow-2xl">
+                      {selectedTask.videoUrl?.includes('youtube.com') || selectedTask.videoUrl?.includes('youtu.be') ? (
+                         <div id="yt-player" className="w-full h-full"></div>
+                      ) : (
+                        <video 
+                          ref={videoRef}
+                          className="w-full h-full"
+                          src={selectedTask.videoUrl} 
+                          controls 
+                          autoPlay
+                          onPlay={() => setIsVideoPaused(false)}
+                          onPause={() => setIsVideoPaused(true)}
+                          onEnded={() => setVideoEnded(true)}
+                        />
+                      )}
+                   </div>
+                   
+                   {/* Micro Interaction Overlay */}
+                   {interactionVisible && (
+                     <div className="absolute inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center p-8 animate-in zoom-in duration-300">
+                         <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mb-6 animate-pulse border border-primary/30">
+                             <Zap size={40} className="text-primary" />
+                         </div>
+                         <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight mb-2">Verifying Link...</h3>
+                         <p className="text-sm text-on-surface-variant font-medium mb-8">Tap the button below to continue the uplink.</p>
+                         <button 
+                             onClick={() => {
+                                 setInteractionVisible(false);
+                                 setIsVideoPaused(false);
+                                 if (player && player.playVideo) player.playVideo();
+                                 if (videoRef.current) videoRef.current.play();
+                             }}
+                             className="px-12 py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 transition-all"
+                         >
+                             Continue Mission
+                         </button>
+                     </div>
+                   )}
+                 </GlassCard>
 
-                {/* Effect to initialize YT Player */}
-                <script dangerouslySetInnerHTML={{ __html: `
-                    function initYT() {
-                        if (window.YT && window.YT.Player && document.getElementById('yt-player')) {
-                             new window.YT.Player('yt-player', {
-                                videoId: '${(() => {
-                                    const url = selectedTask.videoUrl;
-                                    if (url.includes('youtu.be/')) return url.split('youtu.be/')[1]?.split('?')[0];
-                                    return url.includes('v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
-                                })()}',
-                                playerVars: { 'autoplay': 1, 'controls': 1, 'rel': 0, 'modestbranding': 1 },
-                                events: {
-                                    'onReady': (event) => window.setYTPlayer(event.target),
-                                    'onStateChange': (event) => {
-                                        if (event.data == window.YT.PlayerState.PLAYING) window.setVideoStatus(false);
-                                        else window.setVideoStatus(true);
-                                        if (event.data == window.YT.PlayerState.ENDED) window.setVideoEndedProxy(true);
-                                    }
-                                }
-                             });
-                        } else {
-                            setTimeout(initYT, 500);
-                        }
-                    }
-                    initYT();
-                `}} />
-                
-                {/* Proxies for script communication moved to top level */}
-
-                <div className="mt-8 flex flex-col items-center justify-between gap-6">
+                 <div className="mt-8 flex flex-col items-center justify-between gap-6">
                    <div className="flex flex-col md:flex-row items-center gap-6 w-full">
                       <div className="flex items-center gap-4">
                           <div className={cn(

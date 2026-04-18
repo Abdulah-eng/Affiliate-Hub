@@ -66,11 +66,55 @@ interface ToastItem {
 export function RaffleArenaClient({
   userPoints: initialPoints,
   userTickets: _userTickets,
+  standardPrizesJson,
+  grandPrizesJson,
 }: {
   userPoints: number;
   userTickets: number;
+  standardPrizesJson?: string;
+  grandPrizesJson?: string;
 }) {
   const [userPoints, setUserPoints] = useState(initialPoints);
+
+  // Parse prizes
+  const [standardPrizes, setStandardPrizes] = useState<any[]>([]);
+  const [grandPrizes, setGrandPrizes] = useState<any[]>([]);
+
+  useEffect(() => {
+    try {
+      if (standardPrizesJson) setStandardPrizes(JSON.parse(standardPrizesJson));
+      else setStandardPrizes([
+        { label: "500 PTS", type: "POINTS", val: 500 },
+        { label: "NO WIN", type: "POINTS", val: 0 },
+        { label: "200 PTS", type: "POINTS", val: 200 },
+        { label: "1000 PTS", type: "POINTS", val: 1000 },
+      ]);
+    } catch {
+      setStandardPrizes([
+        { label: "500 PTS", type: "POINTS", val: 500 },
+        { label: "NO WIN", type: "POINTS", val: 0 },
+        { label: "200 PTS", type: "POINTS", val: 200 },
+        { label: "1000 PTS", type: "POINTS", val: 1000 },
+      ]);
+    }
+
+    try {
+      if (grandPrizesJson) setGrandPrizes(JSON.parse(grandPrizesJson));
+      else setGrandPrizes([
+        { label: "iPhone 15+", type: "MANUAL", val: 0 },
+        { label: "10k GCash", type: "GCASH", val: 10000 },
+        { label: "1k Chips", type: "POINTS", val: 1000 },
+        { label: "200 GCash", type: "GCASH", val: 200 },
+      ]);
+    } catch {
+      setGrandPrizes([
+        { label: "iPhone 15+", type: "MANUAL", val: 0 },
+        { label: "10k GCash", type: "GCASH", val: 10000 },
+        { label: "1k Chips", type: "POINTS", val: 1000 },
+        { label: "200 GCash", type: "GCASH", val: 200 },
+      ]);
+    }
+  }, [standardPrizesJson, grandPrizesJson]);
 
   // Standard wheel
   const [isSpinning, setIsSpinning] = useState(false);
@@ -119,8 +163,8 @@ export function RaffleArenaClient({
       setTimeout(() => {
         setIsSpinning(false);
         setUserPoints(prev => prev - 1000 + (res.points ?? 0));
-        if (res.prize === "NO WIN") {
-          addToast({ type: "nowin", message: "No Win", sub: "Better luck next spin!" });
+        if (res.prize?.toUpperCase().includes("NO WIN")) {
+          addToast({ type: "nowin", message: "Result", sub: res.prize || "No Win" });
         } else {
           setModal({ type: "standard", prize: res.prize! });
         }
@@ -149,7 +193,7 @@ export function RaffleArenaClient({
       setTimeout(() => {
         setIsGrandSpinning(false);
         let wonPts = 0;
-        if (res.prize === "1k Chips") wonPts = 1000;
+        if (res.prize?.includes("Chips") || res.prize?.includes("PTS")) wonPts = 1000;
         setUserPoints(prev => prev - 5000 + wonPts);
         setModal({ type: "grand", prize: res.prize! });
       }, 5100);
@@ -271,8 +315,8 @@ export function RaffleArenaClient({
               <RotateCw size={140} className="text-primary" />
             </div>
 
-            <div className="text-center mb-8 relative z-10">
-              <h2 className="text-3xl font-black font-headline tracking-tighter uppercase mb-1">
+            <div className="text-center mb-10 relative z-10">
+              <h2 className="text-4xl font-black font-headline tracking-tighter uppercase mb-2">
                 Standard <span className="text-primary">Spin Wheel</span>
               </h2>
               <p className="text-on-surface-variant text-sm font-medium opacity-70">
@@ -281,7 +325,7 @@ export function RaffleArenaClient({
             </div>
 
             {/* Wheel */}
-            <div className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 flex items-center justify-center z-10">
+            <div className="relative w-72 h-72 sm:w-96 sm:h-96 md:w-[420px] md:h-[420px] flex items-center justify-center z-10">
               {/* Glow */}
               <div className="absolute inset-0 rounded-full bg-primary/10 blur-[80px] animate-pulse" />
               {/* Outer ring */}
@@ -298,20 +342,28 @@ export function RaffleArenaClient({
                 {/* 4 Quadrant Segments */}
                 {/* Top-Left: 500 PTS (centre at 315°/–45°) */}
                 <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-                  <div className="border-r border-b border-primary/20 bg-primary/8 flex items-center justify-center" style={{ paddingTop: "30%" }}>
-                    <span className="text-primary font-black text-base -rotate-45 tracking-tighter drop-shadow">500</span>
+                  <div className="border-r border-b border-primary/20 bg-primary/8 flex items-center justify-center p-4">
+                    <span className="text-primary font-black text-xl md:text-2xl -rotate-45 tracking-tighter drop-shadow text-center leading-tight">
+                      {standardPrizes[0]?.label || "..."}
+                    </span>
                   </div>
-                  {/* Top-Right: NO WIN (centre at 45°) */}
-                  <div className="border-l border-b border-white/5 flex items-center justify-center" style={{ paddingTop: "30%" }}>
-                    <span className="text-on-surface-variant/60 font-black text-xs rotate-45 tracking-widest">NO WIN</span>
+                  {/* Top-Right: NO WIN */}
+                  <div className="border-l border-b border-white/5 flex items-center justify-center p-4">
+                    <span className="text-on-surface-variant/60 font-black text-xs md:text-sm rotate-45 tracking-widest text-center leading-tight">
+                      {standardPrizes[1]?.label || "..."}
+                    </span>
                   </div>
-                  {/* Bot-Left: 200 PTS (centre at 225°/–135°) */}
-                  <div className="border-r border-t border-white/5 flex items-center justify-center" style={{ paddingBottom: "30%" }}>
-                    <span className="text-on-surface-variant font-black text-base -rotate-[135deg] tracking-tighter drop-shadow">200</span>
+                  {/* Bot-Left: 200 PTS */}
+                  <div className="border-r border-t border-white/5 flex items-center justify-center p-4">
+                    <span className="text-on-surface-variant font-black text-xl md:text-2xl -rotate-[135deg] tracking-tighter drop-shadow text-center leading-tight">
+                      {standardPrizes[2]?.label || "..."}
+                    </span>
                   </div>
-                  {/* Bot-Right: 1000 PTS (centre at 135°) */}
-                  <div className="border-l border-t border-secondary/20 bg-secondary/5 flex items-center justify-center" style={{ paddingBottom: "30%" }}>
-                    <span className="text-secondary font-black text-base rotate-[135deg] tracking-tighter drop-shadow">1000</span>
+                  {/* Bot-Right: 1000 PTS */}
+                  <div className="border-l border-t border-secondary/20 bg-secondary/5 flex items-center justify-center p-4">
+                    <span className="text-secondary font-black text-xl md:text-2xl rotate-[135deg] tracking-tighter drop-shadow text-center leading-tight">
+                      {standardPrizes[3]?.label || "..."}
+                    </span>
                   </div>
                 </div>
 
@@ -365,7 +417,7 @@ export function RaffleArenaClient({
               <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-tertiary/20 text-tertiary rounded-full text-[9px] font-black uppercase tracking-[0.3em] mb-4 border border-tertiary/30">
                 <ShieldCheck size={12} /> Premium Vault Access
               </span>
-              <h2 className="text-4xl font-black font-headline tracking-tighter uppercase mb-1">
+              <h2 className="text-5xl font-black font-headline tracking-tighter uppercase mb-1">
                 Grand <span className="text-tertiary">Raffle Arena</span>
               </h2>
               <p className="text-on-surface-variant text-sm font-medium italic opacity-70">
@@ -374,7 +426,7 @@ export function RaffleArenaClient({
             </div>
 
             {/* Grand Wheel */}
-            <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-80 md:h-80 flex items-center justify-center z-10">
+            <div className="relative w-80 h-80 sm:w-[450px] sm:h-[450px] md:w-[520px] md:h-[520px] flex items-center justify-center z-10">
               <div className="absolute inset-0 rounded-full bg-tertiary/15 blur-[100px] animate-pulse-slow" />
               <div className="absolute -inset-4 rounded-full border-2 border-tertiary/20 border-dashed animate-[spin_20s_linear_infinite]" />
 
@@ -399,14 +451,10 @@ export function RaffleArenaClient({
                 </div>
 
                 {/* Segment labels — positioned at quadrant centres */}
-                {/* Top (0°): iPhone 15+ */}
-                <span className="absolute top-8 left-1/2 -translate-x-1/2 font-black text-[11px] text-white tracking-widest uppercase drop-shadow-lg whitespace-nowrap">iPhone 15+</span>
-                {/* Right (90°): 10k GCash */}
-                <span className="absolute right-8 top-1/2 -translate-y-1/2 font-black text-[11px] text-white tracking-widest uppercase drop-shadow-lg rotate-90 whitespace-nowrap">10k GCash</span>
-                {/* Bottom (180°): 1k Chips */}
-                <span className="absolute bottom-8 left-1/2 -translate-x-1/2 font-black text-[11px] text-white tracking-widest uppercase drop-shadow-lg rotate-180 whitespace-nowrap">1k Chips</span>
-                {/* Left (270°): 200 GCash */}
-                <span className="absolute left-8 top-1/2 -translate-y-1/2 font-black text-[11px] text-white tracking-widest uppercase drop-shadow-lg -rotate-90 whitespace-nowrap">200 GCash</span>
+                <span className="absolute top-10 left-1/2 -translate-x-1/2 font-black text-base md:text-xl text-white tracking-widest uppercase drop-shadow-lg whitespace-nowrap">{grandPrizes[0]?.label || "..."}</span>
+                <span className="absolute right-10 top-1/2 -translate-y-1/2 font-black text-base md:text-xl text-white tracking-widest uppercase drop-shadow-lg rotate-90 whitespace-nowrap">{grandPrizes[1]?.label || "..."}</span>
+                <span className="absolute bottom-10 left-1/2 -translate-x-1/2 font-black text-base md:text-xl text-white tracking-widest uppercase drop-shadow-lg rotate-180 whitespace-nowrap">{grandPrizes[2]?.label || "..."}</span>
+                <span className="absolute left-10 top-1/2 -translate-y-1/2 font-black text-base md:text-xl text-white tracking-widest uppercase drop-shadow-lg -rotate-90 whitespace-nowrap">{grandPrizes[3]?.label || "..."}</span>
 
                 {/* Centre hub */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

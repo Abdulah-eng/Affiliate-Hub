@@ -22,7 +22,8 @@ import {
   Layers,
   ChevronRight,
   Plus,
-  MonitorPlay
+  MonitorPlay,
+  Sparkles
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { getSystemSettings, updateSystemSettings, uploadCmsAsset } from '@/app/actions/admin';
@@ -41,6 +42,7 @@ const SECTIONS = [
   { id: 'partners', label: 'Partner Network', icon: <List size={18} /> },
   { id: 'workflow', label: 'Workflow (HIW)', icon: <Zap size={18} /> },
   { id: 'earn', label: 'Earn Tutorial', icon: <MonitorPlay size={18} /> },
+  { id: 'raffle', label: 'Raffle Arena', icon: <Sparkles size={18} /> },
   { id: 'cta', label: 'CTA & Footer', icon: <ChevronRight size={18} /> },
 ];
 
@@ -87,6 +89,7 @@ const CMS_MAP: Record<string, CMSItem[]> = {
     { key: 'CMS_CTA_DESC', label: 'CTA Description', type: 'TEXTAREA', desc: 'Body text for the CTA section.' },
     { key: 'CMS_CTA_BTN_PRIMARY', label: 'Primary Button Label', type: 'TEXT', desc: 'Text for "Apply Now" style buttons.' },
     { key: 'CMS_CTA_BTN_SECONDARY', label: 'Secondary Button Label', type: 'TEXT', desc: 'Text for "Support" style buttons.' },
+    { key: 'SOCIAL_TELEGRAM_URL', label: 'Telegram Portal URL', type: 'TEXT', desc: 'Direct link to the official Telegram channel/bot.' },
   ],
   earn: [
     { key: 'CMS_EARN_VIDEO', label: 'Primary Tutorial Video', type: 'VIDEO', desc: 'Main protocol tutorial video for agents.' },
@@ -96,6 +99,10 @@ const CMS_MAP: Record<string, CMSItem[]> = {
     { key: 'CMS_EARN_VIDEO_5', label: 'Protocol Video 5', type: 'VIDEO', desc: 'Support protocol video.' },
     { key: 'CMS_EARN_TITLE', label: 'Banner Title', type: 'TEXT', desc: 'Headline for the tutorial tab.' },
     { key: 'CMS_EARN_DESC', label: 'Banner Description', type: 'TEXTAREA', desc: 'Body text for the earning instructions.' },
+  ],
+  raffle: [
+    { key: 'CMS_RAFFLE_STANDARD_PRIZES', label: 'Standard Wheel Prizes (JSON)', type: 'TEXTAREA', desc: 'JSON list of 4 prizes: [{"label":"500 PTS","type":"POINTS","val":500}, ...]' },
+    { key: 'CMS_RAFFLE_GRAND_PRIZES', label: 'Grand Arena Prizes (JSON)', type: 'TEXTAREA', desc: 'JSON list of 4 prizes: [{"label":"iPhone 15+","type":"MANUAL","val":0}, ...]' },
   ]
 };
 

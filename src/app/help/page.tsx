@@ -11,7 +11,18 @@ import {
   LifeBuoy
 } from "lucide-react";
 
-export default function HelpPage() {
+import { getSystemSettings } from "@/app/actions/admin";
+import Link from "next/link";
+
+export default async function HelpPage() {
+  let settings: Record<string, string> = {};
+  try {
+    const settingsData = await getSystemSettings();
+    settings = settingsData.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {} as Record<string, string>);
+  } catch {}
+
+  const telegramUrl = settings['SOCIAL_TELEGRAM_URL'] || "https://t.me/AffiliateHubPH";
+
   const categories = [
     { name: "Getting Started", desc: "Initialize your operative node and clear KYC.", icon: <Zap size={20} className="text-primary" /> },
     { name: "Kinetic Rewards", desc: "Understanding points, tiers, and expansion.", icon: <Book size={20} className="text-secondary" /> },
@@ -87,8 +98,17 @@ export default function HelpPage() {
             Authorized agents can initialize a direct transmission with our CSR support nodes for 24/7 priority assistance.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-             <button className="px-10 py-4 bg-primary text-background rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-[0_0_20px_rgba(129,236,255,0.4)] transition-all">Start Transmission</button>
-             <button className="px-10 py-4 border border-outline-variant/30 text-on-surface rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all">Telegram Sync</button>
+             <Link href="/apply" className="px-10 py-4 bg-primary text-background rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-[0_0_20px_rgba(129,236,255,0.4)] transition-all flex items-center justify-center">
+                Start Transmission
+             </Link>
+             <a 
+              href={telegramUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="px-10 py-4 border border-outline-variant/30 text-on-surface rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/5 transition-all flex items-center justify-center"
+             >
+                Telegram Sync
+             </a>
           </div>
         </GlassCard>
       </main>
