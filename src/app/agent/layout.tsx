@@ -90,7 +90,7 @@ export default function AgentLayout({
           {!stats ? (
             <div className="flex items-center justify-center w-full gap-4 opacity-50 italic text-[10px] font-black uppercase tracking-[0.2em]">
               <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
-              Establishing Node Connection...
+              Establishing Agent Connection...
             </div>
           ) : (
             <>
@@ -128,7 +128,7 @@ export default function AgentLayout({
               <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
               
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Vault Nodes</span>
+                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Active Agents</span>
                 <span className="text-xs font-black text-on-surface flex items-center gap-2">
                   <Layers size={14} className="text-primary" /> {stats.activeNodes.toString().padStart(2, '0')} <span className="text-on-surface-variant font-bold">ACTIVE</span>
                 </span>

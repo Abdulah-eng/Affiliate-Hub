@@ -175,7 +175,7 @@ export default async function LandingPage() {
                   
                   <div className="pt-6 border-t border-outline-variant/20 grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Active Nodes</p>
+                      <p className="text-on-surface-variant text-xs font-bold uppercase tracking-wider">Active Agents</p>
                       <p className="font-bold text-primary font-headline">5,402</p>
                     </div>
                     <div>

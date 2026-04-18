@@ -96,8 +96,8 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
       )}>
         <div className="px-8 mb-6 flex items-center justify-between shrink-0">
           <div className="flex flex-col">
-            <p className="text-primary font-black font-headline text-lg tracking-tighter uppercase leading-none">Vault Node</p>
-            <p className="text-[10px] text-on-surface-variant font-bold tracking-widest uppercase mt-1">Agent Dashboard</p>
+            <p className="text-primary font-black font-headline text-lg tracking-tighter uppercase leading-none">Agent Dashboard</p>
+            <p className="text-[10px] text-on-surface-variant font-bold tracking-widest uppercase mt-1">Affiliate Hub PH</p>
           </div>
           <button 
             className="p-2 text-on-surface-variant hover:text-white lg:hidden"

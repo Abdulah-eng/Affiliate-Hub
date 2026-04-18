@@ -58,7 +58,7 @@ export default async function ReferralsPage() {
           Network <span className="text-primary">Expansion</span>
         </h1>
         <p className="text-on-surface-variant text-lg max-w-2xl font-medium leading-relaxed">
-          Scale your affiliate syndicate with precision. Track node propagation, manage referrals, and unlock elite kinetic rewards.
+          Scale your affiliate syndicate with precision. Track agent invites, manage referrals, and unlock elite kinetic rewards.
         </p>
       </div>
 
@@ -82,7 +82,7 @@ export default async function ReferralsPage() {
             <div className="space-y-6">
               <div className="space-y-2">
                 <div className="flex justify-between items-center px-1">
-                  <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Active Nodes</span>
+                  <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Agents Invited</span>
                   <span className="text-sm font-black text-on-surface">{totalReferrals} verified</span>
                 </div>
                 <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
@@ -134,7 +134,7 @@ export default async function ReferralsPage() {
           <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
             <h3 className="font-headline text-2xl font-black text-on-surface uppercase tracking-tight flex items-center gap-4">
               <Zap className="text-primary" size={24} />
-              Propagation Stream
+              Invite Stream
             </h3>
           </div>
           <div className="overflow-x-auto">
@@ -151,7 +151,7 @@ export default async function ReferralsPage() {
                 {user?.referrals.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-20 text-center text-on-surface-variant font-medium text-xs">
-                      No nodes detected. Spread your frequency to start earning.
+                      No agents detected. Spread your frequency to start earning.
                     </td>
                   </tr>
                 ) : (
@@ -192,7 +192,7 @@ export default async function ReferralsPage() {
           <div className="p-10 border-b border-white/5">
             <h3 className="font-headline text-2xl font-black text-on-surface uppercase tracking-tight mb-8">Leaderboard</h3>
             <div className="flex gap-2 p-1.5 bg-surface-container-low/50 rounded-2xl border border-white/5 shadow-inner">
-              <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl bg-primary text-background shadow-lg transition-all">Top Nodes</button>
+              <button className="flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl bg-primary text-background shadow-lg transition-all">Top Agents</button>
             </div>
           </div>
           
@@ -219,7 +219,7 @@ export default async function ReferralsPage() {
                 </div>
                 <div className="flex-1">
                   <p className="font-black text-on-surface text-sm uppercase tracking-tight">{item.username || item.name}</p>
-                  <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-0.5">{(item as any)._count.referrals} Nodes Propagated</p>
+                  <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mt-0.5">{(item as any)._count.referrals} Agents Invited</p>
                 </div>
               </div>
             ))}

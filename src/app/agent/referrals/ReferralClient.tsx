@@ -17,7 +17,7 @@ export function ReferralClient({ referralCode }: { referralCode: string }) {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-2">Propagation Link</label>
+        <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-2">Agent Invite Link</label>
         <div className="flex gap-3">
           <div className="flex-1 bg-surface-container-high border border-outline-variant/20 rounded-2xl px-6 flex items-center overflow-hidden h-14">
             <span className="text-on-surface-variant text-xs font-bold truncate">{referralLink}</span>
@@ -33,7 +33,7 @@ export function ReferralClient({ referralCode }: { referralCode: string }) {
 
       <div className="bg-surface-container-high border border-outline-variant/30 px-8 py-4 rounded-2xl flex items-center justify-between shadow-inner">
         <div className="flex items-center gap-5">
-          <span className="text-[10px] font-black text-primary tracking-[0.3em] uppercase">Node Code</span>
+          <span className="text-[10px] font-black text-primary tracking-[0.3em] uppercase">Agent Code</span>
           <span className="font-mono text-2xl font-black text-on-surface tracking-widest">{referralCode}</span>
         </div>
         <button 

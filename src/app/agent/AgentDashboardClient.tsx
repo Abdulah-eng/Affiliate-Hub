@@ -83,7 +83,7 @@ export default function AgentDashboardClient({
 }: Props) {
   const tasks = [
     { key: "DAILY_LOGIN", label: "Daily Sign-in", reward: "50 PTS", target: 1, icon: <Clock size={16} />, color: "text-primary" },
-    { key: "FIRST_CHAT", label: "First Nexus Node", reward: "100 PTS", target: 1, icon: <MessageSquare size={16} />, color: "text-secondary" },
+    { key: "FIRST_CHAT", label: "First Agent Interaction", reward: "100 PTS", target: 1, icon: <MessageSquare size={16} />, color: "text-secondary" },
     { key: "CHAT_LIKES", label: "Community Support", reward: "250 PTS", target: 5, icon: <ThumbsUp size={16} />, color: "text-tertiary" },
     { key: "DAILY_SURVIVAL", label: "Daily Survival Kit", reward: "200 GCASH", target: 1, icon: <Gift size={16} />, color: "text-amber-400" },
   ];
