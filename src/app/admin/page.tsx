@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { getGrowthAnalytics } from "@/app/actions/analytics";
+import { DashboardCharts } from "@/components/admin/DashboardCharts";
 
 export const dynamic = "force-dynamic";
 
@@ -23,11 +25,13 @@ export default async function AdminDashboardPage() {
     pendingKYC,
     approvedKYC,
     totalBrands,
+    growthAnalytics,
   ] = await Promise.all([
     prisma.user.count({ where: { role: "AGENT" } }),
     prisma.user.count({ where: { kycStatus: "PENDING", role: "AGENT" } }),
     prisma.user.count({ where: { kycStatus: "APPROVED", role: "AGENT" } }),
     prisma.brand.count(),
+    getGrowthAnalytics(),
   ]);
 
   const stats = [
@@ -92,6 +96,14 @@ export default async function AdminDashboardPage() {
           </GlassCard>
         ))}
       </div>
+      {/* Analytics Section */}
+      <section className="space-y-6">
+        <h2 className="text-xl font-headline font-black text-on-surface uppercase tracking-tight flex items-center gap-3">
+          <Activity className="text-primary" size={24} />
+          Growth Intelligence
+        </h2>
+        <DashboardCharts data={growthAnalytics.data || []} />
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Quick Actions */}

@@ -313,3 +313,12 @@ enum KycStatus {
   REJECTED
   REQUEST_REUPLOAD
 }
+
+model VisitorStat {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  ip        String?
+  path      String?
+
+  @@index([timestamp])
+}
