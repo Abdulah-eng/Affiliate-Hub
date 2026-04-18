@@ -8,12 +8,13 @@ import {
   Loader2, 
   Headphones,
   Paperclip,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ShieldAlert
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { getOrCreateSupportTicket, sendSupportMessage, getTicketMessages, uploadSupportAsset } from '@/app/actions/support';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 
 export function SupportWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,9 +29,12 @@ export function SupportWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const pollInterval = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showIdentify, setShowIdentify] = useState(false);
+  const [guestName, setGuestName] = useState("");
+  const [guestEmail, setGuestEmail] = useState("");
 
   // Initialize or fetch ticket
-  const initializeSupport = async () => {
+  const initializeSupport = async (manualGuestInfo?: { name: string, email: string }) => {
     setLoading(true);
     let guestInfo = undefined;
     
@@ -40,13 +44,23 @@ export function SupportWidget() {
         guestId = crypto.randomUUID();
         localStorage.setItem('nexus_support_guest_id', guestId);
       }
-      guestInfo = { guestId };
+      guestInfo = { 
+        guestId,
+        name: manualGuestInfo?.name,
+        email: manualGuestInfo?.email
+      };
     }
 
     const res = await getOrCreateSupportTicket(guestInfo);
     if (res.success) {
       setTicket(res.ticket);
       setMessages(res.ticket?.messages || []);
+      // If we are identifies now, hide the identify screen
+      if (res.ticket?.guestName || session?.user) {
+        setShowIdentify(false);
+      } else {
+        setShowIdentify(true);
+      }
     }
     setLoading(false);
   };
@@ -150,6 +164,65 @@ export function SupportWidget() {
             </button>
           </div>
 
+          {/* Identification View Overlay */}
+          {showIdentify && !session && (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-950/40 backdrop-blur-md animate-in fade-in duration-500 absolute inset-0 z-50 top-[65px]">
+               <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-6 animate-pulse">
+                  <ShieldAlert size={32} />
+               </div>
+               <h3 className="text-xl font-black uppercase tracking-tight text-on-surface mb-2">Identification Required</h3>
+               <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mb-8 opacity-60">
+                 Secure your uplink by identifying yourself. 
+               </p>
+
+               <div className="w-full space-y-6">
+                  {/* Google Login Option */}
+                  <button 
+                    onClick={() => signIn('google')}
+                    className="w-full py-4 bg-white text-slate-950 rounded-xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl"
+                  >
+                    <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" />
+                    Login with Google
+                  </button>
+
+                  <div className="flex items-center gap-4 py-2 opacity-30">
+                     <div className="h-px bg-white/20 flex-1"></div>
+                     <span className="text-[8px] font-black uppercase">OR MANUAL SYNC</span>
+                     <div className="h-px bg-white/20 flex-1"></div>
+                  </div>
+
+                  {/* Manual Guest Form */}
+                  <div className="space-y-4 text-left">
+                    <div>
+                      <label className="text-[8px] font-black uppercase tracking-widest text-primary mb-2 block">Agent Alias (Name)*</label>
+                      <input 
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder="e.g. Ghost_Protocol"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs outline-none focus:border-primary transition-all font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[8px] font-black uppercase tracking-widest text-on-surface-variant mb-2 block">Comm Link (Email optional)</label>
+                      <input 
+                        value={guestEmail}
+                        onChange={(e) => setGuestEmail(e.target.value)}
+                        placeholder="you@nexus.link"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs outline-none focus:border-primary transition-all font-medium"
+                      />
+                    </div>
+                    <button 
+                      disabled={!guestName.trim() || loading}
+                      onClick={() => initializeSupport({ name: guestName, email: guestEmail })}
+                      className="w-full py-4 bg-primary text-slate-950 rounded-xl font-black uppercase tracking-widest text-[10px] hover:translate-y-[-2px] active:translate-y-0 transition-all shadow-lg shadow-primary/20 disabled:opacity-40"
+                    >
+                      {loading ? <Loader2 size={16} className="animate-spin mx-auto" /> : "Establish Secure Uplink"}
+                    </button>
+                  </div>
+               </div>
+            </div>
+          )}
+
           {/* Messages Feed */}
           <div 
             ref={scrollRef}
@@ -248,8 +321,8 @@ export function SupportWidget() {
                 </button>
               </div>
             </div>
-            <p className="text-[8px] text-center text-on-surface-variant mt-3 font-black uppercase tracking-widest opacity-30">
-              End-to-End Secure Uplink Established
+            <p className="text-[8px] text-center text-on-surface-variant mt-3 font-black uppercase tracking-widest opacity-30 italic">
+               {(session?.user?.name || guestName || "GUEST")} @ NODE_SECURE_UPLLINK
             </p>
           </div>
         </GlassCard>

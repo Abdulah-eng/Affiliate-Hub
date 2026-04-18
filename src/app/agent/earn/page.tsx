@@ -671,6 +671,7 @@ export default function EarnPage() {
                              onClick={() => {
                                  setInteractionVisible(false);
                                  setIsVideoPaused(false);
+                                 setInteractionTimestamp(null);
                                  if (player && player.playVideo) player.playVideo();
                                  if (videoRef.current) videoRef.current.play();
                              }}
