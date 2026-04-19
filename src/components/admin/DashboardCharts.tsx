@@ -36,7 +36,7 @@ export const DashboardCharts = ({ data }: { data: AnalyticsData[] }) => {
               <Activity className="text-primary" size={20} />
               Traffic Analytics
             </h3>
-            <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-1">Platform Visit Velocity (Last 14 Days)</p>
+            <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mt-1">Platform Visit Velocity (Last 30 Days)</p>
           </div>
           <div className="px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
             <span className="text-[10px] font-black text-primary uppercase tracking-widest">Real-time Node Monitoring</span>

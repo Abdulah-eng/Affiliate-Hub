@@ -1,300 +1,387 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
   Wallet, 
-  ArrowRightLeft, 
   History, 
   CheckCircle2, 
   Clock, 
   XCircle,
   Loader2,
   AlertTriangle,
-  Landmark,
-  TrendingUp
+  Zap,
+  ShoppingBag,
+  ExternalLink,
+  Smartphone,
+  MapPin,
+  Trophy,
+  X
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { requestWithdrawal } from "@/app/actions/payouts";
 import { getAgentWallet } from "@/app/actions/wallet";
+import { getRedemptionProducts, submitRedemptionRequest } from "@/app/actions/redemptions";
+import Image from "next/image";
 
 export default function AgentWalletPage() {
-  const { data: session } = useSession();
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState({ pts: 0, gcash: 0 });
   const [transactions, setTransactions] = useState<any[]>([]);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
 
-  const [amount, setAmount] = useState<number>(100);
-  const [paymentMethod, setPaymentMethod] = useState("GCash");
-  const [paymentDetails, setPaymentDetails] = useState("");
+  // Form states for redemption
+  const [formName, setFormName] = useState("");
+  const [formPhone, setFormPhone] = useState("");
+  const [formAddress, setFormAddress] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
-      const data = await getAgentWallet();
-      if (data) {
-        setBalance({
-          pts: data.totalPoints,
-          gcash: data.totalGCash
-        });
-        setTransactions(data.transactions);
-        if (data.mobileNumber && !paymentDetails) {
-          setPaymentDetails(data.mobileNumber);
-        }
-        if (data.settings) {
-          setSettings(data.settings);
-        }
-      }
+    const [walletData, productData] = await Promise.all([
+      getAgentWallet(),
+      getRedemptionProducts()
+    ]);
+
+    if (walletData) {
+      setBalance({ pts: walletData.totalPoints, gcash: walletData.totalGCash });
+      setTransactions(walletData.transactions);
+      setFormName(walletData.name || "");
+      setFormPhone(walletData.mobileNumber || "");
+    }
+
+    if (productData.success) {
+      setProducts(productData.products || []);
+    }
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useEffect(() => { fetchData(); }, []);
 
-  const handleWithdraw = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (amount < 100) {
-      setError("Minimum withdrawal is 100 PTS.");
-      return;
-    }
-    if (amount > balance.pts + balance.gcash) {
-      setError("Insufficient balance.");
-      return;
-    }
-    if (!paymentDetails || paymentDetails.length < 5) {
-      setError("Invalid payment details.");
+  const handleClaim = () => {
+    if (!selectedProduct) return;
+    
+    if (!formName || !formPhone || (selectedProduct.type === "PRODUCT" && !formAddress)) {
+      setError("Please fill in all required fields.");
       return;
     }
 
-    setSubmitting(true);
-    setError(null);
-    setSuccess(false);
+    startTransition(async () => {
+      setError(null);
+      const res = await submitRedemptionRequest(selectedProduct.id, {
+        name: formName,
+        phone: formPhone,
+        address: formAddress
+      });
 
-    const res = await requestWithdrawal(amount, paymentMethod, paymentDetails);
-    setSubmitting(false);
-
-    if (res.success) {
-      setSuccess(true);
-      setAmount(100);
-      setPaymentDetails("");
-      fetchData(); // refresh data
-      setTimeout(() => setSuccess(false), 5000);
-    } else {
-      setError((res as any).error || "Failed to submit request");
-    }
+      if (res.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          setSelectedProduct(null);
+          fetchData();
+        }, 3000);
+      } else {
+        setError(res.error || "Failed to submit request");
+      }
+    });
   };
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
+      <div className="flex h-screen items-center justify-center bg-slate-950">
+        <div className="text-center space-y-4">
+          <Loader2 className="animate-spin text-primary mx-auto" size={48} />
+          <p className="text-primary font-black uppercase tracking-[0.3em] text-xs">Accessing Kinetic Vault...</p>
+        </div>
       </div>
     );
   }
 
-  const pendingWithdrawals = transactions.filter(t => t.type === "WITHDRAWAL_HOLD" && t.status === "PENDING");
-
   return (
-    <div className="animate-vapor max-w-5xl mx-auto space-y-10">
-      <div className="mb-10">
-        <h2 className="text-3xl md:text-4xl font-black font-headline text-on-surface tracking-tight uppercase italic relative inline-block">
-          Asset <span className="text-primary not-italic tracking-normal">Extraction</span>
-        </h2>
-        <p className="text-on-surface-variant font-medium mt-2">
-          Convert your kinetic points into real-world fiat liquidity across integrated finance providers.
-        </p>
+    <div className="animate-vapor max-w-7xl mx-auto space-y-12 pb-20 px-4 md:px-0">
+      {/* Header & Balance Cards */}
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20 flex items-center gap-2">
+              <Zap size={12} className="text-primary animate-pulse" /> Extraction Terminal Active
+            </span>
+          </div>
+          <h1 className="text-4xl lg:text-6xl font-black font-headline tracking-tighter text-on-surface uppercase italic leading-none">
+            Kinetic <span className="text-primary tracking-normal not-italic">Wallet</span>
+          </h1>
+          <p className="text-on-surface-variant max-w-2xl text-lg font-medium mt-6">
+            Convert your hard-earned points into elite hardware, digital assets, or direct fiat liquidity.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-auto">
+           <GlassCard className="p-6 bg-primary/5 border-primary/20 min-w-[240px] relative overflow-hidden group">
+              <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                <Wallet size={80} className="text-primary" />
+              </div>
+              <p className="text-[10px] font-black uppercase text-primary tracking-widest mb-1">Available Points</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-4xl font-black text-on-surface font-headline italic tracking-tighter">
+                  {balance.pts.toLocaleString()}
+                </h3>
+                <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">PTS</span>
+              </div>
+           </GlassCard>
+           
+           <GlassCard className="p-6 bg-emerald-500/5 border-emerald-500/20 min-w-[240px] relative overflow-hidden group">
+              <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                <ShoppingBag size={80} className="text-emerald-500" />
+              </div>
+              <p className="text-[10px] font-black uppercase text-emerald-500 tracking-widest mb-1">GCash Credit</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-4xl font-black text-on-surface font-headline italic tracking-tighter">
+                  {balance.gcash.toLocaleString()}
+                </h3>
+                <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">PHP</span>
+              </div>
+           </GlassCard>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Left Side: Request Form & Stats */}
-        <div className="lg:col-span-7 space-y-8">
-          <GlassCard className="p-8 border-primary/20 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuCHmXfJscU8CByK3tqYyM9eYOn-f5hIEx3Kz1G_W5e6J6wVn6z1n6wVn6z1n6wVn6z1n6wVn6z1')] bg-cover relative overflow-hidden group hover:shadow-[0_20px_50px_rgba(129,236,255,0.15)] transition-all">
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-0"></div>
-            <div className="absolute -right-10 top-0 opacity-10 rotate-12 group-hover:scale-125 transition-transform duration-1000 z-0 text-primary">
-              <Wallet size={160} />
-            </div>
-            
-            <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-              <div className="p-6 bg-primary/10 rounded-2xl border border-primary/20 backdrop-blur-md">
-                <p className="text-[10px] uppercase font-black tracking-[0.3em] text-primary mb-1">POINTS WALLET</p>
-                <div className="flex items-baseline gap-2">
-                  <h3 className="text-4xl font-black text-on-surface font-headline tracking-tighter">
-                    {balance.pts.toLocaleString()}
-                  </h3>
-                  <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">PTS</span>
-                </div>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        {/* Main Store Area */}
+        <div className="lg:col-span-8 space-y-10">
+          <div className="flex items-center justify-between border-b border-white/5 pb-6">
+             <h2 className="text-2xl font-black text-on-surface uppercase tracking-tight flex items-center gap-3">
+               <Trophy size={24} className="text-primary" /> Redemption Store
+             </h2>
+             <span className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant bg-white/5 px-4 py-1.5 rounded-full">
+               {products.length} Items Available
+             </span>
+          </div>
 
-              <div className="p-6 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 backdrop-blur-md relative overflow-hidden group/gcash">
-                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover/gcash:scale-110 transition-transform">
-                   <CheckCircle2 size={40} className="text-emerald-500" />
-                </div>
-                <p className="text-[10px] uppercase font-black tracking-[0.3em] text-emerald-500 mb-1">GCASH CREDIT</p>
-                <div className="flex items-baseline gap-2">
-                  <h3 className="text-4xl font-black text-on-surface font-headline tracking-tighter">
-                    {balance.gcash.toLocaleString()}
-                  </h3>
-                  <span className="text-xs font-black text-on-surface-variant uppercase tracking-widest">PHP</span>
-                </div>
-              </div>
-              
-              {pendingWithdrawals.length > 0 && (
-                <div className="sm:col-span-2 bg-amber-500/10 border border-amber-500/20 px-4 py-3 rounded-xl flex items-center gap-3 self-start">
-                  <Clock size={16} className="text-amber-400 animate-pulse shrink-0" />
-                  <div>
-                    <p className="text-[9px] uppercase font-black tracking-widest text-amber-500">Extraction Pending Audit</p>
-                    <p className="text-sm font-bold text-amber-400 mt-0.5">
-                       {pendingWithdrawals.reduce((sum, t) => sum + t.amount, 0).toLocaleString()} PTS / GCASH
-                    </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {products.map((product) => (
+              <GlassCard 
+                key={product.id} 
+                className="p-0 overflow-hidden group cursor-pointer hover:border-primary/40 transition-all flex flex-col"
+                onClick={() => setSelectedProduct(product)}
+              >
+                <div className="aspect-[4/3] relative bg-slate-900 overflow-hidden">
+                  {product.imageUrl ? (
+                    <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-primary/10 gap-2">
+                      <ShoppingBag size={80} />
+                      <span className="text-[10px] uppercase font-black tracking-widest opacity-40">Kinetic Gear</span>
+                    </div>
+                  )}
+                  <div className="absolute top-4 right-4 z-10">
+                    <span className="px-4 py-2 bg-slate-950/90 backdrop-blur-md rounded-xl text-sm font-black text-primary border border-primary/20 shadow-xl">
+                      {product.pointsCost.toLocaleString()} PTS
+                    </span>
                   </div>
-                </div>
-              )}
-            </div>
-
-            <form onSubmit={handleWithdraw} className="relative z-10 space-y-6 flex flex-col bg-slate-900/50 p-6 rounded-2xl border border-white/5">
-              <div className="flex items-center gap-2 mb-2">
-                <ArrowRightLeft size={16} className="text-primary" />
-                <h4 className="text-sm font-black uppercase tracking-tight text-on-surface">Extraction Protocol</h4>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Amount to Convert (Min 100 PTS)</label>
-                <div className="flex bg-surface-container-low rounded-xl overflow-hidden border border-white/10 focus-within:border-primary transition-colors">
-                  <span className="pl-4 py-3 text-sm font-bold text-on-surface-variant/50">PTS</span>
-                  <input 
-                    type="number" 
-                    min="100" 
-                    max={balance.pts + balance.gcash} 
-                    value={amount} 
-                    onChange={e => setAmount(Number(e.target.value))} 
-                    className="w-full bg-transparent border-none py-3 px-3 text-sm font-mono font-black text-on-surface outline-none"
-                  />
-                  <button type="button" onClick={() => setAmount(balance.pts + balance.gcash)} className="px-4 py-3 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest text-primary transition-colors border-l border-white/5">
-                    MAX
-                  </button>
-                </div>
-                {amount >= 100 && (
-                  <p className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-2 px-1 flex items-center gap-2">
-                    <TrendingUp size={12} /> Expected Credit: ≈ {Math.floor(amount / (settings['POINTS_TO_GCASH_RATE'] ? parseInt(settings['POINTS_TO_GCASH_RATE']) : 10))} PHP GCash
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Method</label>
-                  <div className="relative">
-                    <Landmark size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
-                    <select 
-                      value={paymentMethod}
-                      onChange={e => setPaymentMethod(e.target.value)}
-                      className="w-full bg-surface-container-low border border-white/10 rounded-xl py-3 pl-9 pr-4 text-sm font-bold text-on-surface outline-none focus:border-primary appearance-none cursor-pointer"
-                    >
-                      <option value="GCash">GCash</option>
-                      <option value="Maya">Maya</option>
-                      <option value="GoTyme Bank">GoTyme Bank</option>
-                    </select>
-                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Account Number</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. 09XX XXX XXXX"
-                    value={paymentDetails}
-                    onChange={e => setPaymentDetails(e.target.value)}
-                    className="w-full bg-surface-container-low border border-white/10 rounded-xl py-3 px-4 text-sm font-mono focus:border-primary outline-none transition-colors"
-                  />
+                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                       <span className={cn(
+                         "text-[8px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded border",
+                         product.type === "GCASH" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10" : "border-primary/30 text-primary bg-primary/10"
+                       )}>
+                         {product.type}
+                       </span>
+                    </div>
+                    <h3 className="text-xl font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">{product.name}</h3>
+                    <p className="text-sm text-on-surface-variant font-medium mt-2 line-clamp-2 leading-relaxed opacity-70">
+                      {product.description}
+                    </p>
+                  </div>
+                  
+                  <button className="w-full py-3 bg-white/5 hover:bg-primary text-on-surface hover:text-background rounded-xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center justify-center gap-2 border border-white/10 group-hover:border-primary/50">
+                    Redeem Item <ExternalLink size={14} />
+                  </button>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+
+        {/* Ledger Column */}
+        <div className="lg:col-span-4 space-y-8">
+           <GlassCard className="p-0 overflow-hidden flex flex-col h-[700px]">
+              <div className="p-8 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                   <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
+                     <History size={20} />
+                   </div>
+                   <h3 className="text-lg font-black text-on-surface uppercase tracking-tight">Ledger</h3>
                 </div>
               </div>
 
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/20 p-3 rounded-lg flex items-center gap-3 text-red-400 text-xs font-bold">
-                  <AlertTriangle size={14} className="shrink-0" /> {error}
-                </div>
-              )}
-              {success && (
-                <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg flex items-center gap-3 text-emerald-400 text-xs font-bold">
-                  <CheckCircle2 size={14} className="shrink-0" /> Request submitted to Nexus Admin for review.
-                </div>
-              )}
+              <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4">
+                {transactions.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center opacity-20 text-center space-y-4">
+                     <History size={48} />
+                     <p className="text-xs font-black uppercase tracking-[0.2em]">Transaction Logs Empty</p>
+                  </div>
+                ) : (
+                  transactions.map((t) => {
+                    const isPositive = t.amount > 0 && t.type !== "REDEMPTION" && t.status !== "PENDING";
+                    let Icon = CheckCircle2;
+                    let color = "text-emerald-400";
+                    if (t.status === "PENDING") { Icon = Clock; color = "text-amber-400"; }
+                    if (t.status === "REJECTED") { Icon = XCircle; color = "text-red-400"; }
 
-              <button 
-                type="submit" 
-                disabled={submitting || (balance.pts + balance.gcash) < 100}
-                className="w-full bg-primary text-slate-950 py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] hover:shadow-[0_0_30px_rgba(129,236,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 mt-4"
-              >
-                {submitting ? <Loader2 className="animate-spin" size={16} /> : "Initiate Extraction"}
-              </button>
-            </form>
-          </GlassCard>
-        </div>
-
-        {/* Right Side: Ledger */}
-        <div className="lg:col-span-5 h-[600px] flex flex-col">
-          <GlassCard className="h-full flex flex-col overflow-hidden">
-            <div className="p-6 border-b border-white/5 flex items-center gap-3 shrink-0 bg-surface-container-low/50">
-              <History size={18} className="text-on-surface-variant" />
-              <h3 className="font-headline font-black text-on-surface uppercase tracking-tight text-lg">Transaction Ledger</h3>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-4">
-              {transactions.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-                  <History size={32} className="mb-3" />
-                  <p className="text-[10px] font-black uppercase tracking-widest">Ledger Empty</p>
-                </div>
-              ) : (
-                transactions.map((t) => {
-                  const isPositive = t.amount > 0 && t.type !== "WITHDRAWAL_HOLD" && t.type !== "REDEMPTION";
-                  
-                  let StatusIcon = CheckCircle2;
-                  let statusColor = "text-emerald-400";
-                  if (t.status === "PENDING") { StatusIcon = Clock; statusColor = "text-amber-400"; }
-                  if (t.status === "REJECTED" || t.status === "FLAGGED") { StatusIcon = XCircle; statusColor = "text-red-400"; }
-
-                  return (
-                    <div key={t.id} className="flex items-center justify-between p-4 rounded-2xl bg-surface-container border border-white/5 hover:bg-white/[0.03] transition-colors">
-                      <div className="flex gap-4 items-center">
-                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border", isPositive ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20")}>
-                          <StatusIcon size={16} className={statusColor} />
+                    return (
+                      <div key={t.id} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:bg-white/[0.05] transition-all">
+                        <div className="flex items-center gap-4">
+                           <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border", isPositive ? "bg-emerald-500/10 border-emerald-500/20" : "bg-red-500/10 border-red-500/20")}>
+                              <Icon size={16} className={color} />
+                           </div>
+                           <div className="min-w-0">
+                              <p className="text-[10px] font-black uppercase tracking-tight text-on-surface truncate">{t.type.replace(/_/g, ' ')}</p>
+                              <p className="text-[9px] font-bold text-on-surface-variant/40 mt-1">{new Date(t.createdAt).toLocaleDateString()}</p>
+                           </div>
                         </div>
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-tight text-on-surface">{t.type.replace(/_/g, ' ')}</p>
-                          <p className="text-[10px] font-bold text-on-surface-variant/50 max-w-[150px] truncate">{t.description || "System transaction"}</p>
-                          <p className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/40 mt-1">
-                            {new Date(t.createdAt).toLocaleDateString()}
-                          </p>
+                        <div className="text-right">
+                           <p className={cn("text-xs font-black font-mono", isPositive ? "text-emerald-400" : "text-on-surface")}>
+                             {isPositive ? "+" : ""}{t.amount} {t.currency}
+                           </p>
+                           <span className={cn("text-[8px] font-black uppercase tracking-widest mt-1 inline-block", color)}>
+                             {t.status}
+                           </span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className={cn("text-sm font-black font-mono", isPositive || t.status === "REJECTED" ? "text-emerald-400" : "text-on-surface")}>
-                          {isPositive || t.status === "REJECTED" ? "+" : "-"}{t.amount} {t.currency || 'PTS'}
-                        </p>
-                        <span className={cn("text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border mt-1 inline-block",
-                          t.status === "COMPLETED" ? "border-emerald-500/30 text-emerald-500 bg-emerald-500/10" :
-                          t.status === "PENDING" ? "border-amber-500/30 text-amber-500 bg-amber-500/10" :
-                          "border-red-500/30 text-red-500 bg-red-500/10"
-                        )}>
-                          {t.status}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </GlassCard>
+                    );
+                  })
+                )}
+              </div>
+           </GlassCard>
         </div>
-        
       </div>
+
+      {/* Redemption Modal */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
+           <GlassCard className="max-w-2xl w-full p-0 overflow-hidden animate-vapor my-auto shadow-[0_0_100px_rgba(129,236,255,0.1)]">
+              <div className="relative aspect-video bg-slate-900 border-b border-white/10">
+                 {selectedProduct.imageUrl ? (
+                   <Image src={selectedProduct.imageUrl} alt={selectedProduct.name} fill className="object-cover" />
+                 ) : (
+                   <div className="w-full h-full flex items-center justify-center text-primary/10">
+                     <ShoppingBag size={120} />
+                   </div>
+                 )}
+                 <button 
+                  onClick={() => { setSelectedProduct(null); setError(null); }}
+                  className="absolute top-6 right-6 p-3 rounded-full bg-slate-950/60 hover:bg-slate-950 text-white transition-all z-20"
+                 >
+                   <X size={20} />
+                 </button>
+                 <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent">
+                    <span className="px-3 py-1 bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded border border-primary/20">{selectedProduct.type}</span>
+                    <h2 className="text-3xl font-black text-on-surface uppercase tracking-tight mt-2">{selectedProduct.name}</h2>
+                 </div>
+              </div>
+
+              <div className="p-8 space-y-8">
+                 <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/20">
+                    <div>
+                       <p className="text-[10px] font-black uppercase text-primary tracking-widest">Protocol Cost</p>
+                       <p className="text-2xl font-black text-on-surface font-mono">{selectedProduct.pointsCost.toLocaleString()} PTS</p>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Your Balance</p>
+                       <p className={cn("text-2xl font-black font-mono", balance.pts >= selectedProduct.pointsCost ? "text-emerald-400" : "text-red-400")}>
+                        {balance.pts.toLocaleString()} PTS
+                       </p>
+                    </div>
+                 </div>
+
+                 {success ? (
+                   <div className="py-12 flex flex-col items-center text-center space-y-6">
+                      <div className="w-20 h-20 rounded-full bg-emerald-500 text-background flex items-center justify-center shadow-[0_0_40px_rgba(16,185,129,0.4)] animate-bounce">
+                        <CheckCircle2 size={40} />
+                      </div>
+                      <div>
+                        <h3 className="text-2xl font-black text-emerald-400 uppercase tracking-tight">Request Transmitted</h3>
+                        <p className="text-sm text-on-surface-variant font-medium mt-2">Our Nexus Admin will verify the extraction protocol shortly.</p>
+                      </div>
+                   </div>
+                 ) : (
+                   <div className="space-y-6">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant border-b border-white/5 pb-2">Verification Credentials</p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                         <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Full Name</label>
+                            <input 
+                              type="text" 
+                              value={formName}
+                              onChange={e => setFormName(e.target.value)}
+                              placeholder="Full Name"
+                              className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-sm font-bold focus:border-primary outline-none transition-all"
+                            />
+                         </div>
+                         <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Phone / GCash Number</label>
+                            <div className="relative">
+                               <Smartphone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+                               <input 
+                                type="text" 
+                                value={formPhone}
+                                onChange={e => setFormPhone(e.target.value)}
+                                placeholder="09XX XXX XXXX"
+                                className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm font-mono focus:border-primary outline-none transition-all"
+                               />
+                            </div>
+                         </div>
+                      </div>
+
+                      {selectedProduct.type === "PRODUCT" && (
+                        <div className="space-y-2 animate-in slide-in-from-bottom-2 duration-500">
+                          <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Shipping Address</label>
+                          <div className="relative">
+                             <MapPin size={16} className="absolute left-4 top-4 text-on-surface-variant" />
+                             <textarea 
+                               value={formAddress}
+                               onChange={e => setFormAddress(e.target.value)}
+                               placeholder="Street, Barangay, City, Province, Zip Code"
+                               rows={3}
+                               className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm font-medium focus:border-primary outline-none transition-all resize-none"
+                             />
+                          </div>
+                        </div>
+                      )}
+
+                      {error && (
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-xs font-bold animate-pulse">
+                          <AlertTriangle size={18} /> {error}
+                        </div>
+                      )}
+
+                      <button 
+                        onClick={handleClaim}
+                        disabled={balance.pts < selectedProduct.pointsCost || isPending}
+                        className={cn(
+                          "w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-sm transition-all flex items-center justify-center gap-3 shadow-2xl",
+                          balance.pts >= selectedProduct.pointsCost 
+                            ? "bg-primary text-background hover:scale-[1.02] active:scale-[0.98] shadow-primary/20" 
+                            : "bg-white/5 text-on-surface-variant/20 border border-white/5 cursor-not-allowed"
+                        )}
+                      >
+                        {isPending ? <Loader2 size={24} className="animate-spin" /> : <Zap size={20} />}
+                        {isPending ? "TRANSMITTING..." : balance.pts >= selectedProduct.pointsCost ? "INITIATE EXTRACTION" : "INSUFFICIENT POINTS"}
+                      </button>
+                   </div>
+                 )}
+              </div>
+           </GlassCard>
+        </div>
+      )}
     </div>
   );
 }

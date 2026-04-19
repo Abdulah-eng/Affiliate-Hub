@@ -24,10 +24,10 @@ export async function recordVisit(path: string) {
 
 export async function getGrowthAnalytics() {
   try {
-    // Last 14 days
+    // Last 30 days
     const endDate = new Date();
     const startDate = new Date();
-    startDate.setDate(startDate.getDate() - 13);
+    startDate.setDate(startDate.getDate() - 29);
     startDate.setHours(0, 0, 0, 0);
 
     const [visits, kycs] = await Promise.all([
@@ -48,8 +48,8 @@ export async function getGrowthAnalytics() {
     // Group by Date (YYYY-MM-DD)
     const analyticsMap: Record<string, { date: string, visits: number, kycs: number }> = {};
     
-    // Initialize all 14 days with zero
-    for (let i = 0; i < 14; i++) {
+    // Initialize all 30 days with zero
+    for (let i = 0; i < 30; i++) {
       const d = new Date(startDate);
       d.setDate(d.getDate() + i);
       const dateStr = d.toISOString().split('T')[0];
@@ -116,5 +116,30 @@ export async function getLiveInsights() {
       success: false,
       data: { totalVolume: 0, activeNodes: 0, linkedPlatforms: 0 }
     };
+  }
+}
+
+export async function getVisitorGrowth() {
+  try {
+    const stats = await prisma.visitorStat.findMany({
+      where: { timestamp: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+      orderBy: { timestamp: 'asc' }
+    });
+    return stats;
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function getKycSignupGrowth() {
+  try {
+    const users = await prisma.user.findMany({
+      where: { createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+      select: { createdAt: true },
+      orderBy: { createdAt: 'asc' }
+    });
+    return users;
+  } catch (error) {
+    return [];
   }
 }

@@ -58,8 +58,8 @@ export async function getAgentHeaderStats() {
       prisma.userTaskProgress.count({
         where: { userId, status: "COMPLETED" }
       }),
-      prisma.platformAccess.count({
-        where: { userId, status: "APPROVED" }
+      prisma.user.count({
+        where: { referrerId: userId }
       }),
       prisma.user.findUnique({
         where: { id: userId },

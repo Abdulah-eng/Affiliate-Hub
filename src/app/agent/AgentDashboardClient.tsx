@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { GlassCard } from "@/components/ui/GlassCard";
 import {
   BarChart3,
@@ -302,7 +303,14 @@ export default function AgentDashboardClient({
                         )}
                       >
                         {platform.brandLogo ? (
-                          <img src={platform.brandLogo} alt={platform.brandName} className="w-full h-full object-contain p-2" />
+                          <div className="relative w-full h-full p-2">
+                            <Image 
+                              src={platform.brandLogo} 
+                              alt={platform.brandName} 
+                              fill
+                              className="object-contain" 
+                            />
+                          </div>
                         ) : (
                           <span className={cn("text-xl font-black uppercase", 
                             color === "primary" ? "text-primary" : color === "secondary" ? "text-secondary" : "text-tertiary"

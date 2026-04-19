@@ -672,10 +672,22 @@ export default function EarnPage() {
                                  setInteractionVisible(false);
                                  setIsVideoPaused(false);
                                  setInteractionTimestamp(null);
-                                 if (player && player.playVideo) player.playVideo();
-                                 if (videoRef.current) videoRef.current.play();
+                                 
+                                 // Resume YouTube
+                                 if (player && player.playVideo) {
+                                   try {
+                                     player.playVideo();
+                                   } catch (e) {
+                                     console.error("YT Resume Error:", e);
+                                   }
+                                 }
+                                 
+                                 // Resume HTML5 Video
+                                 if (videoRef.current) {
+                                   videoRef.current.play().catch(err => console.error("HTML5 Resume Error:", err));
+                                 }
                              }}
-                             className="px-12 py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 transition-all"
+                             className="px-12 py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-[0.2em] shadow-[0_0_30px_rgba(129,236,255,0.4)] hover:scale-105 transition-all active:scale-95"
                          >
                              Continue Mission
                          </button>

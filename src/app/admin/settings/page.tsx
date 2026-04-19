@@ -1,315 +1,137 @@
 "use client";
 
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useState, useTransition } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
-  Settings, 
-  ShieldAlert, 
-  Zap, 
-  Database, 
-  TrendingUp, 
-  Users, 
-  MessageSquare, 
-  Clock, 
-  BarChart2, 
-  Save, 
-  RotateCcw,
-  ShieldCheck,
-  BrainCircuit,
-  Lock,
-  ChevronRight,
-  Loader2
+  ShieldCheck, 
+  Lock, 
+  Key, 
+  Loader2, 
+  AlertTriangle, 
+  CheckCircle2,
+  ShieldAlert
 } from "lucide-react";
-import { cn } from '@/lib/utils';
-import { getSystemSettings, updateSystemSettings, updateAdminPassword } from '@/app/actions/admin';
+import { updateAdminPassword } from "@/app/actions/admin";
+import { cn } from "@/lib/utils";
 
 export default function AdminSettingsPage() {
-  const [settings, setSettings] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
-  const [saveSuccess, setSaveSuccess] = useState(false);
-  const [pwPending, startPwTransition] = useTransition();
-  const [pwSuccess, setPwSuccess] = useState(false);
-  const [pwError, setPwError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const fetchSettings = async () => {
-    setLoading(true);
-    const data = await getSystemSettings();
-    const settingsMap = data.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
-    setSettings(settingsMap);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const handleDeploy = () => {
-    startTransition(async () => {
-      const res = await updateSystemSettings(settings);
-      if (res.success) {
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
-      }
-    });
-  };
-
-  const updateVal = (key: string, val: string) => {
-    setSettings(prev => ({ ...prev, [key]: val }));
-  };
-
-  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setPwError(null);
+    setError(null);
+    setSuccess(false);
+
     const formData = new FormData(e.currentTarget);
     
-    startPwTransition(async () => {
+    startTransition(async () => {
       const res = await updateAdminPassword(formData);
       if (res.success) {
-        setPwSuccess(true);
+        setSuccess(true);
         (e.target as HTMLFormElement).reset();
-        setTimeout(() => setPwSuccess(false), 3000);
       } else {
-        setPwError(res.error || "Failed to update password");
+        setError(res.error || "Execution failed");
       }
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="animate-spin text-primary" size={32} />
-      </div>
-    );
-  }
-
   return (
-    <div className="animate-vapor">
-      {/* Page Header */}
-      <div className="mb-10">
-        <div className="flex items-center gap-3 mb-4">
-          <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">System Economy HUD</span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
-          Vault <span className="text-primary tracking-normal">Configuration</span>
+    <div className="space-y-12 animate-vapor max-w-4xl">
+      <div>
+        <h1 className="text-4xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
+          Nexus <span className="text-primary tracking-normal not-italic">Settings</span>
         </h1>
-        <p className="text-on-surface-variant max-w-2xl text-lg font-medium mt-4">
-          Manage the algorithmic core of Affiliate Hub PH gamification. Adjust point velocities, conversion weights, and moderation protocols.
+        <p className="text-on-surface-variant max-w-xl text-lg font-medium mt-2">
+          Manage administrative credentials and security protocols.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        
-        {/* Main Config Column */}
-        <div className="lg:col-span-8 space-y-10">
-          
-          {/* Allocation Rules */}
-          <GlassCard className="p-10 border-primary/5 bg-surface-container-low/20">
-            <div className="flex justify-between items-end mb-10">
-              <div>
-                <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight font-headline">Allocation Rules</h3>
-                <p className="text-sm text-on-surface-variant font-medium mt-1">Set point velocity for user activities.</p>
+      <div className="grid grid-cols-1 gap-10">
+        <GlassCard className="p-8 border-primary/10 overflow-hidden relative">
+           <div className="absolute -right-10 -top-10 opacity-5 rotate-12 pointer-events-none">
+              <ShieldCheck size={200} className="text-primary" />
+           </div>
+           
+           <div className="relative z-10 space-y-8">
+              <div className="flex items-center gap-4">
+                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                    <Lock size={24} />
+                 </div>
+                 <h3 className="text-xl font-black text-on-surface uppercase tracking-tight">Security Protocol Update</h3>
               </div>
-              <button 
-                onClick={fetchSettings}
-                className="text-[9px] font-black text-primary px-5 py-2 border border-primary/20 rounded-full hover:bg-primary/10 transition-all uppercase tracking-widest"
-              >
-                Revert Defaults
-              </button>
-            </div>
 
-            <div className="space-y-6">
-              {[
-                { key: 'POINTS_REFERRAL', label: 'New Referral', desc: 'Points per successful node propagates', icon: <Users size={20} />, color: 'primary' },
-                { key: 'POINTS_CHAT', label: 'Chat Engagement', desc: 'Points per high-quality message node', icon: <MessageSquare size={20} />, color: 'secondary' },
-                { key: 'POINTS_DAILY', label: 'Daily Session', desc: 'Reward for daily vault synchronization', icon: <Clock size={20} />, color: 'tertiary' }
-              ].map((item, idx) => (
-                <div key={idx} className="p-6 rounded-2xl bg-surface-container-high/40 border border-white/5 flex items-center justify-between group hover:border-primary/20 transition-all">
-                  <div className="flex items-center gap-5">
-                    <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center border transition-transform group-hover:scale-110",
-                      item.color === 'primary' ? "bg-primary/10 text-primary border-primary/20" : 
-                      item.color === 'secondary' ? "bg-secondary/10 text-secondary border-secondary/20" : 
-                      "bg-tertiary/10 text-tertiary border-tertiary/20"
-                    )}>
-                      {item.icon}
+              <form onSubmit={handleSubmit} className="space-y-6 max-w-lg">
+                 <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Current Password</label>
+                    <div className="relative">
+                       <Key size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+                       <input 
+                         name="currentPassword"
+                         type="password" 
+                         required
+                         className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm font-mono focus:border-primary outline-none transition-all"
+                       />
                     </div>
-                    <div>
-                      <p className="font-black text-on-surface text-base uppercase tracking-tight">{item.label}</p>
-                      <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mt-1 opacity-60">{item.desc}</p>
+                 </div>
+
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant ml-1">New Terminal Secret</label>
+                       <input 
+                         name="newPassword"
+                         type="password" 
+                         required
+                         className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-sm font-mono focus:border-primary outline-none transition-all"
+                       />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                     <input 
-                       type="number" 
-                       value={settings[item.key] || "0"} 
-                       onChange={(e) => updateVal(item.key, e.target.value)}
-                       className="w-24 bg-slate-900 border-white/10 rounded-xl px-4 py-3 text-sm font-black text-primary text-center focus:ring-primary focus:border-primary outline-none" 
-                     />
-                     <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">PTS</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Confirm Secret</label>
+                       <input 
+                         name="confirmPassword"
+                         type="password" 
+                         required
+                         className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-sm font-mono focus:border-primary outline-none transition-all"
+                       />
+                    </div>
+                 </div>
 
-            <button 
-              onClick={handleDeploy}
-              disabled={isPending}
-              className={cn(
-                "w-full mt-12 py-5 font-black uppercase tracking-[0.3em] rounded-2xl transition-all active:scale-95 text-[11px] flex items-center justify-center gap-3",
-                saveSuccess 
-                  ? "bg-emerald-500 text-background shadow-[0_0_30px_rgba(16,185,129,0.3)]" 
-                  : "bg-primary text-background shadow-[0_0_30px_rgba(129,236,255,0.3)] hover:shadow-[0_0_50px_rgba(129,236,255,0.5)]"
-              )}
-            >
-              {isPending ? <Loader2 className="animate-spin" size={18} /> : saveSuccess ? <ShieldCheck size={18} /> : <Save size={18} />}
-              {saveSuccess ? "Configuration Deployed" : "Deploy Allocation Rules"}
-            </button>
-          </GlassCard>
+                 {error && (
+                   <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-xs font-bold animate-pulse">
+                      <ShieldAlert size={18} /> {error}
+                   </div>
+                 )}
 
-          {/* Reward Conversion Rates */}
-          <GlassCard className="p-10 border-emerald-500/20 bg-emerald-500/[0.02]">
-            <div className="mb-10">
-              <h3 className="text-2xl font-black text-on-surface uppercase tracking-tight font-headline">Reward Conversion Rates</h3>
-              <p className="text-sm text-on-surface-variant font-medium mt-1">Configure the exchange rate between Points and GCash Credit.</p>
-            </div>
+                 {success && (
+                   <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3 text-emerald-400 text-xs font-bold">
+                      <CheckCircle2 size={18} /> Password successfully synchronized across the network.
+                   </div>
+                 )}
 
-            <div className="space-y-6">
-              <div className="p-6 rounded-2xl bg-surface-container-high/40 border border-white/5 flex items-center justify-between group hover:border-emerald-500/20 transition-all">
-                <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center">
-                    <TrendingUp size={20} />
-                  </div>
-                  <div>
-                    <p className="font-black text-on-surface text-base uppercase tracking-tight">GCash Liquidity Rate</p>
-                    <p className="text-[10px] text-on-surface-variant font-bold uppercase tracking-widest mt-1 opacity-60">Amount of PTS required per 1 PHP GCash</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center bg-slate-900 rounded-xl px-4 py-2 border border-white/10 focus-within:border-emerald-500 transition-all">
-                    <input 
-                      type="number" 
-                      value={settings['POINTS_TO_GCASH_RATE'] || settings['points_to_gcash_rate'] || "10"} 
-                      onChange={(e) => updateVal('POINTS_TO_GCASH_RATE', e.target.value)}
-                      className="w-16 bg-transparent text-sm font-black text-emerald-500 text-center outline-none" 
-                    />
-                    <span className="mx-2 text-on-surface-variant/40">PTS</span>
-                    <ChevronRight size={14} className="text-on-surface-variant/40 mx-1" />
-                    <span className="text-sm font-black text-emerald-500 ml-2">1.00 PHP</span>
-                  </div>
-                </div>
+                 <button 
+                   type="submit"
+                   disabled={isPending}
+                   className="px-12 py-5 bg-primary text-background rounded-2xl font-black uppercase tracking-[0.2em] text-xs hover:scale-[1.05] active:scale-[0.95] transition-all shadow-[0_0_30px_rgba(129,236,255,0.3)] disabled:opacity-50"
+                 >
+                   {isPending ? <Loader2 className="animate-spin" /> : "Deploy Updates"}
+                 </button>
+              </form>
+           </div>
+        </GlassCard>
+
+        <GlassCard className="p-8 border-white/5 bg-white/[0.02]">
+           <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant">
+                 <ShieldCheck size={20} />
               </div>
-            </div>
-            
-            <p className="mt-4 text-[10px] text-on-surface-variant italic opacity-60 flex items-center gap-2">
-              <ShieldAlert size={12} className="text-emerald-500" /> Standard Protocol: 1,000 PTS = 100 PHP (Rate: 10)
-            </p>
-          </GlassCard>
-        </div>
-
-        {/* Side Column: Security & Campaigns */}
-        <div className="lg:col-span-4 space-y-10">
-          <GlassCard className="p-10 border-red-500/20 bg-red-500/[0.01] shadow-2xl">
-            <div className="flex items-center gap-4 mb-10">
-              <div className="p-3 bg-red-500/10 text-red-500 rounded-2xl border border-red-500/20">
-                <BrainCircuit size={24} />
-              </div>
-              <h3 className="text-lg font-black text-on-surface uppercase tracking-tight">Sentinel V2</h3>
-            </div>
-            
-            <div className="space-y-8">
-              <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
-                <div>
-                  <p className="text-sm font-black text-on-surface uppercase tracking-tight">AI Moderation</p>
-                  <p className="text-xs text-on-surface-variant font-medium">Automatic Fraud Detection</p>
-                </div>
-                <button 
-                  onClick={() => updateVal('SENTINEL_V2_ENABLED', settings['SENTINEL_V2_ENABLED'] === 'true' ? 'false' : 'true')}
-                  className={cn(
-                    "w-12 h-6 rounded-full flex items-center px-1 transition-colors duration-300",
-                    settings['SENTINEL_V2_ENABLED'] === 'true' 
-                      ? "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]" 
-                      : "bg-surface-container-high border border-outline-variant/30"
-                  )}
-                >
-                  <div className={cn(
-                    "w-4 h-4 bg-white rounded-full transition-all duration-300",
-                    settings['SENTINEL_V2_ENABLED'] === 'true' ? "ml-auto" : "mr-auto bg-on-surface-variant"
-                  )} />
-                </button>
-              </div>
-            </div>
-          </GlassCard>
-          
-          <div className="p-8 rounded-3xl bg-slate-950 border border-white/5 flex flex-col gap-6">
-             <div className="flex items-center gap-4">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_#10b981]" />
-                <span className="text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em]">Vault Service Status: Optimal</span>
-             </div>
-          </div>
-
-          <GlassCard className="p-10 border-primary/20 bg-surface-container-low/40">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="p-3 bg-primary/10 text-primary rounded-2xl border border-primary/20">
-                <Lock size={20} />
-              </div>
-              <h3 className="text-lg font-black text-on-surface uppercase tracking-tight">Account Security</h3>
-            </div>
-
-            <form onSubmit={handlePasswordChange} className="space-y-6">
-              <div className="space-y-4">
-                <label className="block">
-                  <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Current Password</span>
-                  <input 
-                    name="currentPassword"
-                    type="password" 
-                    required
-                    className="w-full mt-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-primary focus:border-primary outline-none transition-all" 
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">New Password</span>
-                  <input 
-                    name="newPassword"
-                    type="password" 
-                    required
-                    className="w-full mt-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-primary focus:border-primary outline-none transition-all" 
-                  />
-                </label>
-                <label className="block">
-                  <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Confirm New Password</span>
-                  <input 
-                    name="confirmPassword"
-                    type="password" 
-                    required
-                    className="w-full mt-2 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-primary focus:border-primary outline-none transition-all" 
-                  />
-                </label>
-              </div>
-
-              {pwError && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-[10px] font-bold uppercase tracking-widest">
-                  {pwError}
-                </div>
-              )}
-
-              {pwSuccess && (
-                <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                  <ShieldCheck size={14} /> Password Updated Successfully
-                </div>
-              )}
-
-              <button 
-                type="submit"
-                disabled={pwPending}
-                className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-[11px] hover:shadow-[0_0_20px_rgba(129,236,255,0.3)] transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
-              >
-                {pwPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                Update Security Credentials
-              </button>
-            </form>
-          </GlassCard>
-        </div>
+              <h3 className="text-lg font-black text-on-surface uppercase tracking-tight">Access Level</h3>
+           </div>
+           <p className="text-sm text-on-surface-variant leading-relaxed">
+              You are currently authenticated as an <span className="text-primary font-black">Authorized Administrative Operative</span>. 
+              Ensure all terminal sessions are concluded in a secure environment. Unauthorized access to the Nexus will trigger a global lockdown.
+           </p>
+        </GlassCard>
       </div>
     </div>
   );

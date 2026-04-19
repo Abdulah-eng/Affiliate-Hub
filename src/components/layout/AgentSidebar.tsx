@@ -16,6 +16,7 @@ import {
   Shield,
   Wallet,
   Rocket,
+  Zap,
   Gamepad2,
   ChevronDown,
   ChevronUp
@@ -36,10 +37,11 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
 
   const MAIN_MENU = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/agent' },
+    { name: 'Leaderboard', icon: <Trophy size={20} />, href: '/agent/leaderboard' },
     { name: 'Brand Nexus', icon: <Rocket size={20} />, href: '/agent/platforms' },
     { name: 'Wallet', icon: <Wallet size={20} />, href: '/agent/wallet' },
     { name: 'Referrals', icon: <Users size={20} />, href: '/agent/referrals' },
-    { name: 'Earn', icon: <Trophy size={20} />, href: '/agent/earn' },
+    { name: 'Earn', icon: <Zap size={20} />, href: '/agent/earn' },
     { name: 'Nexus Feed', icon: <MessageSquare size={20} />, href: '/agent/chat' },
   ];
 

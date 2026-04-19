@@ -26,7 +26,7 @@ export async function getAgentWallet() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { mobileNumber: true }
+    select: { mobileNumber: true, name: true }
   });
 
   return {
@@ -34,6 +34,7 @@ export async function getAgentWallet() {
     totalGCash,
     transactions,
     mobileNumber: user?.mobileNumber || "",
+    name: user?.name || "",
     settings
   };
 }

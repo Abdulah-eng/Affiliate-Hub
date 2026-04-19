@@ -107,6 +107,52 @@ model Notification {
   createdAt DateTime @default(now())
 }
 
+// Redemption System
+model RedemptionProduct {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  pointsCost  Int
+  type        String   @default("PRODUCT") // GCASH, PRODUCT, RAFFLE_PRIZE
+  imageUrl    String?
+  stock       Int      @default(-1) // -1 for unlimited
+  isActive    Boolean  @default(true)
+  
+  requests    RedemptionRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RedemptionRequest {
+  id                 String   @id @default(cuid())
+  userId             String
+  productId          String?
+  verificationDetails Json?    // Address, Phone, etc.
+  status             String   @default("PENDING") // PENDING, APPROVED, REJECTED, SHIPPED
+  adminNotes         String?  @db.Text
+  pointsDeducted     Int?     // Stored at time of approval/deduction
+
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product RedemptionProduct? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Manual Leaderboard Data
+model LeaderboardEntry {
+  id        String   @id @default(cuid())
+  category  String   // TOP_PLAYERS, TOP_VTO, TOP_COMMISSION
+  rank      Int
+  name      String
+  value     String   // The performance value (e.g. "50,000", "85%")
+  brandName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Agent withdrawal/payout requests
 model Withdrawal {
   id             String   @id @default(cuid())
@@ -291,6 +337,7 @@ model User {
   promoSubmissions  PromoSubmission[]
   platforms         PlatformAccess[]
   supportTickets    SupportTicket[]
+  redemptionRequests RedemptionRequest[]
 
   // Security Tracking
   registrationIp String?

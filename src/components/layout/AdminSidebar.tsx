@@ -42,6 +42,8 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
 
   const ALL_MENU_ITEMS = [
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Leaderboard', icon: <Trophy size={18} />, href: '/admin/leaderboard', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Redemptions', icon: <CreditCard size={18} />, href: '/admin/redemptions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingKyc },
     { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingMissions },
@@ -54,7 +56,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit', roles: ['ADMIN', 'SEMI_ADMIN'] },
-    { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN', 'SEMI_ADMIN'] },
+    { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN', 'SEMI_ADMIN', 'CSR'] },
   ];
 
   const MENU_ITEMS = ALL_MENU_ITEMS.filter(item => item.roles.includes(session?.user?.role || ''));

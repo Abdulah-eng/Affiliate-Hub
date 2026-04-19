@@ -26,6 +26,7 @@ import {
   X
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { submitKycApplication } from "@/app/actions/auth";
@@ -260,11 +261,14 @@ function ApplyPageContent() {
     <div className="min-h-screen bg-background text-on-surface font-body selection:bg-primary/30">
       <header className="fixed top-0 right-0 w-full h-24 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8">
         <div className="flex items-center gap-20">
-          <Link href="/" className="relative h-20 w-48 flex items-center justify-center ml-12">
-            <img 
+          <Link href="/" className="relative h-20 w-48 flex items-center justify-center">
+            <Image 
               src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
               alt="Logo" 
-              className="absolute max-w-none h-32 w-auto object-contain scale-[2.25] -translate-x-4" 
+              width={160}
+              height={80}
+              className="object-contain h-full w-auto" 
+              priority
             />
           </Link>
         </div>

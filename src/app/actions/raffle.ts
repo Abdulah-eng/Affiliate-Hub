@@ -80,15 +80,30 @@ export async function spinStandardRaffle() {
         description: "Standard Raffle Spin Entry"
       }
     }),
-    ...(winner.val > 0 || winner.type === "MANUAL" ? [
+    ...(winner.val > 0 && winner.type === "POINTS" ? [
       prisma.pointTransaction.create({
         data: {
           userId,
-          amount: winner.type === "POINTS" ? winner.val : 0,
-          currency: winner.type === "GCASH" ? "GCASH" : "PTS",
+          amount: winner.val,
+          currency: "PTS",
           type: "RAFFLE_WIN",
-          status: winner.type === "MANUAL" ? "PENDING" : "COMPLETED",
+          status: "COMPLETED",
           description: `Standard Raffle Win: ${winner.label}`
+        }
+      })
+    ] : []),
+    // Create Redemption Request for non-point wins
+    ...(winner.type === "GCASH" || winner.type === "MANUAL" ? [
+      prisma.redemptionRequest.create({
+        data: {
+          userId,
+          productId: "RAFFLE_WIN_" + winner.type, // Placeholder or link to a real product
+          status: "PENDING",
+          verificationDetails: {
+            prizeLabel: winner.label,
+            raffleType: "STANDARD",
+            note: "Automatic request from raffle win"
+          }
         }
       })
     ] : [])
@@ -160,19 +175,6 @@ export async function spinGrandRaffle() {
 
   const winner = prizes[winIdx];
 
-  // Record transaction
-  const winTransactions = [];
-  if (winner.val > 0 || winner.type === "MANUAL") {
-    winTransactions.push({
-      userId,
-      amount: (winner.type === "POINTS" || winner.type === "GCASH") ? winner.val : 0,
-      currency: winner.type === "GCASH" ? "GCASH" : "PTS",
-      type: "RAFFLE_WIN",
-      status: winner.type === "MANUAL" ? "PENDING" : "COMPLETED",
-      description: `Grand Raffle Win: ${winner.label}`
-    });
-  }
-
   await prisma.$transaction([
     prisma.pointTransaction.create({
       data: {
@@ -182,7 +184,33 @@ export async function spinGrandRaffle() {
         description: `Grand Raffle Spin Entry - Won ${winner.label}`
       }
     }),
-    ...winTransactions.map(tx => prisma.pointTransaction.create({ data: tx as any }))
+    ...(winner.val > 0 && winner.type === "POINTS" ? [
+      prisma.pointTransaction.create({
+        data: {
+          userId,
+          amount: winner.val,
+          currency: "PTS",
+          type: "RAFFLE_WIN",
+          status: "COMPLETED",
+          description: `Grand Raffle Win: ${winner.label}`
+        }
+      })
+    ] : []),
+    // Create Redemption Request for non-point wins
+    ...(winner.type === "GCASH" || winner.type === "MANUAL" ? [
+      prisma.redemptionRequest.create({
+        data: {
+          userId,
+          productId: "RAFFLE_WIN_" + winner.type,
+          status: "PENDING",
+          verificationDetails: {
+            prizeLabel: winner.label,
+            raffleType: "GRAND",
+            note: "Automatic request from raffle win"
+          }
+        }
+      })
+    ] : [])
   ]);
 
   revalidatePath("/agent/raffle");

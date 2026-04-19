@@ -10,10 +10,12 @@ import {
   TrendingUp, 
   Wallet,
   Globe,
-  Layers
+  Layers,
+  Users
 } from "lucide-react";
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { getAgentHeaderStats } from '@/app/actions/agent';
 
 interface HeaderStats {
@@ -61,11 +63,13 @@ export default function AgentLayout({
             >
               <Menu size={24} />
             </button>
-            <Link href="/" className="relative h-12 w-32 flex items-center justify-center -ml-4">
-              <img 
+            <Link href="/" className="relative h-12 w-32 flex items-center justify-center">
+              <Image 
                 src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
                 alt="Logo" 
-                className="absolute max-w-none h-20 w-auto object-contain scale-[1.75]" 
+                width={120}
+                height={60}
+                className="object-contain h-full w-auto" 
               />
             </Link>
           </div>
@@ -128,9 +132,9 @@ export default function AgentLayout({
               <div className="h-5 w-[1px] bg-white/10 shrink-0"></div>
               
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Active Agents</span>
+                <span className="text-[10px] uppercase font-black text-on-surface-variant tracking-widest">Agent Invited</span>
                 <span className="text-xs font-black text-on-surface flex items-center gap-2">
-                  <Layers size={14} className="text-primary" /> {stats.activeNodes.toString().padStart(2, '0')} <span className="text-on-surface-variant font-bold">ACTIVE</span>
+                  <Users size={14} className="text-primary" /> {stats.activeNodes.toString().padStart(2, '0')} <span className="text-on-surface-variant font-bold">AGENT INVITED</span>
                 </span>
               </div>
             </>
