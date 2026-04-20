@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
 
 const WHEEL_NUMBERS = [1, 12, 9, 4, 11, 8, 2, 13, 5, 10, 3, 7];
-const TICKET_COST = 1000;
+const TICKET_COST = 500;
 
 export async function startLuckGame() {
   const session = await getServerSession(authOptions);
@@ -22,7 +22,7 @@ export async function startLuckGame() {
   const totalPoints = transactions.reduce((sum, t) => sum + t.amount, 0);
 
   if (totalPoints < TICKET_COST) {
-    return { success: false, error: "Insufficient Kinetic Points (Need 1,000 PTS)" };
+    return { success: false, error: `Insufficient Kinetic Points (Need ${TICKET_COST} PTS)` };
   }
 
   // 2. Deduct Ticket
@@ -45,7 +45,6 @@ export async function startLuckGame() {
     history: []
   }), 'EX', 1800);
 
-  revalidatePath("/agent/raffle"); 
   revalidatePath("/agent/luck");
   revalidatePath("/agent", "layout");
   return { success: true, initialNum };

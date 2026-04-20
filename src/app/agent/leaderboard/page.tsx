@@ -29,78 +29,76 @@ export default function AgentLeaderboardPage() {
   useEffect(() => { fetchEntries(); }, []);
 
   const categories = [
-    { id: "TOP_PLAYERS", name: "Top Players", icon: <Users size={16} />, color: "text-primary", bgColor: "bg-primary/10" },
-    { id: "TOP_VTO", name: "Top VTO", icon: <TrendingUp size={16} />, color: "text-secondary", bgColor: "bg-secondary/10" },
-    { id: "TOP_COMMISSION", name: "Top Commission", icon: <Coins size={16} />, color: "text-tertiary", bgColor: "bg-tertiary/10" }
+    { id: "TOP_VTO", name: "ELITE VTO LEADERS", icon: <TrendingUp size={18} className="text-orange-500" />, emoji: "🔥" },
+    { id: "TOP_PLAYERS", name: "TOP PLAYER SIGN UPS", icon: <Zap size={18} className="text-yellow-400" />, emoji: "⚡" },
+    { id: "TOP_COMMISSION", name: "HIGH COMMISSION AGENTS", icon: <Coins size={18} className="text-emerald-400" />, emoji: "💰" }
   ];
 
-  const renderTable = (cat: any) => {
+  const formatValue = (val: string) => {
+    // If it's already formatted (like 1.6M), return it
+    if (val.includes('M') || val.includes('K')) return val;
+    
+    // Otherwise try to format it from number
+    const num = parseFloat(val.replace(/[$,]/g, ''));
+    if (isNaN(num)) return val;
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
+    return val;
+  };
+
+  const renderCard = (cat: any) => {
     const list = entries.filter(e => e.category === cat.id).sort((a,b) => a.rank - b.rank);
     return (
-      <GlassCard key={cat.id} className="p-0 overflow-hidden border-white/5 bg-surface-container-low/20">
-        <div className="p-8 border-b border-white/5 flex items-center gap-4 bg-white/[0.02]">
-          <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center border border-white/10 shadow-lg", cat.bgColor, cat.color)}>
-            {cat.icon}
-          </div>
-          <h3 className="text-xl font-black text-on-surface uppercase tracking-tight italic">{cat.name}</h3>
+      <GlassCard key={cat.id} className="flex-1 min-w-[320px] bg-[#0c1a36]/60 border-primary/20 p-8 flex flex-col gap-8 shadow-[0_30px_60px_rgba(37,99,235,0.1)] relative group overflow-hidden">
+        {/* Header Section */}
+        <div className="flex items-center gap-4 relative z-10 border-b border-white/5 pb-6">
+           <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:border-primary/40 transition-all duration-500">
+              {cat.icon}
+           </div>
+           <h3 className="text-sm font-black text-on-surface uppercase tracking-[0.15em]">{cat.name}</h3>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-separate border-spacing-0">
-            <thead className="bg-white/[0.03]">
-              <tr>
-                <th className="px-8 py-5 text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em] w-24">Rank</th>
-                <th className="px-8 py-5 text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em]">Operative</th>
-                <th className="px-8 py-5 text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em]">Volume / Status</th>
-                <th className="px-8 py-5 text-[9px] font-black text-on-surface-variant uppercase tracking-[0.3em] text-right">Brand Node</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {list.length === 0 ? (
-                <tr>
-                   <td colSpan={4} className="py-20 text-center text-on-surface-variant/40 font-black uppercase text-[10px] tracking-widest italic">
-                     Establishing Network Connection...
-                   </td>
-                </tr>
-              ) : (
-                list.map((entry) => (
-                  <tr key={entry.id} className="group hover:bg-white/[0.03] transition-all duration-500">
-                    <td className="px-8 py-6">
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black border transition-transform group-hover:scale-110 duration-500 relative",
-                        entry.rank === 1 ? "bg-primary text-background border-primary shadow-[0_0_20px_rgba(129,236,255,0.4)]" : 
-                        entry.rank === 2 ? "bg-slate-800 text-secondary border-secondary/30" :
-                        entry.rank === 3 ? "bg-slate-800 text-tertiary border-tertiary/30" :
-                        "bg-white/5 text-on-surface-variant/50 border-white/5"
-                      )}>
-                        {entry.rank === 1 && <Medal size={12} className="absolute -top-1 -right-1 text-white animate-bounce" />}
-                        {entry.rank}
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-slate-900 border border-white/10 flex items-center justify-center font-black text-xs text-primary uppercase">
-                          {entry.name[0]}
-                        </div>
-                        <span className="font-black text-on-surface text-sm tracking-tight group-hover:text-primary transition-colors">{entry.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6">
-                      <div className="flex items-center gap-2">
-                        <Zap size={14} className={cat.color} />
-                        <span className="text-xs font-black text-on-surface font-mono">{entry.value}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-6 text-right">
-                       <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                         {entry.brandName || "N/A"}
-                       </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        {/* Content Section */}
+        <div className="space-y-4 relative z-10 flex-1">
+          {list.length === 0 ? (
+            <div className="py-12 text-center text-[10px] font-black text-on-surface-variant uppercase tracking-widest italic opacity-40">
+              Syncing Feed...
+            </div>
+          ) : (
+            list.map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between group/item">
+                <div className="flex items-center gap-4">
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border transition-all",
+                    entry.rank === 1 ? "bg-amber-400/20 text-amber-400 border-amber-400/40" :
+                    entry.rank === 2 ? "bg-slate-400/20 text-slate-400 border-slate-400/40" :
+                    entry.rank === 3 ? "bg-amber-700/20 text-amber-700 border-amber-700/40" :
+                    "bg-white/5 text-on-surface-variant border-white/5"
+                  )}>
+                    {entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : entry.rank === 3 ? "🥉" : entry.rank}
+                  </div>
+                  <span className="text-xs font-black text-on-surface group-hover/item:text-primary transition-colors uppercase tracking-tight truncate max-w-[120px]">
+                    {entry.userId}
+                  </span>
+                </div>
+                <div className="text-sm font-black text-white font-mono tracking-tighter">
+                   {formatValue(entry.ggrValue)}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Action Link */}
+        <div className="pt-6 border-t border-white/5 flex justify-end">
+           <button className="text-[9px] font-black uppercase text-primary tracking-widest flex items-center gap-2 group-hover:translate-x-1 transition-transform">
+              Full Standings <ChevronRight size={14} />
+           </button>
+        </div>
+
+        {/* Decorative BG element */}
+        <div className="absolute -bottom-10 -right-10 text-8xl opacity-[0.03] group-hover:opacity-[0.05] transition-opacity pointer-events-none grayscale group-hover:grayscale-0 scale-150 group-hover:scale-100 transition-all duration-1000">
+           {cat.emoji}
         </div>
       </GlassCard>
     );
@@ -115,7 +113,7 @@ export default function AgentLeaderboardPage() {
               <Trophy size={12} className="text-primary animate-pulse" /> Global Network Stats
             </span>
           </div>
-          <h1 className="text-4xl lg:text-6xl font-black font-headline tracking-tighter text-on-surface uppercase italic leading-none">
+          <h1 className="text-4xl lg:text-5xl font-black font-headline tracking-tighter text-on-surface uppercase italic leading-none">
             Kinetic <span className="text-primary tracking-normal not-italic">Ranking</span>
           </h1>
           <p className="text-on-surface-variant max-w-2xl text-lg font-medium mt-6">
@@ -129,14 +127,14 @@ export default function AgentLeaderboardPage() {
            </div>
            <div>
               <p className="text-[10px] font-black uppercase text-primary tracking-widest">Your Status</p>
-              <p className="text-2xl font-black text-on-surface uppercase tracking-tight">Standard Tier</p>
+              <p className="text-2xl font-black text-on-surface uppercase tracking-tight">Active Operative</p>
            </div>
            <ChevronRight className="text-on-surface-variant opacity-20 ml-4" />
         </GlassCard>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-10">
-        {categories.map(cat => renderTable(cat))}
+      <div className="flex flex-wrap gap-8 items-stretch">
+        {categories.map(cat => renderCard(cat))}
       </div>
     </div>
   );

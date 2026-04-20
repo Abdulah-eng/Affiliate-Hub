@@ -10,10 +10,12 @@ import {
   ExternalLink,
   ChevronRight,
   Save,
-  X
+  X,
+  Image as ImageIcon,
+  Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { adminCreateTask, adminUpdateTask, adminDeleteTask, getTasks } from "@/app/actions/tasks";
+import { adminCreateTask, adminUpdateTask, adminDeleteTask, getTasks, uploadTaskThumbnail } from "@/app/actions/tasks";
 
 export default function AdminTasksPage() {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -27,6 +29,7 @@ export default function AdminTasksPage() {
     description: "",
     points: 100,
     videoUrl: "",
+    imageUrl: "",
     externalLink: "",
     isExternal: false,
     requiresVerification: false,
@@ -70,6 +73,7 @@ export default function AdminTasksPage() {
         description: "",
         points: 100,
         videoUrl: "",
+        imageUrl: "",
         externalLink: "",
         isExternal: false,
         requiresVerification: false,
@@ -86,6 +90,7 @@ export default function AdminTasksPage() {
       description: task.description || "",
       points: task.points,
       videoUrl: task.videoUrl || "",
+      imageUrl: task.imageUrl || "",
       externalLink: task.externalLink || "",
       isExternal: task.isExternal || false,
       requiresVerification: task.requiresVerification || false,
@@ -168,6 +173,36 @@ export default function AdminTasksPage() {
                     <option value="SOCIAL">Social Action</option>
                     <option value="FEEDBACK">Feedback Form</option>
                   </select>
+                </div>
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest mb-1 block">Mission Thumbnail (URL or Upload)</label>
+                <div className="flex gap-4">
+                  <input 
+                    className="flex-1 bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all font-mono text-sm"
+                    value={form.imageUrl}
+                    onChange={e => setForm({...form, imageUrl: e.target.value})}
+                    placeholder="https://..."
+                  />
+                  <div className="relative group">
+                    <button className="h-full px-6 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all flex items-center gap-2">
+                       <Upload size={16} />
+                    </button>
+                    <input 
+                      type="file"
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const formData = new FormData();
+                          formData.append("file", file);
+                          const res = await uploadTaskThumbnail(formData);
+                          if (res.success && res.url) setForm({...form, imageUrl: res.url});
+                          else alert(res.error);
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
               <div>

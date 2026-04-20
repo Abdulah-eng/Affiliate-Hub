@@ -16,7 +16,7 @@ export async function getLeaderboard() {
   }
 }
 
-export async function upsertLeaderboardEntry(data: { id?: string, category: string, rank: number, name: string, value: string, brandName?: string }) {
+export async function upsertLeaderboardEntry(data: { id?: string, category: string, rank: number, userId: string, ggrValue: string, dateRange?: string }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
 
@@ -27,9 +27,9 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
         data: {
           category: data.category,
           rank: data.rank,
-          name: data.name,
-          value: data.value,
-          brandName: data.brandName
+          userId: data.userId,
+          ggrValue: data.ggrValue,
+          dateRange: data.dateRange
         }
       });
     } else {
@@ -37,9 +37,9 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
         data: {
           category: data.category,
           rank: data.rank,
-          name: data.name,
-          value: data.value,
-          brandName: data.brandName
+          userId: data.userId,
+          ggrValue: data.ggrValue,
+          dateRange: data.dateRange
         }
       });
     }

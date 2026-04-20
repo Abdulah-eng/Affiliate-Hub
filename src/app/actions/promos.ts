@@ -78,6 +78,7 @@ export async function uploadPromoImage(formData: FormData) {
     const file = formData.get("file") as File;
     if (!file) return { success: false, error: "No file provided" };
 
+    const { writeFile, mkdir } = await import("fs/promises");
     const uploadDir = join(process.cwd(), "public", "uploads", "promos");
     await mkdir(uploadDir, { recursive: true });
 
@@ -90,8 +91,12 @@ export async function uploadPromoImage(formData: FormData) {
 
     return { success: true, url };
   } catch (error: any) {
-    console.error("Promo Upload Error:", error);
-    return { success: false, error: "Failed to upload promo image." };
+    console.error("Promo Upload Critical Failure:", {
+      error: error.message,
+      stack: error.stack,
+      cwd: process.cwd()
+    });
+    return { success: false, error: `Failed to upload promo image: ${error.message}` };
   }
 }
 
@@ -110,6 +115,7 @@ export async function submitPromoProof(formData: FormData) {
     });
     if (existing) return { success: false, error: "You have already submitted for this promo" };
 
+    const { writeFile, mkdir } = await import("fs/promises");
     const uploadDir = join(process.cwd(), "public", "uploads", "proofs");
     await mkdir(uploadDir, { recursive: true });
 
@@ -131,8 +137,12 @@ export async function submitPromoProof(formData: FormData) {
 
     return { success: true };
   } catch (error: any) {
-    console.error("Proof Submission Error:", error);
-    return { success: false, error: error.message };
+    console.error("Proof Submission Critical Failure:", {
+      error: error.message,
+      stack: error.stack,
+      cwd: process.cwd()
+    });
+    return { success: false, error: `Proof submission failed: ${error.message}` };
   }
 }
 

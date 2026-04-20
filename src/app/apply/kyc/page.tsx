@@ -20,7 +20,7 @@ const STEPS = [
   { id: 4, name: "Review" },
 ];
 
-const BRANDS = [
+const PLATFORMS = [
   { id: "POTS", name: "Pearl Of The Seas (POTS)", status: "ACTIVE" },
   { id: "WinForLife", name: "Win For Life", status: "ACTIVE" },
   { id: "Rollem", name: "Rollem", status: "ACTIVE" },
@@ -53,7 +53,7 @@ function GoogleKycPageContent() {
   const referralCode = searchParams.get("ref");
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [referralSource, setReferralSource] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -132,8 +132,8 @@ function GoogleKycPageContent() {
     Object.entries(kycMeta).forEach(([k, v]) => formData.set(k, v));
     // Files
     Object.entries(kycFiles).forEach(([k, v]) => { if (v) formData.set(k, v); });
-    // Brands & referral
-    formData.set("requestedBrands", JSON.stringify(selectedBrands));
+    // Platforms & referral
+    formData.set("requestedPlatforms", JSON.stringify(selectedPlatforms));
     formData.set("referralSource", referralSource.join(", "));
     formData.set("agreedToTerms", agreedToTerms.toString());
     if (referralCode) formData.set("referrerCode", referralCode);
@@ -157,8 +157,8 @@ function GoogleKycPageContent() {
       }
     }
     if (currentStep === 2) {
-      if (selectedBrands.length === 0) {
-        setError("Please select at least one partner brand.");
+      if (selectedPlatforms.length === 0) {
+        setError("Please select at least one partner platform.");
         return;
       }
     }
@@ -269,20 +269,20 @@ function GoogleKycPageContent() {
                   placeholder="Your existing affiliate username (if any)" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-primary uppercase tracking-widest mb-3">Select Partner Brands *</label>
+                <label className="block text-xs font-bold text-primary uppercase tracking-widest mb-3">Select Partner Platforms *</label>
                 <div className="grid grid-cols-1 gap-2">
-                  {BRANDS.map(brand => (
-                    <button type="button" key={brand.id} disabled={brand.status !== "ACTIVE"}
-                      onClick={() => setSelectedBrands(prev => prev.includes(brand.id) ? prev.filter(b => b !== brand.id) : [...prev, brand.id])}
+                  {PLATFORMS.map(platform => (
+                    <button type="button" key={platform.id} disabled={platform.status !== "ACTIVE"}
+                      onClick={() => setSelectedPlatforms(prev => prev.includes(platform.id) ? prev.filter(b => b !== platform.id) : [...prev, platform.id])}
                       className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all",
-                        selectedBrands.includes(brand.id) ? "bg-primary/10 border-primary/40 text-primary" : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant hover:text-on-surface",
-                        brand.status !== "ACTIVE" && "opacity-30 cursor-not-allowed")}>
-                      <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0", selectedBrands.includes(brand.id) ? "bg-primary border-primary" : "border-outline-variant")}>
-                        {selectedBrands.includes(brand.id) && <Check size={12} className="text-background" />}
+                        selectedPlatforms.includes(platform.id) ? "bg-primary/10 border-primary/40 text-primary" : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant hover:text-on-surface",
+                        platform.status !== "ACTIVE" && "opacity-30 cursor-not-allowed")}>
+                      <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0", selectedPlatforms.includes(platform.id) ? "bg-primary border-primary" : "border-outline-variant")}>
+                        {selectedPlatforms.includes(platform.id) && <Check size={12} className="text-background" />}
                       </div>
-                      <span className="font-bold text-sm">{brand.name}</span>
+                      <span className="font-bold text-sm">{platform.name}</span>
                       <span className={cn("ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                        brand.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400" : "bg-surface-container text-on-surface-variant")}>{brand.status}</span>
+                        platform.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400" : "bg-surface-container text-on-surface-variant")}>{platform.status}</span>
                     </button>
                   ))}
                 </div>
@@ -419,7 +419,7 @@ function GoogleKycPageContent() {
                   <div><span className="text-on-surface-variant">Username:</span> <span className="text-on-surface font-mono font-bold">{profile.username || "—"}</span></div>
                   <div><span className="text-on-surface-variant">Mobile:</span> <span className="text-on-surface font-bold">{profile.mobileNumber || "—"}</span></div>
                   <div><span className="text-on-surface-variant">City:</span> <span className="text-on-surface font-bold">{profile.city || "—"}</span></div>
-                  <div><span className="text-on-surface-variant">Brands:</span> <span className="text-on-surface font-bold">{selectedBrands.length}</span></div>
+                  <div><span className="text-on-surface-variant">Platforms:</span> <span className="text-on-surface font-bold">{selectedPlatforms.length}</span></div>
                 </div>
               </GlassCard>
               <KycDisclaimer />

@@ -25,7 +25,7 @@ import {
   uploadBrandLogo 
 } from '@/app/actions/admin';
 
-export default function BrandManagerPage() {
+export default function PlatformManagerPage() {
   const [brands, setBrands] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
@@ -87,7 +87,7 @@ export default function BrandManagerPage() {
 
       const res = await updateBrand(id, updateData);
       if (res.success) {
-        showFeedback('success', 'Brand configuration synced.');
+        showFeedback('success', 'Platform configuration synced.');
         setEditingBrand(null);
         setEditFile(null);
         setEditPreview(null);
@@ -102,7 +102,7 @@ export default function BrandManagerPage() {
     startTransition(async () => {
       const res = await deleteBrand(id);
       if (res.success) {
-        showFeedback('success', 'Brand deleted.');
+        showFeedback('success', 'Platform deleted.');
         setDeleteConfirmId(null);
         await fetchBrands();
       } else {
@@ -130,7 +130,7 @@ export default function BrandManagerPage() {
 
       const res = await createBrand(newBrandForm.name, newBrandForm.loginUrl, finalLogoUrl, newBrandForm.playerLoginUrl);
       if (res.success) {
-        showFeedback('success', `Brand added.`);
+        showFeedback('success', `Platform added.`);
         setShowAddModal(false);
         setNewBrandForm({ name: "", loginUrl: "", playerLoginUrl: "", logoUrl: "" });
         setAddFile(null);
@@ -175,7 +175,7 @@ export default function BrandManagerPage() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <div className="space-y-2">
-                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Brand Name</label>
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Platform Name</label>
                  <input 
                    className="w-full bg-slate-950/50 border border-white/10 p-4 rounded-xl text-on-surface outline-none focus:border-primary transition-all"
                    value={editingBrand.name}
@@ -202,7 +202,7 @@ export default function BrandManagerPage() {
                  </div>
                </div>
                <div className="space-y-2 md:col-span-2">
-                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Brand Branding (URL or Upload)</label>
+                 <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1">Platform Branding (URL or Upload)</label>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-4">
                       <input 
@@ -302,8 +302,8 @@ export default function BrandManagerPage() {
             <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto">
               <Trash2 className="text-red-400" size={24} />
             </div>
-            <h3 className="text-xl font-black text-on-surface">Delete Brand?</h3>
-            <p className="text-on-surface-variant text-sm">This will permanently delete the brand and all associated platform access records. This cannot be undone.</p>
+            <h3 className="text-xl font-black text-on-surface">Delete Platform?</h3>
+            <p className="text-on-surface-variant text-sm">This will permanently delete the platform and all associated access records. This cannot be undone.</p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirmId(null)} className="flex-1 py-3 rounded-xl border border-outline-variant/30 text-on-surface-variant font-bold hover:bg-white/5 transition-all">Cancel</button>
               <button onClick={() => handleDelete(deleteConfirmId)} disabled={isPending} className="flex-1 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 font-bold hover:bg-red-500/30 transition-all">
@@ -327,7 +327,7 @@ export default function BrandManagerPage() {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1 block">Brand Name *</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-1 block">Platform Name *</label>
                   <input
                     type="text"
                     value={newBrandForm.name}
@@ -411,7 +411,7 @@ export default function BrandManagerPage() {
              <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20">KYC EDITOR v2.0</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
-            Gateway <span className="text-primary tracking-normal">Engineering</span>
+            Platform <span className="text-primary tracking-normal">Engineering</span>
           </h1>
           <p className="text-on-surface-variant max-w-xl text-lg font-medium">
             Manage corporate partner credentials, branding assets, and secure infrastructure endpoints.

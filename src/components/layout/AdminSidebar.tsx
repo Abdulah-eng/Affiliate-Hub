@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import { getAdminSidebarStats } from '@/app/actions/admin';
+import Image from 'next/image';
 
 export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
@@ -44,7 +45,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Leaderboard', icon: <Trophy size={18} />, href: '/admin/leaderboard', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Redemptions', icon: <CreditCard size={18} />, href: '/admin/redemptions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
-    { name: 'Brand Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Platform Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingKyc },
     { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingMissions },
     { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.openTickets },
@@ -74,21 +75,33 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         "fixed left-0 top-0 h-full w-64 z-[60] bg-surface-container-low shadow-2xl flex flex-col pt-20 pb-6 border-r border-primary/5 transition-transform duration-300 md:translate-x-0 md:flex",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="px-6 mb-8 flex items-center justify-between">
-          <div className="mb-2">
-            <p className="text-primary font-black font-headline leading-none text-sm uppercase">Command Center</p>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 font-bold italic">
+        <div className="px-6 mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/" className="relative h-16 w-40 flex items-center justify-center -ml-2">
+              <Image 
+                src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
+                alt="Logo" 
+                width={160}
+                height={80}
+                className="object-contain" 
+                priority
+              />
+            </Link>
+            {setIsOpen && (
+              <button 
+                className="p-2 text-on-surface-variant hover:text-white md:hidden cursor-pointer"
+                onClick={() => setIsOpen(false)}
+              >
+                <X size={20} />
+              </button>
+            )}
+          </div>
+          <div>
+            <p className="text-primary font-black font-headline leading-none text-xs uppercase tracking-widest">Command Center</p>
+            <p className="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] mt-1 font-bold italic">
               {isCSR ? 'Field Operations (CSR)' : 'Admin Level Access'}
             </p>
           </div>
-          {setIsOpen && (
-            <button 
-              className="p-2 text-on-surface-variant hover:text-white md:hidden -mt-4 -mr-2 cursor-pointer"
-              onClick={() => setIsOpen(false)}
-            >
-              <X size={20} />
-            </button>
-          )}
         </div>
 
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">

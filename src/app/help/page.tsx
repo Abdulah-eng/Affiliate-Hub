@@ -33,7 +33,7 @@ export default async function HelpPage() {
   const faqs = [
     { q: "How do I become a verified agent?", a: "You must complete the 'Apply' workflow including the multi-step identification packet (KYC). Once submitted, our CSR operatives will review your node within 24-48h." },
     { q: "What is the point conversion rate?", a: "Current kinetic points (PTS) are calculated based on verified node propagation. 1,000 PTS is equivalent to one 'Standard Spin' in the Raffle Arena." },
-    { q: "Can I manage multiple brand credentials?", a: "Yes. Once your vault is active, you can request credentials for any available partner (BIGWIN, Rollem, etc.) directly from your dashboard." }
+    { q: "Can I manage multiple platform credentials?", a: "Yes. Once your vault is active, you can request credentials for any available partner (BIGWIN, Rollem, etc.) directly from your dashboard." }
   ];
 
   return (

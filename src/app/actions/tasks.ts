@@ -180,6 +180,7 @@ export async function adminCreateTask(data: {
   description?: string,
   points: number,
   videoUrl?: string,
+  imageUrl?: string,
   externalLink?: string,
   isExternal?: boolean,
   requiresVerification?: boolean,
@@ -203,6 +204,7 @@ export async function adminUpdateTask(id: string, data: {
   description?: string,
   points?: number,
   videoUrl?: string,
+  imageUrl?: string,
   externalLink?: string,
   isExternal?: boolean,
   requiresVerification?: boolean,
@@ -232,6 +234,28 @@ export async function adminDeleteTask(id: string) {
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+export async function uploadTaskThumbnail(formData: FormData) {
+  try {
+    const file = formData.get("file") as File;
+    if (!file) return { success: false, error: "No file provided" };
+
+    const uploadDir = join(process.cwd(), "public", "uploads", "tasks");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    
+    await writeFile(filePath, buffer);
+    const url = `/uploads/tasks/${fileName}`;
+
+    return { success: true, url };
+  } catch (error: any) {
+    console.error("Task Thumbnail Upload Error:", error);
+    return { success: false, error: "Failed to upload task thumbnail." };
   }
 }
 

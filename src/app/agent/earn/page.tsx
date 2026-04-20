@@ -416,15 +416,17 @@ export default function EarnPage() {
             <div className="space-y-8 animate-vapor">
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                  {activeTasks.map((task) => {
-                    const getThumbnail = (url: string) => {
+                    const getThumbnail = () => {
+                      if (task.imageUrl) return task.imageUrl;
+                      const url = task.taskType === "PROMO" ? task.imageUrl : task.videoUrl;
                       if (!url) return null;
                       if (url.includes('youtube.com') || url.includes('youtu.be')) {
                         const id = url.includes('watch?v=') ? url.split('v=')[1]?.split('&')[0] : url.split('/').pop();
                         return `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
                       }
-                      return task.imageUrl || null;
+                      return null;
                     };
-                    const thumbnail = getThumbnail(task.taskType === "PROMO" ? task.imageUrl : task.videoUrl);
+                    const thumbnail = getThumbnail();
 
                     return (
                       <GlassCard 

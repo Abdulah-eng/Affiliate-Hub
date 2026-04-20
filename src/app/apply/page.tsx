@@ -31,6 +31,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { submitKycApplication } from "@/app/actions/auth";
 import { signIn } from "next-auth/react";
+import { getAllBrands } from "@/app/actions/admin";
 
 const STEPS = [
   { id: 1, name: "Account" },
@@ -40,17 +41,7 @@ const STEPS = [
   { id: 5, name: "Review" }
 ];
 
-const BRANDS = [
-  { id: "POTS", name: "Pearl Of The Seas (POTS)", status: "ACTIVE" },
-  { id: "WinForLife", name: "Win For Life", status: "ACTIVE" },
-  { id: "Rollem", name: "Rollem", status: "ACTIVE" },
-  { id: "TAMASA", name: "TAMASA", status: "ACTIVE" },
-  { id: "COW", name: "COW", status: "ACTIVE" },
-  { id: "MegaPerya", name: "Mega Perya", status: "COMING_SOON" },
-  { id: "BIGWIN", name: "BIGWIN", status: "UNAVAILABLE" },
-  { id: "SupremeGaming", name: "Supreme-Gaming", status: "UNAVAILABLE" },
-  { id: "PeryaPlay", name: "Perya Play", status: "COMING_SOON" },
-];
+// PLATFORMS removed, will be fetched dynamically
 
 const PRIMARY_IDS = [
   "PhilSys National ID", "Passport", "Driver’s License", 
@@ -81,12 +72,13 @@ function ApplyPageContent() {
   const [isPending, startTransition] = useTransition();
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [referralSource, setReferralSource] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [platforms, setPlatforms] = useState<any[]>([]);
 
   // Verification Logic State
   const [verificationMode, setVerificationMode] = useState<"PRIMARY" | "SECONDARY">("PRIMARY");
@@ -96,6 +88,14 @@ function ApplyPageContent() {
   useEffect(() => {
     // Show ad on initial load
     const timer = setTimeout(() => setShowInitialAd(true), 1000);
+    
+    // Fetch Dynamic Brands
+    const fetchBrands = async () => {
+      const data = await getAllBrands();
+      setPlatforms(data);
+    };
+    fetchBrands();
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -120,7 +120,6 @@ function ApplyPageContent() {
     mobileNumber: "",
     city: "",
     address: "",
-    affiliateUsername: "",
     location: ""
   });
 
@@ -144,8 +143,8 @@ function ApplyPageContent() {
     secondaryId2Number: ""
   });
 
-  const toggleBrand = (id: string) => {
-    setSelectedBrands((prev) =>
+  const togglePlatform = (id: string) => {
+    setSelectedPlatforms((prev) =>
       prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
     );
   };
@@ -165,13 +164,13 @@ function ApplyPageContent() {
       }
     }
     if (currentStep === 2) {
-      if (!profileData.firstName || !profileData.lastName || !profileData.mobileNumber || !profileData.city || !profileData.affiliateUsername) {
-        setError("Profile details and Affiliate Hub Username are required.");
+      if (!profileData.firstName || !profileData.lastName || !profileData.mobileNumber || !profileData.city) {
+        setError("Profile details are required.");
         return;
       }
     }
     if (currentStep === 3) {
-      if (selectedBrands.length === 0) {
+      if (selectedPlatforms.length === 0) {
         setError("Please select at least one affiliate program.");
         return;
       }
@@ -207,7 +206,7 @@ function ApplyPageContent() {
     Object.entries(profileData).forEach(([key, val]) => formData.append(key, val));
     
     // Step 3
-    formData.append("requestedBrands", JSON.stringify(selectedBrands));
+    formData.append("requestedPlatforms", JSON.stringify(selectedPlatforms));
     formData.append("referralSource", JSON.stringify(referralSource));
     
     // Step 4
@@ -248,10 +247,19 @@ function ApplyPageContent() {
           <h1 className="text-4xl font-black font-headline text-on-surface">
             Application <span className="text-emerald-400">Success!</span>
           </h1>
-          <p className="text-on-surface-variant max-w-md mx-auto">
+          <p className="text-on-surface-variant max-w-lg mx-auto text-lg leading-relaxed">
             Your comprehensive KYC application is being processed. 
-            Verification takes 24–48 hours. Redirecting to login...
+            <br /><span className="text-primary font-black uppercase tracking-tight">Please wait for your KYC to be approved by a CSR within 24 hours.</span>
+            <br />You will be able to access the full agent vault once verified.
           </p>
+          <div className="pt-8">
+            <Link 
+              href="/"
+              className="px-12 py-4 bg-primary text-background rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20"
+            >
+              Back to Home
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -414,16 +422,7 @@ function ApplyPageContent() {
                   onChange={(e) => setProfileData(d => ({...d, lastName: e.target.value}))}
                 />
                 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] ml-2">Affiliate Hub Username *</label>
-                  <input
-                    type="text"
-                    placeholder="VaultUser123"
-                    className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none focus:border-primary transition-all shadow-inner"
-                    value={profileData.affiliateUsername}
-                    onChange={(e) => setProfileData(d => ({...d, affiliateUsername: e.target.value}))}
-                  />
-                </div>
+                {/* Affiliate Hub Username removed to avoid redundancy */}
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-primary uppercase tracking-[0.2em] ml-2">Mobile Number *</label>
@@ -436,13 +435,17 @@ function ApplyPageContent() {
                   />
                 </div>
 
-                <input
-                  type="text"
-                  placeholder="Facebook Profile Name *"
-                  className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none md:col-span-2"
-                  value={profileData.fbProfileName}
-                  onChange={(e) => setProfileData(d => ({...d, fbProfileName: e.target.value}))}
-                />
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-[10px] font-bold text-primary uppercase tracking-widest ml-2">Facebook Name / Profile Link *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. John Doe or https://facebook.com/johndoe"
+                    className="w-full bg-surface-container-low px-6 py-4 rounded-2xl border border-outline-variant outline-none focus:border-primary transition-all font-medium"
+                    value={profileData.fbProfileName}
+                    onChange={(e) => setProfileData(d => ({...d, fbProfileName: e.target.value}))}
+                  />
+                  <p className="text-[9px] text-on-surface-variant ml-2">Provide your name or direct link for verification.</p>
+                </div>
                 <input
                   type="text"
                   placeholder="City (e.g., Cebu, Davao, Quezon City) *"
@@ -474,26 +477,40 @@ function ApplyPageContent() {
                 <h2 className="text-xl font-bold font-headline text-primary border-l-4 border-primary pl-4 uppercase tracking-widest">
                   Affiliate Programs
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {BRANDS.map(brand => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {platforms.map(platform => (
                     <div
-                      key={brand.id}
-                      onClick={() => brand.status === "ACTIVE" && toggleBrand(brand.name)}
+                      key={platform.id}
+                      onClick={() => platform.isActive && togglePlatform(platform.name)}
                       className={cn(
-                        "p-6 rounded-2xl border-2 transition-all cursor-pointer group flex items-start gap-4",
-                        selectedBrands.includes(brand.name) 
-                          ? "bg-primary/10 border-primary" 
+                        "p-6 rounded-2xl border-2 transition-all cursor-pointer group flex flex-col gap-4 relative overflow-hidden",
+                        selectedPlatforms.includes(platform.name) 
+                          ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(37,99,235,0.1)]" 
                           : "bg-surface-container-low border-outline-variant hover:border-primary/40",
-                        brand.status !== "ACTIVE" && "opacity-50 grayscale cursor-not-allowed"
+                        !platform.isActive && "opacity-50 grayscale cursor-not-allowed"
                       )}
                     >
-                      <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0 mt-1", selectedBrands.includes(brand.name) ? "bg-primary border-primary text-background" : "border-outline-variant")}>
-                        {selectedBrands.includes(brand.name) && <Check size={14} strokeWidth={4} />}
+                      <div className="flex items-center justify-between">
+                         {platform.logoUrl ? (
+                           <div className="relative h-10 w-24">
+                              <Image src={platform.logoUrl} alt={platform.name} fill className="object-contain" />
+                           </div>
+                         ) : (
+                           <Building2 size={24} className="text-on-surface-variant/40" />
+                         )}
+                         <div className={cn("w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0", selectedPlatforms.includes(platform.name) ? "bg-primary border-primary text-background" : "border-outline-variant")}>
+                           {selectedPlatforms.includes(platform.name) && <Check size={14} strokeWidth={4} />}
+                         </div>
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-on-surface">{brand.name}</p>
-                        {brand.status !== "ACTIVE" && <p className="text-[10px] text-red-500 font-black uppercase mt-1 tracking-tighter">{brand.status.replace("_", " ")}</p>}
+                        <p className="text-sm font-black text-on-surface uppercase tracking-tight">{platform.name}</p>
+                        {!platform.isActive && <p className="text-[9px] text-red-500 font-black uppercase mt-1 tracking-widest">UNAVAILABLE</p>}
+                        {platform.isActive && platform.status !== 'ONLINE' && <p className="text-[9px] text-amber-500 font-black uppercase mt-1 tracking-widest">{platform.status}</p>}
                       </div>
+                      
+                      {selectedPlatforms.includes(platform.name) && (
+                        <div className="absolute top-0 left-0 w-full h-1 bg-primary blur-[2px]" />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -686,11 +703,11 @@ function ApplyPageContent() {
                 </GlassCard>
 
                 <GlassCard className="p-8 space-y-6">
-                  <h3 className="text-[10px] font-black uppercase text-secondary tracking-[0.3em]">Programs Selection</h3>
+                  <h3 className="text-[10px] font-black uppercase text-secondary tracking-[0.3em]">Platforms Selection</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedBrands.map(b => (
-                      <span key={b} className="px-3 py-1.5 rounded-lg bg-secondary/10 border border-secondary/20 text-[10px] font-black text-secondary tracking-wider">
-                        {b}
+                    {selectedPlatforms.map(p => (
+                      <span key={p} className="px-3 py-1.5 rounded-lg bg-secondary/10 border border-secondary/20 text-[10px] font-black text-secondary tracking-wider">
+                        {p}
                       </span>
                     ))}
                   </div>

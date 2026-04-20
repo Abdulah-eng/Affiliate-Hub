@@ -73,7 +73,7 @@ function LoginContent() {
       ></div>
 
       <div className="w-full max-w-md relative z-10 animate-vapor">
-        {/* Logo/Brand Area */}
+        {/* Logo Area */}
         <div className="text-center mb-2 flex flex-col items-center pt-12">
           <img 
             src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 

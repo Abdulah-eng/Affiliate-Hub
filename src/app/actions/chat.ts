@@ -10,6 +10,11 @@ const CHAT_REDIS_KEY = "chat:recent_messages";
 const MAX_CACHED_MESSAGES = 100;
 
 export async function sendMessage(content: string, attachmentUrl?: string, attachmentType?: string) {
+  // Ensure we have either content or an attachment
+  if (!content?.trim() && !attachmentUrl) {
+    return { success: false, error: "Message cannot be empty." };
+  }
+
   const session = await getServerSession(authOptions);
   if (!session || !session.user) {
     return { success: false, error: "Unauthorized" };
@@ -129,8 +134,12 @@ export async function uploadChatAsset(formData: FormData) {
 
     return { success: true, url, type: file.type };
   } catch (error: any) {
-    console.error("Chat Upload Error:", error);
-    return { success: false, error: "Failed to upload asset." };
+    console.error("Chat Upload Critical Failure:", {
+      error: error.message,
+      stack: error.stack,
+      cwd: process.cwd()
+    });
+    return { success: false, error: `Failed to upload asset: ${error.message}` };
   }
 }
 

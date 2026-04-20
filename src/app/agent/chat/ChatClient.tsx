@@ -15,7 +15,7 @@ import {
   Heart
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { sendMessage } from "@/app/actions/chat";
+import { sendMessage, uploadChatAsset } from "@/app/actions/chat";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 
 type Message = {
@@ -146,7 +146,6 @@ export function ChatClient({
     }
 
     setIsUploading(true);
-    const { uploadChatAsset } = await import("@/app/actions/chat");
     const formData = new FormData();
     formData.append("file", file);
 

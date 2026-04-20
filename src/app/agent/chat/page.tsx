@@ -44,7 +44,9 @@ export default async function NexusFeedPage() {
     userName: m.user.name || m.user.username || "Agent",
     userRole: m.user.role,
     createdAt: m.createdAt.toISOString(),
-    rewardPoints: m.rewardPoints
+    rewardPoints: m.rewardPoints,
+    attachmentUrl: m.attachmentUrl,
+    attachmentType: m.attachmentType
   }));
 
   // Get top chatters

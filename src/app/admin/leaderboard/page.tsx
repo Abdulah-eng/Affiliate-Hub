@@ -22,7 +22,7 @@ export default function AdminLeaderboardPage() {
   const [isPending, startTransition] = useTransition();
 
   const categories = [
-    { id: "TOP_PLAYERS", name: "Top Players", icon: <Users size={16} /> },
+    { id: "TOP_PLAYERS", name: "Top Player Sign Ups", icon: <Users size={16} /> },
     { id: "TOP_VTO", name: "Top VTO", icon: <TrendingUp size={16} /> },
     { id: "TOP_COMMISSION", name: "Top Commission", icon: <Coins size={16} /> }
   ];
@@ -41,9 +41,9 @@ export default function AdminLeaderboardPage() {
     setEntries([...entries, { 
       category, 
       rank: nextRank, 
-      name: "", 
-      value: "", 
-      brandName: "", 
+      userId: "", 
+      ggrValue: "", 
+      dateRange: "", 
       isNew: true 
     }]);
   };
@@ -99,9 +99,9 @@ export default function AdminLeaderboardPage() {
                 <thead className="bg-white/[0.03]">
                   <tr>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest w-20">Rank</th>
-                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Name / ID</th>
-                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Performance Value</th>
-                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Brand</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">User ID</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">GGR</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Date (Range)</th>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
@@ -124,12 +124,12 @@ export default function AdminLeaderboardPage() {
                       <td className="px-8 py-4">
                         <input 
                           type="text" 
-                          placeholder="Agent Name or ID"
-                          value={entry.name}
+                          placeholder="WFLAF146"
+                          value={entry.userId}
                           onChange={(e) => {
                             const newEntries = [...entries];
                             const foundIdx = entries.indexOf(entry);
-                            newEntries[foundIdx].name = e.target.value;
+                            newEntries[foundIdx].userId = e.target.value;
                             setEntries(newEntries);
                           }}
                           className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[200px]"
@@ -138,12 +138,12 @@ export default function AdminLeaderboardPage() {
                       <td className="px-8 py-4">
                         <input 
                           type="text" 
-                          placeholder="e.g. 50,000 PHP"
-                          value={entry.value}
+                          placeholder="(-65,657)"
+                          value={entry.ggrValue}
                           onChange={(e) => {
                             const newEntries = [...entries];
                             const foundIdx = entries.indexOf(entry);
-                            newEntries[foundIdx].value = e.target.value;
+                            newEntries[foundIdx].ggrValue = e.target.value;
                             setEntries(newEntries);
                           }}
                           className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[150px]"
@@ -152,12 +152,12 @@ export default function AdminLeaderboardPage() {
                       <td className="px-8 py-4">
                         <input 
                           type="text" 
-                          placeholder="Partner Site"
-                          value={entry.brandName}
+                          placeholder="JAN 19 - JAN 25"
+                          value={entry.dateRange}
                           onChange={(e) => {
                             const newEntries = [...entries];
                             const foundIdx = entries.indexOf(entry);
-                            newEntries[foundIdx].brandName = e.target.value;
+                            newEntries[foundIdx].dateRange = e.target.value;
                             setEntries(newEntries);
                           }}
                           className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[150px]"

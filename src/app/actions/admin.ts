@@ -229,12 +229,14 @@ export async function uploadCmsAsset(formData: FormData) {
     
     if (!file || !key) return { success: false, error: "Missing file or key" };
 
+    // Robust absolute pathing
     const uploadDir = join(process.cwd(), "public", "uploads", "cms");
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
     const filePath = join(uploadDir, fileName);
+    
     await writeFile(filePath, buffer);
     const url = `/uploads/cms/${fileName}`;
 
@@ -258,6 +260,7 @@ export async function uploadBrandLogo(formData: FormData) {
     const file = formData.get("file") as File;
     if (!file) return { success: false, error: "No file provided" };
 
+    // Robust absolute pathing
     const uploadDir = join(process.cwd(), "public", "uploads", "brands");
     await mkdir(uploadDir, { recursive: true });
 

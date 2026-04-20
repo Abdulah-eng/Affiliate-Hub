@@ -69,7 +69,7 @@ export async function submitKycApplication(formData: FormData) {
         city: rawData.city as string,
         username: rawData.username as string,
         password: hashedPassword,
-        affiliateUsername: rawData.affiliateUsername as string,
+        affiliateUsername: rawData.username as string, // Unified Identity
         location: rawData.location as string || rawData.city as string, 
         referralSource: rawData.referralSource as string,
         referrerId, // Link!
@@ -101,9 +101,9 @@ export async function submitKycApplication(formData: FormData) {
     });
 
     // Handle initial requested brands mapping
-    const requestedBrandsStr = rawData.requestedBrands as string;
-    if (requestedBrandsStr) {
-      const brands = JSON.parse(requestedBrandsStr);
+    const requestedPlatformsStr = rawData.requestedPlatforms as string;
+    if (requestedPlatformsStr) {
+      const brands = JSON.parse(requestedPlatformsStr);
       for (const brandName of brands) {
         const brand = await prisma.brand.findUnique({ where: { name: brandName } });
         if (brand) {
@@ -197,7 +197,7 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
         mobileNumber: rawData.mobileNumber as string,
         address: rawData.address as string,
         city: rawData.city as string,
-        affiliateUsername: rawData.affiliateUsername as string,
+        affiliateUsername: rawData.username as string, // Unified Identity
         location: rawData.location as string || rawData.city as string,
         referralSource: rawData.referralSource as string,
         referrerId, // Link!

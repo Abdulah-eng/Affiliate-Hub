@@ -19,7 +19,7 @@ export default function TermsPage() {
     },
     {
       title: "4. Partner Program Compliance",
-      content: "While Affiliate Hub PH facilitates access, agents must adhere to the specific terms and conditions set forth by each partner brand (e.g., BIGWIN, Rollem). The Hub act as a gateway and aggregator, and is not responsible for the independent policies of third-party platform providers."
+      content: "While Affiliate Hub PH facilitates access, agents must adhere to the specific terms and conditions set forth by each partner platform (e.g., BIGWIN, Rollem). The Hub act as a gateway and aggregator, and is not responsible for the independent policies of third-party platform providers."
     },
     {
       title: "5. Termination of Status",
