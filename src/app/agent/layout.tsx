@@ -63,15 +63,7 @@ export default function AgentLayout({
             >
               <Menu size={24} />
             </button>
-            <Link href="/" className="relative h-12 w-32 flex items-center justify-center">
-              <Image 
-                src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
-                alt="Logo" 
-                width={120}
-                height={60}
-                className="object-contain h-full w-auto" 
-              />
-            </Link>
+
           </div>
           
           <div className="flex items-center gap-6">
