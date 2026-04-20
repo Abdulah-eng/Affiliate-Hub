@@ -5,27 +5,27 @@ import Image from 'next/image';
 
 export const Navbar = () => {
   return (
-    <nav className="fixed top-0 right-0 w-full h-32 z-50 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10">
-      <div className="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-16">
-          <Link href="/" className="relative h-28 w-[380px] flex items-center justify-start">
+    <nav className="fixed top-0 right-0 w-full h-24 z-50 bg-[#060e20]/80 backdrop-blur-2xl border-b border-[#81ecff]/10">
+      <div className="flex justify-between items-center px-4 w-full h-full max-w-[1600px] mx-auto">
+        <div className="flex items-center">
+          <Link href="/" className="relative h-52 w-auto min-w-[200px] flex items-center justify-start -ml-6 group px-4">
             <Image 
               src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
               alt="Logo" 
               width={400}
               height={200}
-              className="object-contain h-full w-auto scale-125" 
+              className="object-contain h-full w-auto transform transition-all duration-500 group-hover:scale-105 group-hover:drop-shadow-[0_0_30px_rgba(129,236,255,0.6)]" 
               priority
             />
           </Link>
-          <div className="hidden md:flex gap-10 items-center">
-            <Link href="/" className="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 font-headline font-medium text-sm">
+          <div className="flex gap-4 sm:gap-8 items-center pt-4">
+            <Link href="/" className="text-[#81ecff] border-b-2 border-[#81ecff] pb-1 font-headline font-bold text-[10px] sm:text-xs uppercase tracking-[0.2em] whitespace-nowrap">
               Network
             </Link>
-            <Link href="/insights" className="text-[#a3aac4] hover:text-[#dee5ff] transition-all font-headline font-medium text-sm">
+            <Link href="/insights" className="text-[#a3aac4] hover:text-[#dee5ff] transition-all font-headline font-bold text-[10px] sm:text-xs uppercase tracking-[0.2em] whitespace-nowrap">
               Insights
             </Link>
-            <Link href="/help" className="text-[#a3aac4] hover:text-[#dee5ff] transition-all font-headline font-medium text-sm">
+            <Link href="/help" className="text-[#a3aac4] hover:text-[#dee5ff] transition-all font-headline font-bold text-[10px] sm:text-xs uppercase tracking-[0.2em] whitespace-nowrap">
               Help
             </Link>
           </div>
