@@ -269,13 +269,13 @@ function ApplyPageContent() {
     <div className="min-h-screen bg-background text-on-surface font-body selection:bg-primary/30">
       <header className="fixed top-0 right-0 w-full h-24 z-40 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10 flex justify-between items-center px-8">
         <div className="flex items-center gap-20">
-          <Link href="/" className="relative h-20 w-48 flex items-center justify-center">
+          <Link href="/" className="relative h-24 w-80 flex items-center justify-center">
             <Image 
               src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
               alt="Logo" 
-              width={160}
-              height={80}
-              className="object-contain h-full w-auto" 
+              width={260}
+              height={130}
+              className="object-contain h-full w-auto scale-110" 
               priority
             />
           </Link>

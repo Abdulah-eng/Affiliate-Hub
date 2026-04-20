@@ -99,13 +99,13 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
       )}>
         <div className="px-8 mb-6 flex flex-col shrink-0 gap-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="relative h-16 w-40 flex items-center justify-center -ml-2">
+            <Link href="/" className="relative h-20 w-48 flex items-center justify-center -ml-2">
               <Image 
                 src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
                 alt="Logo" 
-                width={160}
-                height={80}
-                className="object-contain" 
+                width={200}
+                height={100}
+                className="object-contain h-full w-auto scale-110" 
                 priority
               />
             </Link>

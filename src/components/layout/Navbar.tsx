@@ -5,16 +5,16 @@ import Image from 'next/image';
 
 export const Navbar = () => {
   return (
-    <nav className="fixed top-0 right-0 w-full h-24 z-50 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10">
+    <nav className="fixed top-0 right-0 w-full h-28 z-50 bg-[#060e20]/60 backdrop-blur-xl border-b border-[#81ecff]/10">
       <div className="flex justify-between items-center px-8 w-full h-full max-w-7xl mx-auto">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="relative h-24 w-64 flex items-center justify-center">
+        <div className="flex items-center gap-12">
+          <Link href="/" className="relative h-24 w-80 flex items-center justify-center">
             <Image 
               src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
               alt="Logo" 
-              width={220}
-              height={110}
-              className="object-contain h-full w-auto" 
+              width={300}
+              height={150}
+              className="object-contain h-full w-auto scale-110" 
               priority
             />
           </Link>
