@@ -145,8 +145,8 @@ model LeaderboardEntry {
   id        String   @id @default(cuid())
   category  String   // TOP_PLAYERS, TOP_VTO, TOP_COMMISSION
   rank      Int
-  userId    String   // Agent UID or Name
-  ggrValue  String   // Performance Value (e.g. "50,000", "85%")
+  userId    String   @default("") // Agent UID or Name
+  ggrValue  String   @default("") // Performance Value (e.g. "50,000", "85%")
   dateRange String?  // The timeframe (e.g. "JAN 19 - JAN 25")
 
   createdAt DateTime @default(now())
