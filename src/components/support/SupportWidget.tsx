@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useTransition } from 'react';
+import React, { useState, useEffect, useRef, useTransition, useCallback } from 'react';
 import { 
   MessageSquare, 
   X, 
@@ -34,7 +34,7 @@ export function SupportWidget() {
   const [guestEmail, setGuestEmail] = useState("");
 
   // Initialize or fetch ticket
-  const initializeSupport = async (manualGuestInfo?: { name: string, email: string }) => {
+  const initializeSupport = useCallback(async (manualGuestInfo?: { name: string, email: string }) => {
     setLoading(true);
     let guestInfo = undefined;
     
@@ -63,7 +63,7 @@ export function SupportWidget() {
       }
     }
     setLoading(false);
-  };
+  }, [session]);
 
   useEffect(() => {
     if (isOpen) {

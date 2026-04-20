@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useTransition } from 'react';
+import React, { useState, useEffect, useRef, useTransition, useCallback } from 'react';
 import { 
   MessageSquare, 
   Send, 
@@ -34,7 +34,7 @@ export default function SupportPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize or fetch ticket
-  const initializeSupport = async (forceGuestInfo?: any) => {
+  const initializeSupport = useCallback(async (forceGuestInfo?: any) => {
     setLoading(true);
     let guestInfo = forceGuestInfo;
     
@@ -54,11 +54,11 @@ export default function SupportPage() {
       setFormSubmitted(true);
     }
     setLoading(false);
-  };
+  }, [session]);
 
   useEffect(() => {
     initializeSupport();
-  }, [session]);
+  }, [initializeSupport]);
 
   useEffect(() => {
     if (ticket) {

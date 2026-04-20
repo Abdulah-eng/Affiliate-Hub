@@ -85,19 +85,6 @@ function GoogleKycPageContent() {
   const setFile = (key: string) => (file: File | null) =>
     setKycFiles(prev => ({ ...prev, [key]: file }));
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
-      </div>
-    );
-  }
-
-  if (status === "unauthenticated") {
-    router.replace("/apply");
-    return null;
-  }
-
   const userId = (session?.user as any)?.id;
   const userEmail = session?.user?.email || "";
   const userImage = session?.user?.image || "";
@@ -114,6 +101,19 @@ function GoogleKycPageContent() {
       }
     }
   }, [status, kycStatus, router, success]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-primary" size={32} />
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    router.replace("/apply");
+    return null;
+  }
 
   if (success) {
     return (
