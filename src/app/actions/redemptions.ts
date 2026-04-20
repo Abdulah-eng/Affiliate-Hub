@@ -210,3 +210,53 @@ export async function uploadProductImage(formData: FormData) {
     return { success: false, error: "Failed to upload product image" };
   }
 }
+
+export async function updateRedemptionProduct(id: string, data: {
+  name: string;
+  description: string;
+  pointsCost: number;
+  type: string;
+  imageUrl?: string;
+  stock?: number;
+  isActive?: boolean;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    await prisma.redemptionProduct.update({
+      where: { id },
+      data: {
+        name: data.name,
+        description: data.description,
+        pointsCost: data.pointsCost,
+        type: data.type,
+        imageUrl: data.imageUrl,
+        stock: data.stock ?? -1,
+        isActive: data.isActive ?? true
+      }
+    });
+
+    revalidatePath("/admin/redemptions");
+    revalidatePath("/agent/wallet");
+    return { success: true };
+  } catch (error) {
+    console.error("Update Product Error:", error);
+    return { success: false, error: "Failed to update product" };
+  }
+}
+
+export async function deleteRedemptionProduct(id: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    await prisma.redemptionProduct.delete({ where: { id } });
+    revalidatePath("/admin/redemptions");
+    revalidatePath("/agent/wallet");
+    return { success: true };
+  } catch (error) {
+    console.error("Delete Product Error:", error);
+    return { success: false, error: "Failed to delete product" };
+  }
+}

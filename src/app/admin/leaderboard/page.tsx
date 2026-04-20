@@ -99,7 +99,7 @@ export default function AdminLeaderboardPage() {
                 <thead className="bg-white/[0.03]">
                   <tr>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest w-20">Rank</th>
-                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">User ID</th>
+                    <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Username / User ID</th>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">GGR</th>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Date (Range)</th>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest text-right">Actions</th>

@@ -121,8 +121,8 @@ export async function submitKycApplication(formData: FormData) {
     revalidatePath("/admin/review");
     return { success: true, userId: newUser.id };
   } catch (error: any) {
-    console.error("KYC Submission error:", JSON.stringify(error, null, 2));
-    console.error("KYC Error code:", error.code);
+    console.error("KYC Submission error details:", error);
+    if (error.stack) console.error("KYC Stack Trace:", error.stack);
 
     let errorMessage = 'Failed to submit application. Please try again.';
 

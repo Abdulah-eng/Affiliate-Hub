@@ -22,36 +22,60 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
 
   try {
     if (!data.userId || !data.ggrValue) {
-      return { success: false, error: "User ID and GGR Value are required." };
+      return { success: false, error: "User ID/Username and GGR value are required" };
     }
 
-    if (data.id) {
+    // Lookup user by ID or Username
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { id: data.userId },
+          { username: data.userId },
+          { affiliateUsername: data.userId }
+        ]
+      }
+    });
+
+    if (!user) {
+      return { success: false, error: `User not found: ${data.userId}` };
+    }
+
+    // Check for existing entry for this rank and category
+    const existingEntry = await prisma.leaderboardEntry.findFirst({
+      where: {
+        rank: data.rank,
+        category: data.category
+      }
+    });
+
+    if (existingEntry) {
       await prisma.leaderboardEntry.update({
-        where: { id: data.id },
+        where: { id: existingEntry.id },
         data: {
-          category: data.category,
-          rank: data.rank,
-          userId: data.userId,
+          userId: user.id || user.username || data.userId, // Fallback to raw string if needed, but we look up user
           ggrValue: data.ggrValue,
-          dateRange: data.dateRange
+          dateRange: data.dateRange || ""
         }
       });
     } else {
       await prisma.leaderboardEntry.create({
         data: {
-          category: data.category,
+          userId: user.id || user.username || data.userId,
           rank: data.rank,
-          userId: data.userId,
+          category: data.category,
           ggrValue: data.ggrValue,
-          dateRange: data.dateRange
+          dateRange: data.dateRange || ""
         }
       });
     }
+
     revalidatePath("/admin/leaderboard");
     revalidatePath("/agent/leaderboard");
     return { success: true };
-  } catch (error) {
-    return { success: false, error: "Failed to save entry" };
+  } catch (error: any) {
+    console.error("Leaderboard Save Error:", error);
+    if (error.stack) console.error("Leaderboard Error Stack:", error.stack);
+    return { success: false, error: "Failed to save entry: " + (error.message || "Unknown error") };
   }
 }
 

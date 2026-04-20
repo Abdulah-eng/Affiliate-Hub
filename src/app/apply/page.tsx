@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { submitKycApplication } from "@/app/actions/auth";
 import { signIn } from "next-auth/react";
 import { getAllBrands } from "@/app/actions/admin";
+import { useSession } from "next-auth/react";
 
 const STEPS = [
   { id: 1, name: "Account" },
@@ -66,10 +67,22 @@ import { SupportWidget } from "@/components/support/SupportWidget";
 import { Suspense } from "react";
 
 function ApplyPageContent() {
+  const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const referralCode = searchParams.get("ref");
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (sessionStatus === "authenticated") {
+      const user = session.user as any;
+      if (user.kycStatus === "APPROVED") {
+        router.push("/agent");
+      } else if (user.kycStatus === "PENDING") {
+        // Stay here or show message
+      }
+    }
+  }, [sessionStatus, session, router]);
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);

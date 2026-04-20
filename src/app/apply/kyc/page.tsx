@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -102,6 +102,18 @@ function GoogleKycPageContent() {
   const userEmail = session?.user?.email || "";
   const userImage = session?.user?.image || "";
   const userName = session?.user?.name || "";
+  const kycStatus = (session?.user as any)?.kycStatus;
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      if (kycStatus === "APPROVED") {
+        router.push("/agent");
+      } else if (kycStatus === "PENDING" && !success) {
+        // Option: allow them to see the success screen again if they refresh
+        setSuccess(true);
+      }
+    }
+  }, [status, kycStatus, router, success]);
 
   if (success) {
     return (

@@ -110,14 +110,14 @@ export default function AgentLeaderboardPage() {
         <div>
           <div className="flex items-center gap-3 mb-4">
             <span className="px-4 py-1.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-primary/20 flex items-center gap-2">
-              <Trophy size={12} className="text-primary animate-pulse" /> Global Network Stats
+              <Trophy size={12} className="text-primary animate-pulse" /> Affiliate Performance Stats
             </span>
           </div>
           <h1 className="text-4xl lg:text-5xl font-black font-headline tracking-tighter text-on-surface uppercase italic leading-none">
-            Kinetic <span className="text-primary tracking-normal not-italic">Ranking</span>
+            Affiliate Hub Ph <span className="text-primary tracking-normal not-italic">Ranking</span>
           </h1>
           <p className="text-on-surface-variant max-w-2xl text-lg font-medium mt-6">
-            Witness the elite performers of the Kinetic syndicate. Scale your performance to dominate the global standings.
+            Discover top-performing affiliates across the network. Track your progress and climb the leaderboard with real results.
           </p>
         </div>
 

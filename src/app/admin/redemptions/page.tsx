@@ -19,14 +19,16 @@ import {
   X,
   Users
 } from "lucide-react";
-import { getPendingRedemptions, processRedemption, seedInitialProducts, addRedemptionProduct, uploadProductImage } from "@/app/actions/redemptions";
+import { getPendingRedemptions, processRedemption, seedInitialProducts, addRedemptionProduct, uploadProductImage, getRedemptionProducts, updateRedemptionProduct, deleteRedemptionProduct } from "@/app/actions/redemptions";
 import { cn } from "@/lib/utils";
 
 export default function AdminRedemptionsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
-  const [activeTab, setActiveTab] = useState<"pending" | "processed">("pending");
+  const [activeTab, setActiveTab] = useState<"pending" | "processed" | "inventory">("pending");
+  const [products, setProducts] = useState<any[]>([]);
+  const [editingProduct, setEditingProduct] = useState<any | null>(null);
   
   // Add Product Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -40,20 +42,24 @@ export default function AdminRedemptionsPage() {
   });
   const [isUploading, setIsUploading] = useState(false);
 
-  const fetchRequests = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    const res = await getPendingRedemptions();
-    if (res.success) setRequests(res.requests || []);
+    const [reqRes, prodRes] = await Promise.all([
+      getPendingRedemptions(),
+      getRedemptionProducts()
+    ]);
+    if (reqRes.success) setRequests(reqRes.requests || []);
+    if (prodRes.success) setProducts(prodRes.products || []);
     setLoading(false);
   };
-
-  useEffect(() => { fetchRequests(); }, []);
+  
+  useEffect(() => { fetchData(); }, []);
 
   const handleProcess = (id: string, status: "APPROVED" | "REJECTED") => {
     if (!confirm(`Are you sure you want to ${status.toLowerCase()} this request?`)) return;
     startTransition(async () => {
       const res = await processRedemption(id, status);
-      if (res.success) fetchRequests();
+      if (res.success) fetchData();
       else alert(res.error);
     });
   };
@@ -89,19 +95,60 @@ export default function AdminRedemptionsPage() {
       }
     }
 
-    const res = await addRedemptionProduct({
-      ...newProduct,
-      imageUrl: finalImageUrl
-    });
+    if (editingProduct) {
+      const res = await updateRedemptionProduct(editingProduct.id, {
+        ...newProduct,
+        imageUrl: finalImageUrl
+      });
+      if (res.success) {
+        setIsAddModalOpen(false);
+        setEditingProduct(null);
+        setNewProduct({ name: "", description: "", pointsCost: 0, type: "PRODUCT", imageUrl: "", imageFile: null });
+        alert("Product updated successfully!");
+        fetchData();
+      } else {
+        alert(res.error);
+      }
+    } else {
+      const res = await addRedemptionProduct({
+        ...newProduct,
+        imageUrl: finalImageUrl
+      });
+  
+      if (res.success) {
+        setIsAddModalOpen(false);
+        setNewProduct({ name: "", description: "", pointsCost: 0, type: "PRODUCT", imageUrl: "", imageFile: null });
+        alert("Product added successfully!");
+        fetchData();
+      } else {
+        alert(res.error);
+      }
+    }
+    setIsUploading(false);
+  };
 
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name,
+      description: product.description || "",
+      pointsCost: product.pointsCost,
+      type: product.type,
+      imageUrl: product.imageUrl || "",
+      imageFile: null
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("Delete this product permanently?")) return;
+    const res = await deleteRedemptionProduct(id);
     if (res.success) {
-      setIsAddModalOpen(false);
-      setNewProduct({ name: "", description: "", pointsCost: 0, type: "PRODUCT", imageUrl: "", imageFile: null });
-      alert("Product added successfully!");
+      alert("Product deleted.");
+      fetchData();
     } else {
       alert(res.error);
     }
-    setIsUploading(false);
   };
 
   const filteredRequests = requests.filter(r => 
@@ -140,8 +187,8 @@ export default function AdminRedemptionsPage() {
         <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
           <GlassCard className="max-w-xl w-full p-8 space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-black text-on-surface uppercase tracking-tight">Add New Product</h2>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-on-surface-variant hover:text-white">
+              <h2 className="text-xl font-black text-on-surface uppercase tracking-tight">{editingProduct ? "Edit Product" : "Add New Product"}</h2>
+              <button onClick={() => { setIsAddModalOpen(false); setEditingProduct(null); }} className="text-on-surface-variant hover:text-white">
                 <X size={20} />
               </button>
             </div>
@@ -221,7 +268,7 @@ export default function AdminRedemptionsPage() {
               className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-              {isUploading ? "Uploading..." : "Save Product Prototype"}
+              {isUploading ? "Uploading..." : editingProduct ? "Update Product Details" : "Save Product Prototype"}
             </button>
           </GlassCard>
         </div>
@@ -246,6 +293,15 @@ export default function AdminRedemptionsPage() {
         >
           Processed History
         </button>
+        <button 
+          onClick={() => setActiveTab("inventory")}
+          className={cn(
+            "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+            activeTab === "inventory" ? "bg-primary text-slate-950 shadow-lg" : "text-on-surface-variant hover:text-white"
+          )}
+        >
+          Inventory Management ({products.length})
+        </button>
       </div>
 
       {loading ? (
@@ -254,7 +310,34 @@ export default function AdminRedemptionsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {filteredRequests.length === 0 ? (
+          {activeTab === "inventory" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <GlassCard key={product.id} className="p-0 overflow-hidden flex flex-col hover:border-primary/20 transition-all">
+                  <div className="aspect-video relative bg-slate-900">
+                    {product.imageUrl ? (
+                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-primary/10">
+                         <ShoppingBag size={48} />
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3 flex gap-2">
+                       <button onClick={() => handleEditProduct(product)} className="p-2 bg-slate-950/80 rounded-lg text-primary hover:bg-primary hover:text-slate-950 transition-all"><Save size={14} /></button>
+                       <button onClick={() => handleDeleteProduct(product.id)} className="p-2 bg-slate-950/80 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                    <div>
+                       <h4 className="text-lg font-black text-on-surface uppercase tracking-tight">{product.name}</h4>
+                       <p className="text-[10px] font-black text-primary uppercase tracking-widest mt-1">{product.pointsCost.toLocaleString()} PTS • {product.type}</p>
+                       <p className="text-xs text-on-surface-variant mt-3 line-clamp-2 opacity-60 font-medium">{product.description}</p>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          ) : filteredRequests.length === 0 ? (
             <div className="py-20 text-center glass-card border-dashed">
               <Clock size={48} className="mx-auto mb-4 opacity-20" />
               <p className="font-black text-on-surface-variant uppercase tracking-widest">No requests found</p>
@@ -262,6 +345,7 @@ export default function AdminRedemptionsPage() {
           ) : (
             filteredRequests.map((req) => (
               <GlassCard key={req.id} className="p-0 overflow-hidden border-white/5 hover:border-white/10 transition-all">
+                {/* ... existing request card content ... */}
                 <div className="p-8 flex flex-col lg:flex-row gap-8">
                    <div className="flex-1 space-y-6">
                       <div className="flex items-center justify-between">
@@ -295,7 +379,7 @@ export default function AdminRedemptionsPage() {
                                </p>
                                {req.verificationDetails?.email && (
                                   <p className="text-xs text-on-surface-variant italic">{req.verificationDetails?.email}</p>
-                               )}
+                                )}
                             </div>
                          </div>
                          <div className="space-y-4">

@@ -126,7 +126,7 @@ export default function AgentWalletPage() {
               <Zap size={12} className="text-primary animate-pulse" /> Extraction Terminal Active
             </span>
           </div>
-          <h1 className="text-4xl lg:text-6xl font-black font-headline tracking-tighter text-on-surface uppercase italic leading-none">
+          <h1 className="text-4xl lg:text-7xl font-black font-headline tracking-tighter text-on-surface uppercase italic leading-none">
             Kinetic <span className="text-primary tracking-normal not-italic">Wallet</span>
           </h1>
           <p className="text-on-surface-variant max-w-2xl text-lg font-medium mt-6">
@@ -355,13 +355,13 @@ export default function AgentWalletPage() {
                             </div>
                          </div>
                          <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Your Time2Bet Username</label>
+                            <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Your Affiliate Hub Username</label>
                             <input 
                               type="text" 
                               value={formUsername}
                               onChange={e => setFormUsername(e.target.value)}
                               className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-4 px-4 text-sm font-bold focus:border-primary outline-none transition-all"
-                              placeholder="Time2Bet Username"
+                              placeholder="Affiliate Hub Username"
                             />
                          </div>
                          <div className="space-y-2">
