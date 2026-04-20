@@ -149,3 +149,64 @@ export async function seedInitialProducts() {
         return { success: false, error: "Seeding failed" };
     }
 }
+
+export async function addRedemptionProduct(data: {
+  name: string;
+  description: string;
+  pointsCost: number;
+  type: string;
+  imageUrl?: string;
+  stock?: number;
+}) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    const product = await prisma.redemptionProduct.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        pointsCost: data.pointsCost,
+        type: data.type,
+        imageUrl: data.imageUrl,
+        stock: data.stock ?? -1,
+        isActive: true
+      }
+    });
+
+    revalidatePath("/admin/redemptions");
+    revalidatePath("/agent/wallet");
+    return { success: true, product };
+  } catch (error) {
+    console.error("Add Product Error:", error);
+    return { success: false, error: "Failed to create product" };
+  }
+}
+
+export async function uploadProductImage(formData: FormData) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
+  try {
+    const file = formData.get("file") as File;
+    if (!file) return { success: false, error: "No file provided" };
+
+    const { writeFile, mkdir } = await import("fs/promises");
+    const { join } = await import("path");
+    
+    const uploadDir = join(process.cwd(), "public", "uploads", "products");
+    await mkdir(uploadDir, { recursive: true });
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const filePath = join(uploadDir, fileName);
+    
+    await writeFile(filePath, buffer);
+    const url = `/uploads/products/${fileName}`;
+
+    return { success: true, url };
+  } catch (error: any) {
+    console.error("Product Image Upload Error:", error);
+    return { success: false, error: "Failed to upload product image" };
+  }
+}

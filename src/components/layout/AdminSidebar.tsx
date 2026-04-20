@@ -21,23 +21,11 @@ import {
 import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { getAdminSidebarStats } from '@/app/actions/admin';
 import Image from 'next/image';
 
 export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [stats, setStats] = useState({ pendingKyc: 0, pendingMissions: 0, openTickets: 0 });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const data = await getAdminSidebarStats();
-      setStats(data);
-    };
-    fetchStats();
-    const interval = setInterval(fetchStats, 30000); // Check every 30s
-    return () => clearInterval(interval);
-  }, []);
 
   const isCSR = session?.user?.role === 'CSR';
 
@@ -46,9 +34,9 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Leaderboard', icon: <Trophy size={18} />, href: '/admin/leaderboard', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Redemptions', icon: <CreditCard size={18} />, href: '/admin/redemptions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Platform Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
-    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingKyc },
-    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.pendingMissions },
-    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], badge: stats.openTickets },
+    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts', roles: ['ADMIN', 'SEMI_ADMIN'] },
     { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
@@ -121,12 +109,6 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
             >
               {item.icon}
               <span className="font-medium text-sm">{item.name}</span>
-              
-              {item.badge && item.badge > 0 ? (
-                <span className="ml-auto bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
-                  {item.badge}
-                </span>
-              ) : null}
 
               {isActive && <div className="absolute right-4 w-1 h-4 bg-primary rounded-full blur-sm animate-pulse"></div>}
             </Link>

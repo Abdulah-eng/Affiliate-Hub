@@ -21,6 +21,10 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
   if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
 
   try {
+    if (!data.userId || !data.ggrValue) {
+      return { success: false, error: "User ID and GGR Value are required." };
+    }
+
     if (data.id) {
       await prisma.leaderboardEntry.update({
         where: { id: data.id },

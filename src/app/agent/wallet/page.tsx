@@ -38,6 +38,9 @@ export default function AgentWalletPage() {
   const [formName, setFormName] = useState("");
   const [formPhone, setFormPhone] = useState("");
   const [formAddress, setFormAddress] = useState("");
+  const [formUsername, setFormUsername] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formInstruction, setFormInstruction] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -51,6 +54,8 @@ export default function AgentWalletPage() {
       setTransactions(walletData.transactions);
       setFormName(walletData.name || "");
       setFormPhone(walletData.mobileNumber || "");
+      setFormUsername(walletData.username || "");
+      setFormEmail(walletData.email || "");
     }
 
     if (productData.success) {
@@ -64,8 +69,13 @@ export default function AgentWalletPage() {
   const handleClaim = () => {
     if (!selectedProduct) return;
     
-    if (!formName || !formPhone || (selectedProduct.type === "PRODUCT" && !formAddress)) {
-      setError("Please fill in all required fields.");
+    if (!formName || !formPhone || !formUsername || !formEmail) {
+      setError("Please fill in all identity credentials.");
+      return;
+    }
+
+    if (selectedProduct.type === "PRODUCT" && !formAddress) {
+      setError("Shipping Address is required for physical rewards.");
       return;
     }
 
@@ -74,7 +84,10 @@ export default function AgentWalletPage() {
       const res = await submitRedemptionRequest(selectedProduct.id, {
         name: formName,
         phone: formPhone,
-        address: formAddress
+        address: formAddress,
+        username: formUsername,
+        email: formEmail,
+        instructions: formInstruction
       });
 
       if (res.success) {
@@ -82,6 +95,8 @@ export default function AgentWalletPage() {
         setTimeout(() => {
           setSuccess(false);
           setSelectedProduct(null);
+          // Clear sensitive one-off instructions
+          setFormInstruction("");
           fetchData();
         }, 3000);
       } else {
@@ -322,8 +337,8 @@ export default function AgentWalletPage() {
                               type="text" 
                               value={formName}
                               onChange={e => setFormName(e.target.value)}
+                              className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-4 px-4 text-sm font-bold focus:border-primary outline-none transition-all"
                               placeholder="Full Name"
-                              className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 px-4 text-sm font-bold focus:border-primary outline-none transition-all"
                             />
                          </div>
                          <div className="space-y-2">
@@ -334,28 +349,54 @@ export default function AgentWalletPage() {
                                 type="text" 
                                 value={formPhone}
                                 onChange={e => setFormPhone(e.target.value)}
+                                className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm font-mono focus:border-primary outline-none transition-all"
                                 placeholder="09XX XXX XXXX"
-                                className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm font-mono focus:border-primary outline-none transition-all"
                                />
                             </div>
                          </div>
+                         <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Your Time2Bet Username</label>
+                            <input 
+                              type="text" 
+                              value={formUsername}
+                              onChange={e => setFormUsername(e.target.value)}
+                              className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-4 px-4 text-sm font-bold focus:border-primary outline-none transition-all"
+                              placeholder="Time2Bet Username"
+                            />
+                         </div>
+                         <div className="space-y-2">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Email Address</label>
+                            <input 
+                              type="email" 
+                              value={formEmail}
+                              onChange={e => setFormEmail(e.target.value)}
+                              className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-4 px-4 text-sm font-bold focus:border-primary outline-none transition-all"
+                              placeholder="Email Address"
+                            />
+                         </div>
                       </div>
 
-                      {selectedProduct.type === "PRODUCT" && (
-                        <div className="space-y-2 animate-in slide-in-from-bottom-2 duration-500">
-                          <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Shipping Address</label>
-                          <div className="relative">
-                             <MapPin size={16} className="absolute left-4 top-4 text-on-surface-variant" />
-                             <textarea 
-                               value={formAddress}
-                               onChange={e => setFormAddress(e.target.value)}
-                               placeholder="Street, Barangay, City, Province, Zip Code"
-                               rows={3}
-                               className="w-full bg-surface-container-low border border-white/10 rounded-xl py-4 pl-12 pr-4 text-sm font-medium focus:border-primary outline-none transition-all resize-none"
-                             />
-                          </div>
-                        </div>
-                      )}
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Full Delivery Address (including city, province, ZIP code)</label>
+                        <textarea 
+                          value={formAddress}
+                          onChange={e => setFormAddress(e.target.value)}
+                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-sm font-medium focus:border-primary outline-none transition-all resize-none"
+                          rows={2}
+                          placeholder="Street, Barangay, City, Province, Zip Code"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant ml-1">Message / Instructions</label>
+                        <textarea 
+                          value={formInstruction}
+                          onChange={e => setFormInstruction(e.target.value)}
+                          className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-sm font-medium focus:border-primary outline-none transition-all resize-none"
+                          rows={2}
+                          placeholder="Any specific instructions for your reward..."
+                        />
+                      </div>
 
                       {error && (
                         <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-400 text-xs font-bold animate-pulse">
@@ -367,14 +408,14 @@ export default function AgentWalletPage() {
                         onClick={handleClaim}
                         disabled={balance.pts < selectedProduct.pointsCost || isPending}
                         className={cn(
-                          "w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-sm transition-all flex items-center justify-center gap-3 shadow-2xl",
+                          "w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-3 shadow-2xl",
                           balance.pts >= selectedProduct.pointsCost 
-                            ? "bg-primary text-background hover:scale-[1.02] active:scale-[0.98] shadow-primary/20" 
+                            ? "bg-[#ff9500] text-white hover:scale-[1.02] active:scale-[0.98] shadow-[#ff9500]/20" 
                             : "bg-white/5 text-on-surface-variant/20 border border-white/5 cursor-not-allowed"
                         )}
                       >
-                        {isPending ? <Loader2 size={24} className="animate-spin" /> : <Zap size={20} />}
-                        {isPending ? "TRANSMITTING..." : balance.pts >= selectedProduct.pointsCost ? "INITIATE EXTRACTION" : "INSUFFICIENT POINTS"}
+                        {isPending ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
+                        {isPending ? "TRANSMITTING..." : "Claim My Reward"}
                       </button>
                    </div>
                  )}

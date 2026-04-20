@@ -15,9 +15,11 @@ import {
   Plus,
   Save,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  X,
+  Users
 } from "lucide-react";
-import { getPendingRedemptions, processRedemption, seedInitialProducts } from "@/app/actions/redemptions";
+import { getPendingRedemptions, processRedemption, seedInitialProducts, addRedemptionProduct, uploadProductImage } from "@/app/actions/redemptions";
 import { cn } from "@/lib/utils";
 
 export default function AdminRedemptionsPage() {
@@ -25,6 +27,18 @@ export default function AdminRedemptionsPage() {
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<"pending" | "processed">("pending");
+  
+  // Add Product Modal State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    description: "",
+    pointsCost: 0,
+    type: "PRODUCT",
+    imageUrl: "",
+    imageFile: null as File | null
+  });
+  const [isUploading, setIsUploading] = useState(false);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -53,6 +67,43 @@ export default function AdminRedemptionsPage() {
     });
   };
 
+  const handleAddProduct = async () => {
+    if (!newProduct.name || newProduct.pointsCost <= 0) {
+      alert("Name and valid points cost are required.");
+      return;
+    }
+
+    setIsUploading(true);
+    let finalImageUrl = newProduct.imageUrl;
+
+    if (newProduct.imageFile) {
+      const formData = new FormData();
+      formData.append("file", newProduct.imageFile);
+      const uploadRes = await uploadProductImage(formData);
+      if (uploadRes.success) {
+        finalImageUrl = uploadRes.url || "";
+      } else {
+        alert("Image upload failed: " + uploadRes.error);
+        setIsUploading(false);
+        return;
+      }
+    }
+
+    const res = await addRedemptionProduct({
+      ...newProduct,
+      imageUrl: finalImageUrl
+    });
+
+    if (res.success) {
+      setIsAddModalOpen(false);
+      setNewProduct({ name: "", description: "", pointsCost: 0, type: "PRODUCT", imageUrl: "", imageFile: null });
+      alert("Product added successfully!");
+    } else {
+      alert(res.error);
+    }
+    setIsUploading(false);
+  };
+
   const filteredRequests = requests.filter(r => 
     activeTab === "pending" ? r.status === "PENDING" : r.status !== "PENDING"
   );
@@ -75,11 +126,106 @@ export default function AdminRedemptionsPage() {
            >
              <RefreshCw size={14} /> Seed Products
            </button>
-           <button className="px-6 py-3 bg-primary text-background text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2">
+           <button 
+             onClick={() => setIsAddModalOpen(true)}
+             className="px-6 py-3 bg-primary text-background text-[10px] font-black uppercase tracking-widest rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg flex items-center gap-2"
+           >
              <Plus size={14} /> Add Product
            </button>
         </div>
       </div>
+
+      {/* Add Product Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <GlassCard className="max-w-xl w-full p-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-black text-on-surface uppercase tracking-tight">Add New Product</h2>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-on-surface-variant hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest ml-1">Product Name</label>
+                <input 
+                  type="text" 
+                  value={newProduct.name}
+                  onChange={e => setNewProduct({...newProduct, name: e.target.value})}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-primary outline-none"
+                  placeholder="e.g. 100 PHP GCash"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest ml-1">Points Cost</label>
+                <input 
+                  type="number" 
+                  value={newProduct.pointsCost}
+                  onChange={e => setNewProduct({...newProduct, pointsCost: parseInt(e.target.value)})}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-primary outline-none"
+                  placeholder="1000"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest ml-1">Description</label>
+                <textarea 
+                  value={newProduct.description}
+                  onChange={e => setNewProduct({...newProduct, description: e.target.value})}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium focus:border-primary outline-none resize-none"
+                  rows={3}
+                  placeholder="Details about this reward..."
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest ml-1">Type</label>
+                  <select 
+                    value={newProduct.type}
+                    onChange={e => setNewProduct({...newProduct, type: e.target.value})}
+                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-primary outline-none"
+                  >
+                    <option value="PRODUCT">PRODUCT</option>
+                    <option value="GCASH">GCASH</option>
+                    <option value="RAFFLE_PRIZE">RAFFLE_PRIZE</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                   <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest ml-1">Upload Image</label>
+                   <input 
+                    type="file" 
+                    onChange={e => setNewProduct({...newProduct, imageFile: e.target.files?.[0] || null})}
+                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-[10px] font-bold file:bg-primary/10 file:border-0 file:text-primary file:rounded-lg file:px-2 file:py-1 file:mr-2"
+                   />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest ml-1">Or Image URL</label>
+                <input 
+                  type="text" 
+                  value={newProduct.imageUrl}
+                  onChange={e => setNewProduct({...newProduct, imageUrl: e.target.value})}
+                  className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-primary outline-none"
+                  placeholder="https://i.postimg.cc/..."
+                />
+              </div>
+            </div>
+
+            <button 
+              onClick={handleAddProduct}
+              disabled={isUploading}
+              className="w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+            >
+              {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+              {isUploading ? "Uploading..." : "Save Product Prototype"}
+            </button>
+          </GlassCard>
+        </div>
+      )}
 
       <div className="flex bg-slate-950 p-1 rounded-2xl border border-white/5 w-fit">
         <button 
@@ -141,19 +287,35 @@ export default function AdminRedemptionsPage() {
                                <p className="text-sm font-bold text-on-surface flex items-center gap-2">
                                   <Smartphone size={14} className="text-primary" /> {req.verificationDetails?.phone || "No Phone"}
                                </p>
+                               <p className="text-sm font-medium text-white flex items-center gap-2">
+                                  <Users size={14} className="text-primary" /> {req.verificationDetails?.username || "No Username"}
+                               </p>
                                <p className="text-sm font-medium text-on-surface-variant">
                                   {req.user?.name} ({req.user?.username || req.user?.email})
                                </p>
+                               {req.verificationDetails?.email && (
+                                  <p className="text-xs text-on-surface-variant italic">{req.verificationDetails?.email}</p>
+                               )}
                             </div>
                          </div>
-                         {req.product?.type === "PRODUCT" && (
-                            <div>
-                               <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3">Shipping Matrix</p>
-                               <p className="text-sm font-medium text-on-surface-variant flex items-start gap-2 leading-relaxed italic">
-                                  <MapPin size={14} className="text-primary shrink-0 mt-1" /> {req.verificationDetails?.address || "No Address Provided"}
-                               </p>
-                            </div>
-                         )}
+                         <div className="space-y-4">
+                            {req.product?.type === "PRODUCT" && (
+                               <div>
+                                  <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3">Shipping Matrix</p>
+                                  <p className="text-sm font-medium text-on-surface-variant flex items-start gap-2 leading-relaxed italic">
+                                     <MapPin size={14} className="text-primary shrink-0 mt-1" /> {req.verificationDetails?.address || "No Address Provided"}
+                                  </p>
+                               </div>
+                            )}
+                            {req.verificationDetails?.instructions && (
+                               <div>
+                                  <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Instructions</p>
+                                  <p className="text-xs font-medium text-on-surface-variant opacity-60 leading-relaxed italic">
+                                     "{req.verificationDetails?.instructions}"
+                                  </p>
+                               </div>
+                            )}
+                         </div>
                       </div>
                    </div>
 
