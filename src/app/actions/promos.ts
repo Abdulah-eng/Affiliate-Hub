@@ -87,7 +87,7 @@ export async function uploadPromoImage(formData: FormData) {
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/promos/${fileName}`;
+    const url = `/api/uploads/promos/${fileName}`;
 
     return { success: true, url };
   } catch (error: any) {
@@ -124,7 +124,7 @@ export async function submitPromoProof(formData: FormData) {
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/proofs/${fileName}`;
+    const url = `/api/uploads/proofs/${fileName}`;
 
     await prisma.promoSubmission.create({
       data: {

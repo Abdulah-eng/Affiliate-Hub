@@ -130,7 +130,7 @@ export async function uploadChatAsset(formData: FormData) {
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/chat/${fileName}`;
+    const url = `/api/uploads/chat/${fileName}`;
 
     return { success: true, url, type: file.type };
   } catch (error: any) {
