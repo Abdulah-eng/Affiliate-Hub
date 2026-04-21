@@ -279,17 +279,19 @@ export async function uploadBrandLogo(formData: FormData) {
 }
 
 export async function getAdminSidebarStats() {
-  const [pendingKyc, pendingTasks, pendingPromos, openTickets] = await Promise.all([
+  const [pendingKyc, pendingTasks, pendingPromos, openTickets, pendingRedemptions] = await Promise.all([
     prisma.user.count({ where: { kycStatus: "PENDING" } }),
     prisma.userTaskProgress.count({ where: { status: "PENDING" } }),
     prisma.promoSubmission.count({ where: { status: "PENDING" } }),
-    prisma.supportTicket.count({ where: { status: "OPEN" } })
+    prisma.supportTicket.count({ where: { status: "OPEN" } }),
+    prisma.redemptionRequest.count({ where: { status: "PENDING" } })
   ]);
 
   return {
     pendingKyc,
     pendingMissions: pendingTasks + pendingPromos,
-    openTickets
+    openTickets,
+    pendingRedemptions
   };
 }
 

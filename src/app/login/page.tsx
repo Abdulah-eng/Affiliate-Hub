@@ -57,9 +57,19 @@ function LoginContent() {
       return;
     }
 
-    // Redirect based on role — fetch the updated session to get role
-    // For now, always go to agent. Middleware will redirect admins if needed.
-    router.push("/agent");
+    // Fetch updated session to get role and redirect accurately
+    const sessionResponse = await fetch("/api/auth/session");
+    const session = await sessionResponse.json();
+    
+    if (
+      session?.user?.role === "ADMIN" || 
+      session?.user?.role === "CSR" || 
+      session?.user?.role === "SEMI_ADMIN"
+    ) {
+      router.push("/admin");
+    } else {
+      router.push("/agent");
+    }
     router.refresh();
   };
 

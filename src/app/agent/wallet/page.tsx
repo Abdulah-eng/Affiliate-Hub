@@ -22,7 +22,13 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { getAgentWallet } from "@/app/actions/wallet";
 import { getRedemptionProducts, submitRedemptionRequest } from "@/app/actions/redemptions";
-import Image from "next/image";
+
+const getImageUrl = (url?: string | null) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  const cleanUrl = url.startsWith("/") ? url : `/${url}`;
+  return `https://affiliatehubph.com${cleanUrl}`;
+};
 
 export default function AgentWalletPage() {
   const [loading, setLoading] = useState(true);
@@ -135,7 +141,7 @@ export default function AgentWalletPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-auto">
-           <GlassCard className="p-6 bg-primary/5 border-primary/20 min-w-[240px] relative overflow-hidden group">
+           <GlassCard className="p-6 bg-primary/5 border-primary/20 relative overflow-hidden group min-w-0">
               <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
                 <Wallet size={80} className="text-primary" />
               </div>
@@ -148,7 +154,7 @@ export default function AgentWalletPage() {
               </div>
            </GlassCard>
            
-           <GlassCard className="p-6 bg-emerald-500/5 border-emerald-500/20 min-w-[240px] relative overflow-hidden group">
+           <GlassCard className="p-6 bg-emerald-500/5 border-emerald-500/20 relative overflow-hidden group min-w-0">
               <div className="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform duration-700">
                 <ShoppingBag size={80} className="text-emerald-500" />
               </div>
@@ -182,9 +188,14 @@ export default function AgentWalletPage() {
                 className="p-0 overflow-hidden group cursor-pointer hover:border-primary/40 transition-all flex flex-col"
                 onClick={() => setSelectedProduct(product)}
               >
-                <div className="aspect-[4/3] relative bg-slate-900 overflow-hidden">
+                <div className="aspect-[4/3] relative bg-slate-900 overflow-hidden min-w-0">
                   {product.imageUrl ? (
-                    <Image src={product.imageUrl} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img 
+                      src={getImageUrl(product.imageUrl)} 
+                      alt={product.name} 
+                      onError={(e) => { e.currentTarget.src = '/globe.png'; }}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-primary/10 gap-2">
                       <ShoppingBag size={80} />
@@ -282,9 +293,14 @@ export default function AgentWalletPage() {
       {selectedProduct && (
         <div className="fixed inset-0 z-[100] bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
            <GlassCard className="max-w-2xl w-full p-0 overflow-hidden animate-vapor my-auto shadow-[0_0_100px_rgba(129,236,255,0.1)]">
-              <div className="relative aspect-video bg-slate-900 border-b border-white/10">
+              <div className="relative aspect-video bg-slate-900 border-b border-white/10 min-w-0">
                  {selectedProduct.imageUrl ? (
-                   <Image src={selectedProduct.imageUrl} alt={selectedProduct.name} fill className="object-cover" />
+                   <img 
+                     src={getImageUrl(selectedProduct.imageUrl)} 
+                     alt={selectedProduct.name} 
+                     onError={(e) => { e.currentTarget.src = '/globe.png'; }}
+                     className="w-full h-full object-cover" 
+                   />
                  ) : (
                    <div className="w-full h-full flex items-center justify-center text-primary/10">
                      <ShoppingBag size={120} />

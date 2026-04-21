@@ -25,7 +25,7 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
       return { success: false, error: "User ID/Username and GGR value are required" };
     }
 
-    // Lookup user by ID or Username
+    // Optional user lookup (we allow saving even if not found)
     const user = await prisma.user.findFirst({
       where: {
         OR: [
@@ -36,9 +36,7 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
       }
     });
 
-    if (!user) {
-      return { success: false, error: `User not found: ${data.userId}` };
-    }
+    const finalUserId = user ? (user.id || user.username || data.userId) : data.userId;
 
     // Check for existing entry for this rank and category
     const existingEntry = await prisma.leaderboardEntry.findFirst({
@@ -52,7 +50,7 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
       await prisma.leaderboardEntry.update({
         where: { id: existingEntry.id },
         data: {
-          userId: user.id || user.username || data.userId, // Fallback to raw string if needed, but we look up user
+          userId: finalUserId,
           ggrValue: data.ggrValue,
           dateRange: data.dateRange || ""
         }
@@ -60,7 +58,7 @@ export async function upsertLeaderboardEntry(data: { id?: string, category: stri
     } else {
       await prisma.leaderboardEntry.create({
         data: {
-          userId: user.id || user.username || data.userId,
+          userId: finalUserId,
           rank: data.rank,
           category: data.category,
           ggrValue: data.ggrValue,

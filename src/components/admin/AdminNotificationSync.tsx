@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 
 export function AdminNotificationSync() {
   const { data: session } = useSession();
-  const prevStats = useRef({ pendingKyc: 0, pendingMissions: 0, openTickets: 0 });
+  const prevStats = useRef({ pendingKyc: 0, pendingMissions: 0, openTickets: 0, pendingRedemptions: 0 });
 
   useEffect(() => {
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "CSR")) return;
@@ -22,6 +22,8 @@ export function AdminNotificationSync() {
         let message = "";
         if (stats.pendingKyc > prevStats.current.pendingKyc) {
           message = `New KYC Application detected (${stats.pendingKyc} pending)`;
+        } else if (stats.pendingRedemptions > prevStats.current.pendingRedemptions) {
+          message = `New Redemption Request received (${stats.pendingRedemptions} pending)`;
         } else if (stats.pendingMissions > prevStats.current.pendingMissions) {
           message = `New Mission Review submitted (${stats.pendingMissions} pending)`;
         } else if (stats.openTickets > prevStats.current.openTickets) {

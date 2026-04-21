@@ -22,6 +22,13 @@ import {
 import { getPendingRedemptions, processRedemption, seedInitialProducts, addRedemptionProduct, uploadProductImage, getRedemptionProducts, updateRedemptionProduct, deleteRedemptionProduct } from "@/app/actions/redemptions";
 import { cn } from "@/lib/utils";
 
+const getImageUrl = (url?: string | null) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  const cleanUrl = url.startsWith("/") ? url : `/${url}`;
+  return `https://affiliatehubph.com${cleanUrl}`;
+};
+
 export default function AdminRedemptionsPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -316,7 +323,12 @@ export default function AdminRedemptionsPage() {
                 <GlassCard key={product.id} className="p-0 overflow-hidden flex flex-col hover:border-primary/20 transition-all">
                   <div className="aspect-video relative bg-slate-900">
                     {product.imageUrl ? (
-                      <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={getImageUrl(product.imageUrl)} 
+                        alt={product.name} 
+                        onError={(e) => { e.currentTarget.src = '/globe.png'; }}
+                        className="w-full h-full object-cover" 
+                      />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-primary/10">
                          <ShoppingBag size={48} />

@@ -111,13 +111,31 @@ export async function processRedemption(requestId: string, status: "APPROVED" | 
             pointsDeducted: request.product.pointsCost,
             adminNotes
           }
+        }),
+        prisma.notification.create({
+          data: {
+            userId: request.userId,
+            title: "Redemption Approved",
+            message: `Your redemption for ${request.product.name} has been processed successfully. ${adminNotes || ""}`,
+            type: "SUCCESS"
+          }
         })
       ]);
     } else {
-      await prisma.redemptionRequest.update({
-        where: { id: requestId },
-        data: { status: "REJECTED", adminNotes }
-      });
+      await prisma.$transaction([
+        prisma.redemptionRequest.update({
+          where: { id: requestId },
+          data: { status: "REJECTED", adminNotes }
+        }),
+        prisma.notification.create({
+          data: {
+            userId: request.userId,
+            title: "Redemption Rejected",
+            message: `Your redemption for ${request.product.name} was rejected. Reason: ${adminNotes || "N/A"}.`,
+            type: "ERROR"
+          }
+        })
+      ]);
     }
 
     revalidatePath("/admin/redemptions");

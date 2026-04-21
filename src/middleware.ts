@@ -35,7 +35,10 @@ export default withAuth(
     }
 
     // Only AGENT can access /agent
-    if (pathname.startsWith("/agent") && token.role === "ADMIN") {
+    if (
+      pathname.startsWith("/agent") && 
+      (token.role === "ADMIN" || token.role === "CSR" || token.role === "SEMI_ADMIN")
+    ) {
       return NextResponse.redirect(new URL("/admin", req.url));
     }
 
