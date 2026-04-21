@@ -30,17 +30,20 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
   const { data: session } = useSession();
   const [stats, setStats] = useState<any>(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [supportUnread, setSupportUnread] = useState(0);
 
   const isCSR = session?.user?.role === 'CSR';
 
   useEffect(() => {
     const fetchStats = async () => {
-      const [s, u] = await Promise.all([
+      const [s, u, su] = await Promise.all([
         getAdminSidebarStats(),
-        getUnreadCount(session?.user?.id as string)
+        getUnreadCount(session?.user?.id as string),
+        getSupportUnreadCount(session?.user?.id as string, 'ADMIN')
       ]);
       setStats(s);
       setUnreadCount(u);
+      setSupportUnread(su);
     };
     fetchStats();
     const interval = setInterval(fetchStats, 30000);
@@ -54,7 +57,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Platform Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.pendingKyc },
     { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.pendingMissions },
-    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.openTickets || unreadCount },
+    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: supportUnread },
     { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts', roles: ['ADMIN'] },
     { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },

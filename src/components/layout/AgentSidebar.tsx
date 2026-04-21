@@ -32,6 +32,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
   const { data: session } = useSession();
   const [gamesOpen, setGamesOpen] = useState(pathname.startsWith('/agent/mines') || pathname.startsWith('/agent/raffle') || pathname.startsWith('/agent/luck') || pathname.startsWith('/agent/duels') || pathname.startsWith('/agent/clash') || pathname.startsWith('/agent/alliance'));
   const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({});
+  const [supportUnread, setSupportUnread] = useState(0);
   
   const user = session?.user as any;
   const userName = user?.name || user?.username || 'Agent';
@@ -42,8 +43,12 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
     if (!user?.id) return;
     
     const fetchCounts = async () => {
-      const count = await getUnreadCount(user.id);
-      setUnreadCounts({ total: count });
+      const [total, support] = await Promise.all([
+        getUnreadCount(user.id),
+        getSupportUnreadCount(user.id, 'AGENT')
+      ]);
+      setUnreadCounts({ total });
+      setSupportUnread(support);
     };
 
     fetchCounts();
@@ -77,7 +82,8 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
 
   const renderLink = (item: any, isSub: boolean = false) => {
     const isActive = pathname === item.href;
-    const hasBadge = (item.name === 'Support' || item.name === 'Nexus Feed') && unreadCounts.total > 0;
+    const hasBadge = (item.name === 'Support' && supportUnread > 0) || (item.name === 'Nexus Feed' && unreadCounts.total > 0);
+    const count = item.name === 'Support' ? supportUnread : unreadCounts.total;
 
     return (
       <Link 
@@ -100,7 +106,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
         </div>
         {hasBadge && (
           <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.4)]">
-            {unreadCounts.total}
+            {count}
           </span>
         )}
       </Link>

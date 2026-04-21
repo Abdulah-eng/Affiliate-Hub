@@ -102,6 +102,10 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
       });
 
       // Global Notification Integration
+      const notificationMsg = content.trim() 
+        ? (content.length > 50 ? content.substring(0, 47) + "..." : content)
+        : (attachmentUrl ? "Sent an attachment" : "New message");
+
       if (isAdmin) {
         // Admin sent message -> notify user (if not a guest)
         if (ticket.userId) {
@@ -109,7 +113,7 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
             data: {
               userId: ticket.userId,
               title: "Nexus Support Message",
-              message: content.length > 50 ? content.substring(0, 47) + "..." : content,
+              message: notificationMsg,
               type: "INFO"
             }
           });
@@ -123,13 +127,15 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
           select: { id: true }
         });
 
+        const senderName = ticket.guestName || "Agent";
+
         // Batch create notifications for all staff
         if (staff.length > 0) {
           await prisma.notification.createMany({
             data: staff.map(s => ({
               userId: s.id,
-              title: "New Support Inquiry",
-              message: `New message from ${ticket.guestName || "Agent"}`,
+              title: `Support Alert: ${senderName}`,
+              message: notificationMsg,
               type: "INFO"
             }))
           });
@@ -139,6 +145,7 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
 
     revalidatePath("/admin/support");
     revalidatePath("/agent/help");
+    revalidatePath("/admin"); // For dashboard counts
     return { success: true, message };
   } catch (error: any) {
     return { success: false, error: error.message };

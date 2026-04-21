@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useTransition } from 'react';
+import React, { useState, useEffect, useRef, useTransition, useCallback } from 'react';
 import { GlassCard } from "@/components/ui/GlassCard";
 import { 
   CheckCircle2, 
@@ -17,24 +17,48 @@ import {
 import { cn } from "@/lib/utils";
 import { sendSupportMessage, getTicketMessages, adminResolveTicket, uploadSupportAsset } from "@/app/actions/support";
 import { useRouter } from "next/navigation";
+import { markSupportNotificationsAsRead, getNotifications, getSupportUnreadCount } from "@/app/actions/notifications";
+import { useSession } from "next-auth/react";
 
 export default function AdminSupportClient({ initialTickets }: { initialTickets: any[] }) {
+  const { data: session } = useSession();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
   const [isUploading, setIsUploading] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  const fetchUnread = useCallback(async () => {
+    if (!session?.user?.id) return;
+    const [msgs, count] = await Promise.all([
+      getNotifications(session.user.id),
+      getSupportUnreadCount(session.user.id, 'ADMIN')
+    ]);
+    setNotifications(msgs.filter(n => !n.isRead && n.title.includes('Support Alert')));
+    setUnreadCount(count);
+  }, [session?.user?.id]);
+
   useEffect(() => {
-    if (selectedTicket) {
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
+  }, [fetchUnread]);
+
+  useEffect(() => {
+    if (selectedTicket && session?.user?.id) {
+      const ticketName = selectedTicket.guestName || "Agent";
+      markSupportNotificationsAsRead(session.user.id, 'ADMIN', ticketName);
       loadMessages(selectedTicket.id);
       const interval = setInterval(() => loadMessages(selectedTicket.id), 5000);
       return () => clearInterval(interval);
     }
-  }, [selectedTicket]);
+  }, [selectedTicket, session?.user?.id]);
 
   const scrollToBottom = (behavior: ScrollBehavior = 'auto') => {
     if (scrollRef.current) {
@@ -63,6 +87,7 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
       const res = await sendSupportMessage(selectedTicket.id, content, attachmentUrl, attachmentType);
       if (res.success) {
         loadMessages(selectedTicket.id);
+        fetchUnread(); // Refresh count
       }
     });
   };
@@ -113,43 +138,55 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
       )}>
         <div className="p-6 border-b border-white/5 flex items-center justify-between">
            <h3 className="text-sm font-black uppercase text-on-surface tracking-widest">Inquiry Queue</h3>
-           <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-full">{initialTickets.length}</span>
+           <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded-full">
+             {unreadCount > 0 ? unreadCount : initialTickets.length}
+           </span>
         </div>
         <div className="divide-y divide-white/5">
-          {initialTickets.map((ticket) => (
-            <div 
-              key={ticket.id}
-              onClick={() => setSelectedTicket(ticket)}
-              className={cn(
-                "p-6 hover:bg-white/[0.03] transition-all cursor-pointer group flex items-start gap-4",
-                selectedTicket?.id === ticket.id ? "bg-primary/5 border-l-2 border-primary" : ""
-              )}
-            >
-              <div className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center text-primary font-black border group-hover:scale-110 transition-transform",
-                ticket.userId ? "bg-surface-container-high border-primary/10" : "bg-amber-500/10 border-amber-500/20 text-amber-500"
-              )}>
-                {ticket.user?.name?.[0] || ticket.user?.username?.[0] || ticket.guestName?.[0] || "G"}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className={cn(
-                  "text-xs font-black truncate uppercase tracking-tight flex items-center gap-1.5",
-                  ticket.userId ? "text-on-surface" : "text-amber-500"
+          {initialTickets.map((ticket) => {
+            const ticketName = ticket.guestName || "Agent";
+            const ticketUnreadCount = notifications.filter(n => n.title.includes(ticketName)).length;
+            
+            return (
+              <div 
+                key={ticket.id}
+                onClick={() => setSelectedTicket(ticket)}
+                className={cn(
+                  "p-6 hover:bg-white/[0.03] transition-all cursor-pointer group flex items-start gap-4 relative",
+                  selectedTicket?.id === ticket.id ? "bg-primary/5 border-l-2 border-primary" : ""
+                )}
+              >
+                {ticketUnreadCount > 0 && (
+                  <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center justify-center bg-red-500 text-white text-[9px] font-black w-5 h-5 rounded-full animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)] z-10">
+                    {ticketUnreadCount}
+                  </div>
+                )}
+                <div className={cn(
+                  "w-10 h-10 rounded-xl flex items-center justify-center text-primary font-black border group-hover:scale-110 transition-transform",
+                  ticket.userId ? "bg-surface-container-high border-primary/10" : "bg-amber-500/10 border-amber-500/20 text-amber-500"
                 )}>
-                  {ticket.userId ? `@${ticket.user?.username || ticket.user?.name || ticket.userId.slice(0, 8)}` : `[GUEST] ${ticket.guestName || ticket.guestId?.slice(0,8)}`}
-                </p>
-                <p className="text-[10px] text-on-surface-variant line-clamp-1 mt-1 font-medium italic opacity-60">
-                  {ticket.messages[0]?.content || "Empty uplink..."}
-                </p>
-                <div className="flex items-center justify-between mt-3">
-                   <span className="text-[8px] font-black text-primary uppercase tracking-widest">
-                     {new Date(ticket.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                   </span>
-                   <span className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">Ready for Sync</span>
+                  {ticket.user?.name?.[0] || ticket.user?.username?.[0] || ticket.guestName?.[0] || "G"}
+                </div>
+                <div className="flex-1 min-w-0 pr-8">
+                  <p className={cn(
+                    "text-xs font-black truncate uppercase tracking-tight flex items-center gap-1.5",
+                    ticket.userId ? "text-on-surface" : "text-amber-500"
+                  )}>
+                    {ticket.userId ? `@${ticket.user?.username || ticket.user?.name || ticket.userId.slice(0, 8)}` : `[GUEST] ${ticket.guestName || ticket.guestId?.slice(0,8)}`}
+                  </p>
+                  <p className="text-[10px] text-on-surface-variant line-clamp-1 mt-1 font-medium italic opacity-60">
+                    {ticket.messages[0]?.content || "Empty uplink..."}
+                  </p>
+                  <div className="flex items-center justify-between mt-3">
+                     <span className="text-[8px] font-black text-primary uppercase tracking-widest">
+                       {new Date(ticket.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                     </span>
+                     <span className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-40">Ready for Sync</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {initialTickets.length === 0 && (
             <div className="p-10 text-center opacity-30 flex flex-col items-center gap-4">

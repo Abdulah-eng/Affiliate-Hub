@@ -91,6 +91,43 @@ export async function broadcastNotification(title: string, message: string, type
   }
 }
 
+export async function markSupportNotificationsAsRead(userId: string, role: 'ADMIN' | 'AGENT', ticketName?: string) {
+  try {
+    const baseTitle = role === 'ADMIN' ? 'Support Alert' : 'Nexus Support Message';
+    
+    await prisma.notification.updateMany({
+      where: { 
+        userId, 
+        title: ticketName ? { contains: ticketName } : { contains: baseTitle },
+        isRead: false 
+      },
+      data: { isRead: true }
+    });
+    revalidatePath("/agent");
+    revalidatePath("/admin/support");
+    return { success: true };
+  } catch (error) {
+    console.error("Mark Support Notifications Read Error:", error);
+    return { success: false };
+  }
+}
+
+export async function getSupportUnreadCount(userId: string, role: 'ADMIN' | 'AGENT') {
+  try {
+    const title = role === 'ADMIN' ? 'Support Alert' : 'Nexus Support Message';
+    return await prisma.notification.count({
+      where: { 
+        userId, 
+        title: { contains: title },
+        isRead: false 
+      }
+    });
+  } catch (error) {
+    console.error("Get Support Unread Count Error:", error);
+    return 0;
+  }
+}
+
 export async function getUnreadCount(userId: string) {
   try {
     return await prisma.notification.count({
