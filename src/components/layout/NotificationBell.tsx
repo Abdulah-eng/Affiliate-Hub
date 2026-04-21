@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Bell, Check, Info, AlertTriangle, ShieldCheck, X } from "lucide-react";
 import { getNotifications, markAsRead, markAllAsRead } from "@/app/actions/notifications";
 import { cn } from "@/lib/utils";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 type NotificationProps = {
   userId: string;
@@ -28,15 +29,15 @@ export function NotificationBell({ userId }: NotificationProps) {
 
   // Sound Notification Effect
   const [lastCount, setLastCount] = useState(notifications.length);
+  const playNotification = useNotificationSound();
+
   useEffect(() => {
     const unread = notifications.filter(n => !n.isRead).length;
     if (unread > lastCount) {
-      const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
-      audio.volume = 0.5;
-      audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+      playNotification();
     }
     setLastCount(unread);
-  }, [notifications, lastCount]);
+  }, [notifications, lastCount, playNotification]);
 
   // Handle outside click
   useEffect(() => {

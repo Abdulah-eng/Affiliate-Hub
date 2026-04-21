@@ -17,6 +17,7 @@ import {
 import { cn } from "@/lib/utils";
 import { sendMessage, uploadChatAsset } from "@/app/actions/chat";
 import EmojiPicker, { Theme } from "emoji-picker-react";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 type Message = {
   id: string;
@@ -49,13 +50,23 @@ export function ChatClient({
   const scrollRef = useRef<HTMLDivElement>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const playNotification = useNotificationSound();
+  const lastMessageCount = useRef(initialMessages.length);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom and play sound for new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+    
+    if (messages.length > lastMessageCount.current) {
+      const latestMessage = messages[messages.length - 1];
+      if (latestMessage && latestMessage.userId !== currentUserId) {
+         playNotification();
+      }
+    }
+    lastMessageCount.current = messages.length;
+  }, [messages, currentUserId, playNotification]);
 
   // Polling for new messages (Simple implementation)
   useEffect(() => {

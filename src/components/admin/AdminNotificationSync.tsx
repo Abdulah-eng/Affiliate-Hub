@@ -3,10 +3,12 @@
 import { useEffect, useRef } from "react";
 import { getAdminSidebarStats } from "@/app/actions/admin";
 import { useSession } from "next-auth/react";
+import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 export function AdminNotificationSync() {
   const { data: session } = useSession();
   const prevStats = useRef({ pendingKyc: 0, pendingMissions: 0, openTickets: 0, pendingRedemptions: 0 });
+  const playNotification = useNotificationSound();
 
   useEffect(() => {
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "CSR")) return;
@@ -35,6 +37,7 @@ export function AdminNotificationSync() {
             body: message,
             icon: "/favicon.ico"
           });
+          playNotification();
         }
 
         prevStats.current = stats;
@@ -45,7 +48,7 @@ export function AdminNotificationSync() {
 
     const interval = setInterval(checkStats, 30000); // Check every 30s
     return () => clearInterval(interval);
-  }, [session]);
+  }, [session, playNotification]);
 
   return null;
 }
