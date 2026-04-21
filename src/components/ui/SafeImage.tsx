@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, getImageSrc } from '@/lib/utils';
 
 interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallback?: string;
