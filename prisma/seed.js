@@ -87,7 +87,6 @@ async function main() {
       kycStatus: "APPROVED",
       kycSubmittedAt: new Date(),
       kycReviewedAt: new Date(),
-      telegram: "@juan_vault",
       location: "Metro Manila, PH",
       referralCode: "vaultmaster77"
     }
