@@ -146,6 +146,7 @@ export default async function NexusFeedPage() {
         <ChatClient 
           initialMessages={messages} 
           currentUserId={currentUserId} 
+          userRole={session?.user?.role || "AGENT"}
         />
       </div>
 

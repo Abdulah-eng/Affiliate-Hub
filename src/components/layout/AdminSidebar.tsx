@@ -68,6 +68,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Raffle Matrix', icon: <Settings size={18} />, href: '/admin/raffle-settings', roles: ['ADMIN'] },
     { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms', roles: ['ADMIN'] },
+    { name: 'Nexus Feed', icon: <Radio size={18} />, href: '/agent/chat', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit', roles: ['ADMIN'] },
     { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN', 'CSR'] },
   ];
@@ -88,8 +89,8 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="px-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/" className="relative h-16 w-40 flex items-center justify-center -ml-2">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="relative h-52 w-48 flex items-center justify-center -ml-2">
               <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 

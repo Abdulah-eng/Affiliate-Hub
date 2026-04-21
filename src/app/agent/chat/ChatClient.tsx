@@ -12,10 +12,11 @@ import {
   ThumbsUp,
   AlertTriangle,
   Star,
-  Heart
+  Heart,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { sendMessage, uploadChatAsset } from "@/app/actions/chat";
+import { sendMessage, uploadChatAsset, deleteChatMessage } from "@/app/actions/chat";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 
@@ -36,10 +37,12 @@ type Message = {
 
 export function ChatClient({ 
   initialMessages, 
-  currentUserId 
+  currentUserId,
+  userRole
 }: { 
   initialMessages: Message[]; 
   currentUserId: string;
+  userRole: string;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -185,12 +188,23 @@ export function ChatClient({
     else if (action === 'like') await reactToMessage(msgId, 'like');
     
     // Refresh messages
-    const res = await fetch("/api/chat/sync");
-    if (res.ok) {
-      const data = await res.json();
+    const syncRes = await fetch("/api/chat/sync");
+    if (syncRes.ok) {
+      const data = await syncRes.json();
       setMessages(data.sort((a: any, b: any) => 
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       ));
+    }
+  };
+
+  const handleDelete = async (msgId: string) => {
+    if (!confirm("Are you sure you want to delete this message?")) return;
+    setContextMenu(null);
+    const res = await deleteChatMessage(msgId);
+    if (res.success) {
+      setMessages(prev => prev.filter(m => m.id !== msgId));
+    } else {
+      alert("Delete failed: " + res.error);
     }
   };
 
@@ -320,6 +334,14 @@ export function ChatClient({
                         <button onClick={() => handleAction(msg.id, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
                           <AlertTriangle size={14} /> Report as Spam
                         </button>
+                        {(userRole === 'ADMIN' || userRole === 'CSR') && (
+                          <>
+                            <div className="h-[1px] bg-white/5 my-1" />
+                            <button onClick={() => handleDelete(msg.id)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-xs font-bold text-red-500 transition-colors">
+                              <Trash2 size={14} /> Delete Message
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>

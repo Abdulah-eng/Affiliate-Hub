@@ -249,3 +249,24 @@ export async function reactToMessage(messageId: string, type: string) {
 
   return { success: true };
 }
+
+export async function deleteChatMessage(messageId: string) {
+  const session = await getServerSession(authOptions);
+  if (!session || (session.user.role !== "ADMIN" && session.user.role !== "CSR")) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    await prisma.chatMessage.delete({
+      where: { id: messageId }
+    });
+
+    // Clear cache to reflect change
+    try { await redis.del(CHAT_REDIS_KEY); } catch (e) {}
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Delete Chat Message Error:", error);
+    return { success: false, error: error.message };
+  }
+}
