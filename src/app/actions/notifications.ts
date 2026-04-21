@@ -90,3 +90,14 @@ export async function broadcastNotification(title: string, message: string, type
     return { success: false, error: "Failed to broadcast." };
   }
 }
+
+export async function getUnreadCount(userId: string) {
+  try {
+    return await prisma.notification.count({
+      where: { userId, isRead: false }
+    });
+  } catch (error) {
+    console.error("Get Unread Count Error:", error);
+    return 0;
+  }
+}

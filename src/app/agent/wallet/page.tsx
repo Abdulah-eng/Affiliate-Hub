@@ -189,19 +189,18 @@ export default function AgentWalletPage() {
                 onClick={() => setSelectedProduct(product)}
               >
                 <div className="aspect-[4/3] relative bg-slate-900 overflow-hidden min-w-0">
-                  {product.imageUrl ? (
-                    <img 
-                      src={getImageUrl(product.imageUrl)} 
-                      alt={product.name} 
-                      onError={(e) => { e.currentTarget.src = '/globe.png'; }}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-primary/10 gap-2">
-                      <ShoppingBag size={80} />
-                      <span className="text-[10px] uppercase font-black tracking-widest opacity-40">Kinetic Gear</span>
-                    </div>
-                  )}
+                      {product.imageUrl ? (
+                        <img 
+                          src={getImageUrl(product.imageUrl)} 
+                          alt={product.name} 
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-primary/10 gap-2">
+                          <ShoppingBag size={80} />
+                          <span className="text-[10px] uppercase font-black tracking-widest opacity-40">Kinetic Gear</span>
+                        </div>
+                      )}
                   <div className="absolute top-4 right-4 z-10">
                     <span className="px-4 py-2 bg-slate-950/90 backdrop-blur-md rounded-xl text-sm font-black text-primary border border-primary/20 shadow-xl">
                       {product.pointsCost.toLocaleString()} PTS
@@ -298,7 +297,6 @@ export default function AgentWalletPage() {
                    <img 
                      src={getImageUrl(selectedProduct.imageUrl)} 
                      alt={selectedProduct.name} 
-                     onError={(e) => { e.currentTarget.src = '/globe.png'; }}
                      className="w-full h-full object-cover" 
                    />
                  ) : (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
@@ -25,16 +25,31 @@ import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
+import { getUnreadCount } from '@/app/actions/notifications';
 
 export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) => {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [gamesOpen, setGamesOpen] = useState(pathname.startsWith('/agent/mines') || pathname.startsWith('/agent/raffle') || pathname.startsWith('/agent/luck') || pathname.startsWith('/agent/duels') || pathname.startsWith('/agent/clash') || pathname.startsWith('/agent/alliance'));
+  const [unreadCounts, setUnreadCounts] = useState<{ [key: string]: number }>({});
   
   const user = session?.user as any;
   const userName = user?.name || user?.username || 'Agent';
   const role = user?.role || 'AGENT';
   const kycStatus = user?.kycStatus || 'PENDING';
+
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    const fetchCounts = async () => {
+      const count = await getUnreadCount(user.id);
+      setUnreadCounts({ total: count });
+    };
+
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
+  }, [user?.id]);
 
   const MAIN_MENU = [
     { name: 'Dashboard', icon: <LayoutDashboard size={20} />, href: '/agent' },
@@ -62,23 +77,32 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
 
   const renderLink = (item: any, isSub: boolean = false) => {
     const isActive = pathname === item.href;
+    const hasBadge = (item.name === 'Support' || item.name === 'Nexus Feed') && unreadCounts.total > 0;
+
     return (
       <Link 
         key={item.href}
         href={item.href}
         onClick={() => setIsOpen(false)}
         className={cn(
-          "flex items-center gap-4 rounded-full transition-all duration-300 group",
+          "flex items-center justify-between rounded-full transition-all duration-300 group",
           isSub ? "px-8 py-3 translate-x-2" : "px-6 py-3.5",
           isActive 
             ? "bg-primary/10 text-primary border-l-2 border-primary shadow-[0_0_20px_rgba(129,236,255,0.1)] font-bold" 
             : "text-on-surface-variant hover:text-on-surface hover:bg-white/5 font-medium"
         )}
       >
-        <span className={cn("transition-colors duration-300", isActive ? "text-primary" : "group-hover:text-primary")}>
-          {item.icon}
-        </span>
-        <span className={cn("font-headline tracking-tight", isSub ? "text-xs" : "text-sm")}>{item.name}</span>
+        <div className="flex items-center gap-4">
+          <span className={cn("transition-colors duration-300", isActive ? "text-primary" : "group-hover:text-primary")}>
+            {item.icon}
+          </span>
+          <span className={cn("font-headline tracking-tight", isSub ? "text-xs" : "text-sm")}>{item.name}</span>
+        </div>
+        {hasBadge && (
+          <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.4)]">
+            {unreadCounts.total}
+          </span>
+        )}
       </Link>
     );
   };

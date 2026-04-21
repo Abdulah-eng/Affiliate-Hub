@@ -4,35 +4,40 @@ import { useCallback, useRef, useEffect } from 'react';
 
 export function useNotificationSound() {
   const audioContextRef = useRef<AudioContext | null>(null);
+  const interactionHappened = useRef(false);
 
-  // Initialize AudioContext and setup interaction listener to resume it
+  // Initialize AudioContext only after a user gesture
   useEffect(() => {
-    const initAudio = () => {
-      if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
-      if (audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
-      }
-      // Remove listeners once active
-      document.removeEventListener('click', initAudio);
-      document.removeEventListener('keydown', initAudio);
-      document.removeEventListener('touchstart', initAudio);
+    const handleInteraction = () => {
+      interactionHappened.current = true;
+      
+      // We don't create it here yet, just mark that it's allowed
+      // This prevents the warning on page load
+      
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('keydown', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
     };
 
-    document.addEventListener('click', initAudio);
-    document.addEventListener('keydown', initAudio);
-    document.addEventListener('touchstart', initAudio);
+    document.addEventListener('click', handleInteraction);
+    document.addEventListener('keydown', handleInteraction);
+    document.addEventListener('touchstart', handleInteraction);
 
     return () => {
-      document.removeEventListener('click', initAudio);
-      document.removeEventListener('keydown', initAudio);
-      document.removeEventListener('touchstart', initAudio);
+      document.removeEventListener('click', handleInteraction);
+      document.removeEventListener('keydown', handleInteraction);
+      document.removeEventListener('touchstart', handleInteraction);
     };
   }, []);
 
   const playNotification = useCallback(() => {
     try {
+      // Only attempt to create/play if an interaction has happened
+      if (!interactionHappened.current) {
+        console.warn("AudioContext blocked: No user interaction yet.");
+        return;
+      }
+
       if (!audioContextRef.current) {
         audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
@@ -62,7 +67,7 @@ export function useNotificationSound() {
       oscillator.stop(ctx.currentTime + 0.3);
     } catch (e) {
       // Quiet fail to avoid UI crashes
-      console.warn("Audio context play blocked:", e);
+      console.warn("Audio context play blocked or failed:", e);
     }
   }, []);
 

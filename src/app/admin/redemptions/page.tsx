@@ -326,7 +326,6 @@ export default function AdminRedemptionsPage() {
                       <img 
                         src={getImageUrl(product.imageUrl)} 
                         alt={product.name} 
-                        onError={(e) => { e.currentTarget.src = '/globe.png'; }}
                         className="w-full h-full object-cover" 
                       />
                     ) : (

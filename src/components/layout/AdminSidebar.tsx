@@ -22,21 +22,39 @@ import { cn } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { getAdminSidebarStats } from '@/app/actions/admin';
+import { getUnreadCount } from '@/app/actions/notifications';
 
 export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [stats, setStats] = useState<any>(null);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const isCSR = session?.user?.role === 'CSR';
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [s, u] = await Promise.all([
+        getAdminSidebarStats(),
+        getUnreadCount(session?.user?.id as string)
+      ]);
+      setStats(s);
+      setUnreadCount(u);
+    };
+    fetchStats();
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
+  }, [session?.user?.id]);
 
   const ALL_MENU_ITEMS = [
     { name: 'Dashboard', icon: <LayoutDashboard size={18} />, href: '/admin', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Leaderboard', icon: <Trophy size={18} />, href: '/admin/leaderboard', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
-    { name: 'Redemptions', icon: <CreditCard size={18} />, href: '/admin/redemptions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Redemptions', icon: <CreditCard size={18} />, href: '/admin/redemptions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.pendingRedemptions },
     { name: 'Platform Manager', icon: <Lock size={18} />, href: '/admin/brands', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
-    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
-    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
-    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Review Queue', icon: <ShieldCheck size={18} />, href: '/admin/reviews', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.pendingKyc },
+    { name: 'Mission Reviews', icon: <Trophy size={18} />, href: '/admin/reviews/missions', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.pendingMissions },
+    { name: 'Support Pulse', icon: <Headphones size={18} />, href: '/admin/support', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'], count: stats?.openTickets || unreadCount },
     { name: 'Review History', icon: <History size={18} />, href: '/admin/reviews/history', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Agent Payouts', icon: <CreditCard size={18} />, href: '/admin/payouts', roles: ['ADMIN'] },
     { name: 'Quest Protocol', icon: <Radio size={18} />, href: '/admin/tasks', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
@@ -93,7 +111,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         </div>
 
       <nav className="flex-1 px-3 space-y-1 overflow-y-auto custom-scrollbar">
-        {MENU_ITEMS.map((item) => {
+        {MENU_ITEMS.map((item: any) => {
           const isActive = pathname === item.href;
           return (
             <Link 
@@ -101,24 +119,35 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
               href={item.href}
               onClick={() => setIsOpen && setIsOpen(false)}
               className={cn(
-                "flex items-center gap-3 px-4 py-3 transition-all rounded-r-full group relative overflow-hidden",
+                "flex items-center justify-between px-4 py-3 transition-all rounded-r-full group relative overflow-hidden",
                 isActive 
                   ? "bg-surface-container-high text-primary border-l-4 border-primary shadow-[0_0_20px_rgba(129,236,255,0.1)]" 
                   : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 hover:translate-x-1"
               )}
             >
-              {item.icon}
-              <span className="font-medium text-sm">{item.name}</span>
+              <div className="flex items-center gap-3">
+                {item.icon}
+                <span className="font-medium text-sm">{item.name}</span>
+              </div>
 
-              {isActive && <div className="absolute right-4 w-1 h-4 bg-primary rounded-full blur-sm animate-pulse"></div>}
+              {item.count > 0 && (
+                <span className="bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.4)] mr-2">
+                  {item.count}
+                </span>
+              )}
+
+              {isActive && !item.count && <div className="absolute right-4 w-1 h-4 bg-primary rounded-full blur-sm animate-pulse"></div>}
             </Link>
           );
         })}
       </nav>
 
       <div className="px-3 pt-6 border-t border-outline-variant/10 space-y-1">
-        <Link href="/admin/help" onClick={() => setIsOpen && setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
-          <HelpCircle size={16} /> Support
+        <Link href="/admin/help" onClick={() => setIsOpen && setIsOpen(false)} className="flex items-center justify-between px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
+          <div className="flex items-center gap-3">
+            <HelpCircle size={16} /> Support
+          </div>
+          {unreadCount > 0 && <span className="bg-red-500 w-2 h-2 rounded-full animate-ping"></span>}
         </Link>
         <Link href="/admin/docs" onClick={() => setIsOpen && setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
           <FileText size={16} /> Documentation

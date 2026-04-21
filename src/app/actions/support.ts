@@ -91,12 +91,54 @@ export async function sendSupportMessage(ticketId: string, content: string, atta
       }
     });
 
-    await prisma.supportTicket.update({
-      where: { id: ticketId },
-      data: { updatedAt: new Date() }
+    const ticket = await prisma.supportTicket.findUnique({
+      where: { id: ticketId }
     });
 
+    if (ticket) {
+      await prisma.supportTicket.update({
+        where: { id: ticketId },
+        data: { updatedAt: new Date() }
+      });
+
+      // Global Notification Integration
+      if (isAdmin) {
+        // Admin sent message -> notify user (if not a guest)
+        if (ticket.userId) {
+          await prisma.notification.create({
+            data: {
+              userId: ticket.userId,
+              title: "Nexus Support Message",
+              message: content.length > 50 ? content.substring(0, 47) + "..." : content,
+              type: "INFO"
+            }
+          });
+        }
+      } else {
+        // User/Guest sent message -> notify all staff (Admins, Semi-Admins, CSRs)
+        const staff = await prisma.user.findMany({
+          where: { 
+            role: { in: ["ADMIN", "SEMI_ADMIN", "CSR"] } 
+          },
+          select: { id: true }
+        });
+
+        // Batch create notifications for all staff
+        if (staff.length > 0) {
+          await prisma.notification.createMany({
+            data: staff.map(s => ({
+              userId: s.id,
+              title: "New Support Inquiry",
+              message: `New message from ${ticket.guestName || "Agent"}`,
+              type: "INFO"
+            }))
+          });
+        }
+      }
+    }
+
     revalidatePath("/admin/support");
+    revalidatePath("/agent/help");
     return { success: true, message };
   } catch (error: any) {
     return { success: false, error: error.message };
