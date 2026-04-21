@@ -18,12 +18,12 @@ import {
   Trophy,
   Headphones
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getImageSrc } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { getAdminSidebarStats } from '@/app/actions/admin';
-import { getUnreadCount } from '@/app/actions/notifications';
+import { getUnreadCount, getSupportUnreadCount } from '@/app/actions/notifications';
 
 export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
@@ -87,13 +87,13 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         <div className="px-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <Link href="/" className="relative h-16 w-40 flex items-center justify-center -ml-2">
-              <Image 
-                src="/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png" 
+              <img 
+                src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
-                width={160}
-                height={80}
-                className="object-contain" 
-                priority
+                className="object-contain h-full w-auto" 
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                }}
               />
             </Link>
             {setIsOpen && (

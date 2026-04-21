@@ -31,7 +31,7 @@ import {
   ImageIcon,
   Loader2
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 
 type Platform = {
   id: string;
@@ -304,11 +304,13 @@ export default function AgentDashboardClient({
                       >
                         {platform.brandLogo ? (
                           <div className="relative w-full h-full p-2">
-                            <Image 
-                              src={platform.brandLogo} 
+                            <img 
+                              src={getImageSrc(platform.brandLogo)} 
                               alt={platform.brandName} 
-                              fill
-                              className="object-contain" 
+                              className="object-contain w-full h-full" 
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                              }}
                             />
                           </div>
                         ) : (
@@ -567,9 +569,16 @@ export default function AgentDashboardClient({
                 onClick={() => setActivePromo(promo)}
               >
                 <div className="aspect-[16/9] relative overflow-hidden">
-                   {promo.imageUrl ? (
-                     <img src={promo.imageUrl} alt={promo.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                   ) : (
+                    {promo.imageUrl ? (
+                      <img 
+                        src={getImageSrc(promo.imageUrl)} 
+                        alt={promo.title} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                        }}
+                      />
+                    ) : (
                      <div className="w-full h-full bg-slate-900 flex items-center justify-center text-primary/20">
                        <MonitorPlay size={48} />
                      </div>
@@ -703,7 +712,14 @@ export default function AgentDashboardClient({
 
               <div className="aspect-video w-full rounded-2xl overflow-hidden mb-6 border border-white/10 bg-slate-950">
                  {activePromo.imageUrl ? (
-                   <img src={activePromo.imageUrl} alt={activePromo.title} className="w-full h-full object-contain" />
+                   <img 
+                    src={getImageSrc(activePromo.imageUrl)} 
+                    alt={activePromo.title} 
+                    className="w-full h-full object-contain" 
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                    }}
+                   />
                  ) : (
                    <div className="w-full h-full bg-slate-900 flex items-center justify-center text-primary/20">
                      <MonitorPlay size={64} />
@@ -744,11 +760,18 @@ export default function AgentDashboardClient({
                          {promoProof ? <span className="text-primary truncate">{promoProof.name}</span> : <><ImageIcon size={16} /> Select Screenshot</>}
                        </div>
                     </div>
-                    {promoProofPreview && (
-                      <div className="h-32 w-full rounded-xl overflow-hidden border border-white/10">
-                        <img src={promoProofPreview} className="w-full h-full object-contain" alt="Preview" />
-                      </div>
-                    )}
+                      {promoProofPreview && (
+                        <div className="h-32 w-full rounded-xl overflow-hidden border border-white/10">
+                          <img 
+                            src={getImageSrc(promoProofPreview)} 
+                            className="w-full h-full object-contain" 
+                            alt="Preview" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                            }}
+                          />
+                        </div>
+                      )}
                   </div>
 
                   <button 

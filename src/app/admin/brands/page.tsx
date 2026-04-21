@@ -16,7 +16,7 @@ import {
   Globe,
   Check
 } from "lucide-react";
-import { cn } from '@/lib/utils';
+import { cn, getImageSrc } from '@/lib/utils';
 import { 
   getAllBrands, 
   updateBrand, 
@@ -232,7 +232,14 @@ export default function PlatformManagerPage() {
                     
                     <div className="aspect-square rounded-xl bg-slate-950/50 border border-white/5 overflow-hidden flex items-center justify-center relative p-4">
                       {(editPreview || editingBrand.logoUrl) ? (
-                        <img src={editPreview || editingBrand.logoUrl} alt="Preview" className="w-full h-full object-contain" />
+                        <img 
+                          src={getImageSrc(editPreview || editingBrand.logoUrl)} 
+                          alt="Preview" 
+                          className="w-full h-full object-contain" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                          }}
+                        />
                       ) : (
                         <ImageIcon size={32} className="opacity-10" />
                       )}
@@ -388,7 +395,14 @@ export default function PlatformManagerPage() {
                   </div>
                   {(addPreview || newBrandForm.logoUrl) && (
                     <div className="h-20 w-full bg-black/20 rounded-xl border border-white/5 overflow-hidden flex items-center justify-center p-2">
-                       <img src={addPreview || newBrandForm.logoUrl || ""} className="h-full object-contain" alt="Preview" />
+                       <img 
+                        src={getImageSrc(addPreview || newBrandForm.logoUrl || "")} 
+                        className="h-full object-contain" 
+                        alt="Preview" 
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                        }}
+                       />
                     </div>
                   )}
                 </div>
@@ -444,7 +458,13 @@ export default function PlatformManagerPage() {
               <div className="flex justify-between items-start mb-8">
                  <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden p-2">
                     {brand.logoUrl ? (
-                      <img src={brand.logoUrl} className="w-full h-full object-contain" />
+                      <img 
+                        src={getImageSrc(brand.logoUrl)} 
+                        className="w-full h-full object-contain" 
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                        }}
+                      />
                     ) : (
                       <Globe size={32} className="text-on-surface-variant/20" />
                     )}

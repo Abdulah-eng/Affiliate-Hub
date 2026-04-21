@@ -20,14 +20,9 @@ import {
   Users
 } from "lucide-react";
 import { getPendingRedemptions, processRedemption, seedInitialProducts, addRedemptionProduct, uploadProductImage, getRedemptionProducts, updateRedemptionProduct, deleteRedemptionProduct } from "@/app/actions/redemptions";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 
-const getImageUrl = (url?: string | null) => {
-  if (!url) return "";
-  if (url.startsWith("http")) return url;
-  const cleanUrl = url.startsWith("/") ? url : `/${url}`;
-  return `https://affiliatehubph.com${cleanUrl}`;
-};
+
 
 export default function AdminRedemptionsPage() {
   const [requests, setRequests] = useState<any[]>([]);
@@ -324,9 +319,12 @@ export default function AdminRedemptionsPage() {
                   <div className="aspect-video relative bg-slate-900">
                     {product.imageUrl ? (
                       <img 
-                        src={getImageUrl(product.imageUrl)} 
+                        src={getImageSrc(product.imageUrl)} 
                         alt={product.name} 
                         className="w-full h-full object-cover" 
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-primary/10">

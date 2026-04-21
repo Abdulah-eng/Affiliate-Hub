@@ -14,7 +14,7 @@ import {
   Paperclip,
   ShieldAlert
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { sendSupportMessage, getTicketMessages, adminResolveTicket, uploadSupportAsset } from "@/app/actions/support";
 import { useRouter } from "next/navigation";
 import { markSupportNotificationsAsRead, getNotifications, getSupportUnreadCount } from "@/app/actions/notifications";
@@ -95,6 +95,13 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
   const onFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !selectedTicket) return;
+    
+    // Client-side size check (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File is too large. Maximum size is 10MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     setIsUploading(true);
     const formData = new FormData();
@@ -253,11 +260,14 @@ export default function AdminSupportClient({ initialTickets }: { initialTickets:
                     <div className="rounded-lg overflow-hidden border border-black/10 bg-black/5 mb-1 max-w-full">
                       {msg.attachmentType?.startsWith('image/') ? (
                         <img 
-                          src={msg.attachmentUrl} 
+                          src={getImageSrc(msg.attachmentUrl)} 
                           alt="Attachment" 
                           className="max-h-60 w-auto object-contain cursor-pointer hover:brightness-110 active:scale-95 transition-all"
                           onLoad={() => scrollToBottom()}
-                          onClick={() => window.open(msg.attachmentUrl, '_blank')}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                          }}
+                          onClick={() => window.open(getImageSrc(msg.attachmentUrl), '_blank')}
                         />
                       ) : (
                         <a 

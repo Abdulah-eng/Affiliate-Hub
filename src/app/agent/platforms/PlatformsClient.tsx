@@ -15,7 +15,7 @@ import {
   Sparkles,
   Lock
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { applyForPlatform } from "@/app/actions/platforms";
 
 type Brand = {
@@ -120,7 +120,14 @@ export default function PlatformsClient({ brands, kycStatus }: Props) {
               <div className="flex items-center gap-5 mb-8">
                  <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden p-2 group-hover:bg-secondary/10 transition-colors duration-500">
                     {brand.logoUrl ? (
-                      <img src={brand.logoUrl} className="w-full h-full object-contain" alt="" />
+                      <img 
+                       src={getImageSrc(brand.logoUrl)} 
+                       className="w-full h-full object-contain" 
+                       alt={brand.name} 
+                       onError={(e) => {
+                         (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                       }}
+                      />
                     ) : (
                       <Globe size={32} className="text-on-surface-variant/20" />
                     )}

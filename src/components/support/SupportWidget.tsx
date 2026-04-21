@@ -11,7 +11,7 @@ import {
   Image as ImageIcon,
   ShieldAlert
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getImageSrc } from '@/lib/utils';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { getOrCreateSupportTicket, sendSupportMessage, getTicketMessages, uploadSupportAsset } from '@/app/actions/support';
 import { useSession, signIn } from 'next-auth/react';
@@ -119,6 +119,13 @@ export function SupportWidget() {
   const onFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !ticket) return;
+
+    // Client-side size check (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File is too large. Maximum size is 10MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
 
     setIsUploading(true);
     const formData = new FormData();
@@ -257,11 +264,14 @@ export function SupportWidget() {
                       <div className="rounded-lg overflow-hidden border border-black/10 bg-black/5 mb-1 max-w-full">
                         {msg.attachmentType?.startsWith('image/') ? (
                           <img 
-                            src={msg.attachmentUrl} 
+                            src={getImageSrc(msg.attachmentUrl)} 
                             alt="Attachment" 
                             className="max-h-60 w-auto object-contain cursor-pointer hover:opacity-90 active:scale-95 transition-all"
                             onLoad={() => scrollToBottom()}
-                            onClick={() => window.open(msg.attachmentUrl, '_blank')}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                            }}
+                            onClick={() => window.open(getImageSrc(msg.attachmentUrl), '_blank')}
                           />
                         ) : (
                           <a 

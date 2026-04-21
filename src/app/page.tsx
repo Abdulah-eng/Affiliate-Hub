@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { getSystemSettings } from "@/app/actions/admin";
+import { getImageSrc } from "@/lib/utils";
 
 export default async function LandingPage() {
   let settings: Record<string, string> = {};
@@ -30,7 +31,7 @@ export default async function LandingPage() {
   // --- Dynamic Content Mapping ---
   // Hero
   const heroVideo = settings['CMS_HERO_VIDEO'] || null;
-  const heroImage = settings['CMS_HERO_IMAGE'] || "https://lh3.googleusercontent.com/aida-public/AB6AXuDbHj2kCJe6kU6nsw3bn6ZBkpOCfZXMfgm9Q9jV7-Il2ezKb_LcAH8frMHm1EYod6yQXhe0q8FthJkMnl0mC2qN3Y4hR80-0b2nRWgYcigTCIYbuY02PaH0NlQPNHZFquQoeJuM1kGaofdeS-KP2kWhWGn0IyDqACrIxkXFYeliBhcj93DbYtEjO_qCmmeHLZPaMOeyp_QxmT4C4jZiOo98Fp2sTSKC1pLFCBhBv3c5bffgXUkiaov_m8jJilXolIfBcZkPQUmktzY";
+  const heroImage = getImageSrc(settings['CMS_HERO_IMAGE'] || "https://lh3.googleusercontent.com/aida-public/AB6AXuDbHj2kCJe6kU6nsw3bn6ZBkpOCfZXMfgm9Q9jV7-Il2ezKb_LcAH8frMHm1EYod6yQXhe0q8FthJkMnl0mC2qN3Y4hR80-0b2nRWgYcigTCIYbuY02PaH0NlQPNHZFquQoeJuM1kGaofdeS-KP2kWhWGn0IyDqACrIxkXFYeliBhcj93DbYtEjO_qCmmeHLZPaMOeyp_QxmT4C4jZiOo98Fp2sTSKC1pLFCBhBv3c5bffgXUkiaov_m8jJilXolIfBcZkPQUmktzY");
   const heroTitle = settings['CMS_HERO_TITLE'] || "Build your affiliate network in one system";
   const heroDesc = settings['CMS_HERO_DESC'] || "The definitive hub for Philippine affiliates. High-performance tools for high-stakes digital assets.";
   const heroBadge = settings['CMS_HERO_BADGE'] || "System Online";
@@ -54,7 +55,7 @@ export default async function LandingPage() {
   const featSubtitle = settings['CMS_FEAT_SUBTITLE'] || "One central point of control for your entire affiliate ecosystem.";
   const feat1Title = settings['CMS_FEAT1_TITLE'] || "Centralized Dashboard";
   const feat1Desc = settings['CMS_FEAT1_DESC'] || "Real-time tracking of every conversion and commission across all partnered brands from a single pane of glass.";
-  const bentoImage1 = settings['CMS_BENTO_IMAGE_1'] || "https://lh3.googleusercontent.com/aida-public/AB6AXuBbHj2kCJe6kU6nsw3bn6ZBkpOCfZXMfgm9Q9jV7-Il2ezKb_LcAH8frMHm1EYod6yQXhe0q8FthJkMnl0mC2qN3Y4hR80-0b2nRWgYcigTCIYbuY02PaH0NlQPNHZFquQoeJuM1kGaofdeS-KP2kWhWGn0IyDqACrIxkXFYeliBhcj93DbYtEjO_qCmmeHLZPaMOeyp_QxmT4C4jZiOo98Fp2sTSKC1pLFCBhBv3c5bffgXUkiaov_m8jJilXolIfBcZkPQUmktzY";
+  const bentoImage1 = getImageSrc(settings['CMS_BENTO_IMAGE_1'] || "https://lh3.googleusercontent.com/aida-public/AB6AXuBbHj2kCJe6kU6nsw3bn6ZBkpOCfZXMfgm9Q9jV7-Il2ezKb_LcAH8frMHm1EYod6yQXhe0q8FthJkMnl0mC2qN3Y4hR80-0b2nRWgYcigTCIYbuY02PaH0NlQPNHZFquQoeJuM1kGaofdeS-KP2kWhWGn0IyDqACrIxkXFYeliBhcj93DbYtEjO_qCmmeHLZPaMOeyp_QxmT4C4jZiOo98Fp2sTSKC1pLFCBhBv3c5bffgXUkiaov_m8jJilXolIfBcZkPQUmktzY");
 
   // HIW
   const hiwTitle = settings['CMS_HIW_TITLE'] || "Your Path to Vault Access";
@@ -83,7 +84,7 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">
-      <Navbar />
+      <Navbar logo={settings['CMS_LOGO']} />
       
       <main className="pt-16">
         {/* Hero Section */}
@@ -268,9 +269,12 @@ export default async function LandingPage() {
                 <div key={i} className="flex flex-col items-center gap-4 group/partner hover:scale-110 transition-transform duration-500">
                   {brand.logo ? (
                     <img 
-                      src={brand.logo} 
+                      src={getImageSrc(brand.logo)} 
                       alt={brand.name} 
                       className="h-16 md:h-20 object-contain filter brightness-0 invert opacity-60 group-hover:opacity-100 transition-all grayscale group-hover:grayscale-0" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   ) : (
                     <span className="text-3xl md:text-5xl font-black font-headline tracking-tighter text-on-surface hover:text-primary cursor-default transition-all duration-300">

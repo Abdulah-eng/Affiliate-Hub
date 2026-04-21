@@ -25,7 +25,7 @@ import {
   MonitorPlay,
   Sparkles
 } from "lucide-react";
-import { cn } from '@/lib/utils';
+import { cn, getImageSrc } from '@/lib/utils';
 import { getSystemSettings, updateSystemSettings, uploadCmsAsset } from '@/app/actions/admin';
 
 type CMSItem = {
@@ -48,6 +48,7 @@ const SECTIONS = [
 
 const CMS_MAP: Record<string, CMSItem[]> = {
   hero: [
+    { key: 'CMS_LOGO', label: 'Primary Site Logo', type: 'IMAGE', desc: 'The main logo used in the navigation bar.' },
     { key: 'CMS_HERO_VIDEO', label: 'Background Video', type: 'VIDEO', desc: 'Atmospheric video for the background.' },
     { key: 'CMS_HERO_TITLE', label: 'Main Headline', type: 'TEXT', desc: 'Primary landing title.' },
     { key: 'CMS_HERO_DESC', label: 'Sub-headline', type: 'TEXTAREA', desc: 'Catch-phrase description under the title.' },
@@ -326,7 +327,13 @@ export default function AdminCmsPage() {
                               <video src={settings[item.key]} className="w-full h-full object-cover" muted />
                             )
                           ) : (
-                            <img src={settings[item.key]} className="w-full h-full object-cover" />
+                            <img 
+                              src={getImageSrc(settings[item.key])} 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                              }}
+                            />
                           )
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center opacity-20"><ImageIcon size={32} /></div>
@@ -393,7 +400,14 @@ export default function AdminCmsPage() {
                     {/* Logo preview */}
                     <div className="w-12 h-12 rounded-xl bg-surface-container border border-outline-variant/20 flex items-center justify-center overflow-hidden flex-shrink-0">
                       {partner.logo ? (
-                        <img src={partner.logo} alt={partner.name} className="w-full h-full object-contain" />
+                        <img 
+                          src={getImageSrc(partner.logo)} 
+                          alt={partner.name} 
+                          className="w-full h-full object-contain" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                          }}
+                        />
                       ) : (
                         <span className="text-lg font-black text-primary/30">{partner.name[0]}</span>
                       )}

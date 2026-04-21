@@ -24,7 +24,7 @@ import {
   Info,
   ExternalLink
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { getTasks, completeTask } from "@/app/actions/tasks";
 import { submitPromoProof, claimSimplePromo } from "@/app/actions/promos";
 import { getSystemSettings } from "@/app/actions/admin";
@@ -426,7 +426,7 @@ export default function EarnPage() {
                       }
                       return null;
                     };
-                    const thumbnail = getThumbnail();
+                    const thumbnail = getImageSrc(getThumbnail());
 
                     return (
                       <GlassCard 
@@ -446,7 +446,14 @@ export default function EarnPage() {
                         {/* Background Thumbnail */}
                         <div className="absolute inset-0 z-0">
                           {thumbnail ? (
-                            <img src={thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img 
+                              src={thumbnail} 
+                              alt="" 
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                              }}
+                            />
                           ) : (
                             <div className="w-full h-full bg-slate-900 flex items-center justify-center opacity-40">
                                {task.taskType === "PROMO" ? <Megaphone size={60} /> : <MonitorPlay size={60} />}
@@ -786,7 +793,14 @@ export default function EarnPage() {
                   <GlassCard className="p-0 overflow-hidden border-tertiary/20 flex flex-col items-center justify-center bg-slate-900/50 relative min-h-[350px] md:min-h-[500px] max-h-[75vh]">
                     <div className="flex-1 w-full flex items-center justify-center p-4">
                       {selectedTask.imageUrl ? (
-                        <img src={selectedTask.imageUrl} alt="" className="max-w-full max-h-full object-contain animate-in fade-in zoom-in-95 duration-500 shadow-2xl rounded-lg" />
+                        <img 
+                          src={getImageSrc(selectedTask.imageUrl)} 
+                          alt="" 
+                          className="max-w-full max-h-full object-contain animate-in fade-in zoom-in-95 duration-500 shadow-2xl rounded-lg" 
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/placeholder-logo.png";
+                          }}
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-tertiary/20">
                            {selectedTask.taskType === "PROMO" ? <Megaphone size={120} /> : <Zap size={120} />}
