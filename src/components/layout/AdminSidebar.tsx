@@ -85,12 +85,12 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         />
       )}
       <aside className={cn(
-        "fixed left-0 top-0 h-full w-64 z-[60] bg-surface-container-low shadow-2xl flex flex-col pt-4 pb-6 border-r border-primary/5 transition-transform duration-300 md:translate-x-0 md:flex",
+        "fixed left-0 top-0 h-full w-64 z-[60] bg-surface-container-low shadow-2xl flex flex-col pt-0 pb-6 border-r border-primary/5 transition-transform duration-300 md:translate-x-0 md:flex",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="px-6 mb-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="relative h-52 w-48 flex items-center justify-center -ml-2">
+            <Link href="/" className="relative h-52 w-48 flex items-center justify-center -ml-2 -mt-4">
               <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 

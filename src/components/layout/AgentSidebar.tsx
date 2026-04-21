@@ -127,12 +127,12 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
       )}
 
       <aside className={cn(
-        "fixed left-0 top-0 h-screen w-72 bg-slate-950 border-r border-white/5 flex flex-col pt-4 pb-4 z-[60] transition-transform duration-300 lg:translate-x-0",
+        "fixed left-0 top-0 h-screen w-72 bg-slate-950 border-r border-white/5 flex flex-col pt-0 pb-4 z-[60] transition-transform duration-300 lg:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="px-8 mb-2 flex flex-col shrink-0 gap-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="relative h-52 w-48 flex items-center justify-center -ml-2">
+            <Link href="/" className="relative h-52 w-48 flex items-center justify-center -ml-2 -mt-4">
               <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
