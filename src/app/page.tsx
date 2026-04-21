@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getSystemSettings } from "@/app/actions/admin";
 import { getImageSrc } from "@/lib/utils";
 
@@ -268,13 +269,10 @@ export default async function LandingPage() {
               {partnersList.map((brand, i) => (
                 <div key={i} className="flex flex-col items-center gap-4 group/partner hover:scale-110 transition-transform duration-500">
                   {brand.logo ? (
-                    <img 
+                    <SafeImage 
                       src={getImageSrc(brand.logo)} 
                       alt={brand.name} 
                       className="h-16 md:h-20 object-contain filter brightness-0 invert opacity-60 group-hover:opacity-100 transition-all grayscale group-hover:grayscale-0" 
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
                     />
                   ) : (
                     <span className="text-3xl md:text-5xl font-black font-headline tracking-tighter text-on-surface hover:text-primary cursor-default transition-all duration-300">

@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Bell, User, Zap } from 'lucide-react';
 import { getImageSrc } from '@/lib/utils';
+import { SafeImage } from '@/components/ui/SafeImage';
 
 export const Navbar = ({ logo }: { logo?: string }) => {
   const logoSrc = getImageSrc(logo || "/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png");
@@ -11,13 +12,10 @@ export const Navbar = ({ logo }: { logo?: string }) => {
       <div className="flex justify-between items-center px-4 w-full h-full max-w-[1600px] mx-auto">
         <div className="flex items-center">
           <Link href="/" className="relative h-52 w-auto min-w-[200px] flex items-center justify-start -ml-6 group px-4">
-            <img 
+            <SafeImage 
               src={logoSrc} 
               alt="Logo" 
               className="object-contain h-full w-auto transform transition-all duration-500 group-hover:scale-105 group-hover:drop-shadow-[0_0_30px_rgba(129,236,255,0.6)]" 
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "/placeholder-logo.png";
-              }}
             />
           </Link>
           <div className="flex gap-4 sm:gap-8 items-center pt-4">

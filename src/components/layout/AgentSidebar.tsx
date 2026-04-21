@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
@@ -25,6 +27,7 @@ import { cn, getImageSrc } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { getUnreadCount, getSupportUnreadCount } from '@/app/actions/notifications';
 
 export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) => {
@@ -130,13 +133,10 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
         <div className="px-8 mb-6 flex flex-col shrink-0 gap-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="relative h-16 w-40 flex items-center justify-center -ml-2">
-              <img 
+              <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
                 className="object-contain h-full w-auto" 
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder-logo.png";
-                }}
               />
             </Link>
             <button 

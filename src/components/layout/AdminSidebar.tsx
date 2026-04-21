@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
@@ -22,6 +24,7 @@ import { cn, getImageSrc } from '@/lib/utils';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import Image from 'next/image';
+import { SafeImage } from '@/components/ui/SafeImage';
 import { getAdminSidebarStats } from '@/app/actions/admin';
 import { getUnreadCount, getSupportUnreadCount } from '@/app/actions/notifications';
 
@@ -87,13 +90,10 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         <div className="px-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <Link href="/" className="relative h-16 w-40 flex items-center justify-center -ml-2">
-              <img 
+              <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
                 className="object-contain h-full w-auto" 
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder-logo.png";
-                }}
               />
             </Link>
             {setIsOpen && (
