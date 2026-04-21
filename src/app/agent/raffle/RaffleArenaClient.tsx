@@ -80,15 +80,26 @@ export function RaffleArenaClient({
   const [standardPrizes, setStandardPrizes] = useState<any[]>([]);
   const [grandPrizes, setGrandPrizes] = useState<any[]>([]);
 
+  const parseFlexibleJSON = (str: string) => {
+    try {
+      return JSON.parse(str);
+    } catch {
+      return new Function("return " + str)();
+    }
+  };
+
   useEffect(() => {
     try {
-      if (standardPrizesJson) setStandardPrizes(JSON.parse(standardPrizesJson));
-      else setStandardPrizes([
-        { label: "500 PTS", type: "POINTS", val: 500 },
-        { label: "NO WIN", type: "POINTS", val: 0 },
-        { label: "200 PTS", type: "POINTS", val: 200 },
-        { label: "1000 PTS", type: "POINTS", val: 1000 },
-      ]);
+      if (standardPrizesJson) {
+        const parsed = parseFlexibleJSON(standardPrizesJson);
+        if (Array.isArray(parsed) && parsed.length >= 4) {
+          setStandardPrizes(parsed);
+        } else {
+          throw new Error("Invalid format");
+        }
+      } else {
+        throw new Error("No data");
+      }
     } catch {
       setStandardPrizes([
         { label: "500 PTS", type: "POINTS", val: 500 },
@@ -99,13 +110,16 @@ export function RaffleArenaClient({
     }
 
     try {
-      if (grandPrizesJson) setGrandPrizes(JSON.parse(grandPrizesJson));
-      else setGrandPrizes([
-        { label: "iPhone 15+", type: "MANUAL", val: 0 },
-        { label: "10k GCash", type: "GCASH", val: 10000 },
-        { label: "1k Chips", type: "POINTS", val: 1000 },
-        { label: "200 GCash", type: "GCASH", val: 200 },
-      ]);
+      if (grandPrizesJson) {
+        const parsed = parseFlexibleJSON(grandPrizesJson);
+        if (Array.isArray(parsed) && parsed.length >= 4) {
+          setGrandPrizes(parsed);
+        } else {
+          throw new Error("Invalid format");
+        }
+      } else {
+        throw new Error("No data");
+      }
     } catch {
       setGrandPrizes([
         { label: "iPhone 15+", type: "MANUAL", val: 0 },

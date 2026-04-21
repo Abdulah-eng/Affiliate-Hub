@@ -56,6 +56,23 @@ async function main() {
   });
   console.log(`  ✅ CSR user seeded (username: csr_aileen, password: Csr@12345)`);
 
+  // Seed default Semi Admin user
+  const semiPassword = await bcrypt.hash("SemiAdmin@123", 10);
+  await prisma.user.upsert({
+    where: { username: "semi_admin" },
+    update: {},
+    create: {
+      name: "Semi Administrator",
+      email: "semi@affiliatehubph.com",
+      username: "semi_admin",
+      password: semiPassword,
+      role: "SEMI_ADMIN",
+      kycStatus: "APPROVED",
+      referralCode: "semi_admin_ref"
+    }
+  });
+  console.log(`  ✅ Semi Admin user seeded (username: semi_admin, password: SemiAdmin@123)`);
+
   // Seed a demo approved agent
   const agentPassword = await bcrypt.hash("Agent@12345", 10);
   const agent = await prisma.user.upsert({
