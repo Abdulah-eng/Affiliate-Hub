@@ -19,16 +19,9 @@ import {
   X
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { getAgentWallet } from "@/app/actions/wallet";
 import { getRedemptionProducts, submitRedemptionRequest } from "@/app/actions/redemptions";
-
-const getImageUrl = (url?: string | null) => {
-  if (!url) return "";
-  if (url.startsWith("http")) return url;
-  const cleanUrl = url.startsWith("/") ? url : `/${url}`;
-  return `https://affiliatehubph.com${cleanUrl}`;
-};
 
 export default function AgentWalletPage() {
   const [loading, setLoading] = useState(true);
@@ -191,7 +184,7 @@ export default function AgentWalletPage() {
                 <div className="aspect-[4/3] relative bg-slate-900 overflow-hidden min-w-0">
                       {product.imageUrl ? (
                         <img 
-                          src={getImageUrl(product.imageUrl)} 
+                          src={getImageSrc(product.imageUrl)} 
                           alt={product.name} 
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                         />
@@ -295,7 +288,7 @@ export default function AgentWalletPage() {
               <div className="relative aspect-video bg-slate-900 border-b border-white/10 min-w-0">
                  {selectedProduct.imageUrl ? (
                    <img 
-                     src={getImageUrl(selectedProduct.imageUrl)} 
+                     src={getImageSrc(selectedProduct.imageUrl)} 
                      alt={selectedProduct.name} 
                      className="w-full h-full object-cover" 
                    />

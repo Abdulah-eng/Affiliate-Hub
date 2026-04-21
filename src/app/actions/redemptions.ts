@@ -220,7 +220,7 @@ export async function uploadProductImage(formData: FormData) {
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/products/${fileName}`;
+    const url = `/api/uploads/products/${fileName}`;
 
     return { success: true, url };
   } catch (error: any) {

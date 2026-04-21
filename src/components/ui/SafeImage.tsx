@@ -8,13 +8,19 @@ interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 }
 
 export function SafeImage({ src, fallback = "/placeholder-logo.png", className, ...props }: SafeImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
+  const [imgSrc, setImgSrc] = useState(getImageSrc(src));
   const [hasError, setHasError] = useState(false);
 
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  // Synchronize internal state when src prop changes
+  React.useEffect(() => {
+    setImgSrc(getImageSrc(src));
+    setHasError(false);
+  }, [src]);
+
+  const handleError = () => {
     if (!hasError) {
       setHasError(true);
-      setImgSrc(fallback);
+      setImgSrc(getImageSrc(fallback));
     }
   };
 
