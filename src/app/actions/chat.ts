@@ -126,7 +126,13 @@ export async function uploadChatAsset(formData: FormData) {
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    
+    // Robust sanitization: Remove all characters that might cause pathing/URL issues
+    const sanitizedOriginalName = file.name
+      .replace(/[^a-zA-Z0-9.\-_]/g, "_")
+      .replace(/_{2,}/g, "_"); 
+
+    const fileName = `${Date.now()}-${sanitizedOriginalName}`;
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);

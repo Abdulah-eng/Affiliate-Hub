@@ -91,7 +91,7 @@ export function NotificationBell({ userId }: NotificationProps) {
       >
         <Bell size={20} className={cn("transition-transform", unreadCount > 0 ? "group-hover:rotate-12 text-on-surface" : "")} />
         {unreadCount > 0 && (
-          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_#81ecff] animate-pulse"></span>
+          <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse"></span>
         )}
       </button>
 

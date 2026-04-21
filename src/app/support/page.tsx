@@ -101,12 +101,20 @@ export default function SupportPage() {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await uploadSupportAsset(formData);
-    if (res.success && res.url) {
-      handleSend(res.url, res.type);
+    try {
+      const res = await uploadSupportAsset(formData);
+      if (res.success && res.url) {
+        handleSend(res.url, res.type);
+      } else {
+        alert("Upload failed: " + (res.error || "Unknown error"));
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Upload failed due to network error.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
-    setIsUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleGuestSubmit = (e: React.FormEvent) => {

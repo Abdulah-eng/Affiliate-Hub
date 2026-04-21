@@ -197,6 +197,7 @@ export async function updateSystemSettings(updates: Record<string, string>) {
     revalidatePath("/admin/settings");
     revalidatePath("/");
     revalidatePath("/admin/cms");
+    revalidatePath("/agent/raffle");
     return { success: true };
   } catch (error: any) {
     console.error("Settings Update Error:", error);
@@ -234,11 +235,12 @@ export async function uploadCmsAsset(formData: FormData) {
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const fileName = `${Date.now()}-${sanitizedName}`;
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/cms/${fileName}`;
+    const url = `/api/uploads/cms/${fileName}`;
 
     await prisma.systemSetting.upsert({
       where: { key },
@@ -248,6 +250,7 @@ export async function uploadCmsAsset(formData: FormData) {
 
     revalidatePath("/");
     revalidatePath("/admin/cms");
+    revalidatePath("/agent/raffle");
     return { success: true, url };
   } catch (error) {
     console.error("CMS Upload Error:", error);
@@ -265,11 +268,12 @@ export async function uploadBrandLogo(formData: FormData) {
     await mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const fileName = `${Date.now()}-${sanitizedName}`;
     const filePath = join(uploadDir, fileName);
     
     await writeFile(filePath, buffer);
-    const url = `/uploads/brands/${fileName}`;
+    const url = `/api/uploads/brands/${fileName}`;
 
     return { success: true, url };
   } catch (error: any) {
