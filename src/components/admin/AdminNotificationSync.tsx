@@ -2,12 +2,19 @@
 
 import { useEffect, useRef } from "react";
 import { getAdminSidebarStats } from "@/app/actions/admin";
+import { getSupportUnreadCount } from "@/app/actions/notifications";
 import { useSession } from "next-auth/react";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 
 export function AdminNotificationSync() {
   const { data: session } = useSession();
-  const prevStats = useRef({ pendingKyc: 0, pendingMissions: 0, openTickets: 0, pendingRedemptions: 0 });
+  const prevStats = useRef({ 
+    pendingKyc: 0, 
+    pendingMissions: 0, 
+    openTickets: 0, 
+    pendingRedemptions: 0,
+    supportUnread: 0 
+  });
   const playNotification = useNotificationSound();
 
   useEffect(() => {
@@ -19,7 +26,10 @@ export function AdminNotificationSync() {
 
     const checkStats = async () => {
       try {
-        const stats = await getAdminSidebarStats();
+        const [stats, supportUnread] = await Promise.all([
+          getAdminSidebarStats(),
+          getSupportUnreadCount(session.user.id, 'ADMIN')
+        ]);
         
         let message = "";
         if (stats.pendingKyc > prevStats.current.pendingKyc) {
@@ -28,6 +38,8 @@ export function AdminNotificationSync() {
           message = `New Redemption Request received (${stats.pendingRedemptions} pending)`;
         } else if (stats.pendingMissions > prevStats.current.pendingMissions) {
           message = `New Mission Review submitted (${stats.pendingMissions} pending)`;
+        } else if (supportUnread > prevStats.current.supportUnread) {
+          message = `New Support Message received (${supportUnread} unread)`;
         } else if (stats.openTickets > prevStats.current.openTickets) {
           message = `New Support Ticket received (${stats.openTickets} open)`;
         }
@@ -40,7 +52,10 @@ export function AdminNotificationSync() {
           playNotification();
         }
 
-        prevStats.current = stats;
+        prevStats.current = {
+          ...stats,
+          supportUnread
+        };
       } catch (err) {
         console.error("Notification Sync Error:", err);
       }

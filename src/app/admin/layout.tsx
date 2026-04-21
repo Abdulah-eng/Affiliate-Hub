@@ -6,6 +6,8 @@ import { Bell, Search, Settings, ShieldCheck, Menu } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AdminNotificationSync } from "@/components/admin/AdminNotificationSync";
+import { NotificationBell } from "@/components/layout/NotificationBell";
+import { useSession } from "next-auth/react";
 
 export default function AdminLayout({
   children,
@@ -13,6 +15,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session } = useSession();
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,12 +45,7 @@ export default function AdminLayout({
           </div>
           
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => alert("No new alerts detected")}
-              className="p-2 text-on-surface-variant hover:bg-primary/10 rounded-full transition-all active:scale-95 group"
-            >
-              <Bell size={20} className="group-hover:rotate-12" />
-            </button>
+            {session?.user?.id && <NotificationBell userId={session.user.id} />}
             <Link 
               href="/admin/settings"
               className="p-2 text-on-surface-variant hover:bg-primary/10 rounded-full transition-all active:scale-95 group"
