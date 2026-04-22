@@ -173,8 +173,8 @@ export default function AdminAdsPage() {
 
       {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-[100] flex justify-center p-4 sm:p-8 bg-background/80 backdrop-blur-md overflow-y-auto custom-scrollbar">
-          <GlassCard className="w-full max-w-lg p-6 sm:p-10 space-y-8 animate-in zoom-in-95 duration-200 border-primary/20 h-fit my-auto">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md">
+          <GlassCard className="w-full max-w-lg max-h-[95vh] overflow-y-auto custom-scrollbar p-6 sm:p-10 space-y-8 animate-in zoom-in-95 duration-200 border-primary/20 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-primary">
                 <PlusCircle size={24} strokeWidth={3} />
