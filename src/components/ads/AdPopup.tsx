@@ -47,24 +47,25 @@ export function AdPopup() {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-background/90 backdrop-blur-md animate-in fade-in duration-500">
        <div className="relative w-full max-w-sm animate-in zoom-in-95 duration-500 delay-200">
-          {/* Close Button at Top Right */}
-          <button 
-            onClick={handleClose}
-            className="absolute -top-12 -right-2 p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer z-[210] group"
-          >
-            <X size={28} className="group-hover:rotate-90 transition-transform duration-300" />
-          </button>
-
           <GlassCard className="overflow-hidden border-primary/20 shadow-[0_0_50px_rgba(129,236,255,0.15)]">
              {/* Header */}
-             <div className="p-4 flex items-center gap-3 border-b border-white/5 bg-surface-container/50">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                   <Megaphone size={16} />
+             <div className="p-4 flex items-center justify-between border-b border-white/5 bg-surface-container/50">
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                      <Megaphone size={16} />
+                   </div>
+                   <div>
+                      <p className="text-[10px] font-black uppercase text-primary tracking-widest leading-none">Security Briefing</p>
+                      <h3 className="text-xs font-black text-on-surface uppercase tracking-tight mt-1">Intelligence Update</h3>
+                   </div>
                 </div>
-                <div className="flex-1">
-                   <p className="text-[10px] font-black uppercase text-primary tracking-widest leading-none">Security Briefing</p>
-                   <h3 className="text-xs font-black text-on-surface uppercase tracking-tight mt-1">Intelligence Update</h3>
-                </div>
+                <button 
+                  onClick={handleClose}
+                  className="p-2 text-on-surface-variant hover:text-white transition-all cursor-pointer group"
+                  title="Acknowledge & Close"
+                >
+                  <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
+                </button>
              </div>
 
              {/* Ad Creative */}
