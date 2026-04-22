@@ -10,13 +10,13 @@ export function AdPopup() {
   const [currentAd, setCurrentAd] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [closeClicks, setCloseClicks] = useState(0);
 
   useEffect(() => {
     const fetchAds = async () => {
       try {
         const activeAds = await getActiveAds();
         if (activeAds && activeAds.length > 0) {
-          // Always show the first active ad as requested
           setCurrentAd(activeAds[0]);
           setTimeout(() => setIsVisible(true), 1000);
         }
@@ -31,79 +31,77 @@ export function AdPopup() {
   }, []);
 
   const handleClose = () => {
-    setIsVisible(false);
-    if (currentAd) {
-      sessionStorage.setItem(`ad_seen_${currentAd.id}`, "true");
+    if (closeClicks === 0 && currentAd?.externalLink) {
+      window.open(currentAd.externalLink, "_blank");
+      setCloseClicks(1);
+    } else {
+      setIsVisible(false);
+      if (currentAd) {
+        sessionStorage.setItem(`ad_seen_${currentAd.id}`, "true");
+      }
     }
   };
 
-  if (!isVisible || !currentAd) return null;
+  if (!currentAd || !isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-8 bg-slate-950/90 backdrop-blur-xl animate-in fade-in duration-500">
-      <div className="max-w-lg w-full relative animate-in zoom-in-95 slide-in-from-bottom-8 duration-500 ease-out">
-        {/* Header Branding */}
-        <div className="absolute -top-12 left-0 right-0 flex justify-between items-center px-2">
-           <div className="flex items-center gap-2 text-primary">
-              <Megaphone size={16} />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em]">Special Intelligence</span>
-           </div>
-           <button 
-             onClick={handleClose}
-             className="flex items-center gap-2 text-on-surface-variant hover:text-white transition-all group"
-           >
-              <span className="text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Close Intelligence</span>
-              <X size={20} />
-           </button>
-        </div>
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-background/90 backdrop-blur-md animate-in fade-in duration-500">
+       <div className="relative w-full max-w-sm animate-in zoom-in-95 duration-500 delay-200">
+          {/* Close Button at Top Right */}
+          <button 
+            onClick={handleClose}
+            className="absolute -top-12 -right-2 p-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer z-[210] group"
+          >
+            <X size={28} className="group-hover:rotate-90 transition-transform duration-300" />
+          </button>
 
-        <GlassCard className="overflow-hidden border-primary/20 shadow-[0_0_50px_rgba(129,236,255,0.15)] flex flex-col">
-          {/* Ad Creative */}
-          <div className="relative aspect-[4/5] bg-surface-container overflow-hidden">
-            <img 
-              src={getImageSrc(currentAd.imageUrl)} 
-              alt={currentAd.title} 
-              className="w-full h-full object-cover"
-            />
-            {/* Glossy Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-transparent" />
-            
-            {/* Bottom Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-8 space-y-4">
-               <div>
-                  <h2 className="text-3xl font-black font-headline text-on-surface leading-none uppercase tracking-tighter">
-                    {currentAd.title}
-                  </h2>
-                  <div className="h-1 w-12 bg-primary mt-4" />
+          <GlassCard className="overflow-hidden border-primary/20 shadow-[0_0_50px_rgba(129,236,255,0.15)]">
+             {/* Header */}
+             <div className="p-4 flex items-center gap-3 border-b border-white/5 bg-surface-container/50">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                   <Megaphone size={16} />
+                </div>
+                <div className="flex-1">
+                   <p className="text-[10px] font-black uppercase text-primary tracking-widest leading-none">Security Briefing</p>
+                   <h3 className="text-xs font-black text-on-surface uppercase tracking-tight mt-1">Intelligence Update</h3>
+                </div>
+             </div>
+
+             {/* Ad Creative */}
+             <div className="relative aspect-[4/5] bg-surface-container overflow-hidden">
+               <img 
+                 src={getImageSrc(currentAd.imageUrl)} 
+                 alt={currentAd.title} 
+                 className="w-full h-full object-cover"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
+               <div className="absolute bottom-6 left-6 right-6">
+                  <h2 className="text-2xl font-black text-on-surface leading-tight uppercase">{currentAd.title}</h2>
                </div>
-               
-               <div className="flex gap-4">
-                  {currentAd.externalLink ? (
-                    <a 
-                      href={currentAd.externalLink}
-                      target="_blank"
-                      onClick={handleClose}
-                      className="flex-1 py-4 bg-primary text-background font-black uppercase tracking-widest text-xs rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
-                    >
-                       Acknowledge Protocol <ExternalLink size={14} strokeWidth={3} />
-                    </a>
-                  ) : (
-                    <button 
-                      onClick={handleClose}
-                      className="flex-1 py-4 bg-primary text-background font-black uppercase tracking-widest text-xs rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
-                    >
-                       Continue to Dashboard
-                    </button>
-                  )}
-               </div>
-            </div>
-          </div>
-        </GlassCard>
-        
-        <p className="text-center mt-6 text-[10px] text-on-surface-variant/40 font-bold uppercase tracking-[0.2em]">
-          End of Briefing
-        </p>
-      </div>
+             </div>
+
+             {/* Action */}
+             <div className="p-6 bg-surface-container/30">
+               {currentAd.externalLink ? (
+                 <a 
+                   href={currentAd.externalLink}
+                   target="_blank"
+                   onClick={() => setIsVisible(false)}
+                   className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-background rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                 >
+                   Acknowledge Protocol <ExternalLink size={14} />
+                 </a>
+               ) : (
+                 <button 
+                   onClick={handleClose}
+                   className="w-full py-4 bg-surface-container-high text-on-surface rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-primary hover:text-background transition-all"
+                 >
+                   Briefing Complete
+                 </button>
+               )}
+             </div>
+          </GlassCard>
+       </div>
     </div>
   );
 }
