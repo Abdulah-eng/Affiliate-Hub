@@ -143,6 +143,21 @@ export default async function AdminDashboardPage() {
                   </p>
                 </GlassCard>
               </Link>
+
+              <Link href="/admin/ads" className="group md:col-span-2">
+                <GlassCard className="p-8 h-full border-secondary/10 hover:border-secondary/30 transition-all cursor-pointer bg-surface-container-low/40">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                      <Globe size={28} />
+                    </div>
+                    <ArrowUpRight size={20} className="text-on-surface-variant group-hover:text-secondary transition-colors" />
+                  </div>
+                  <h4 className="text-lg font-black text-on-surface uppercase tracking-tight mb-2">Marketing Vault (Ads)</h4>
+                  <p className="text-sm text-on-surface-variant leading-relaxed">
+                    Deploy promotional pop-up advertisements to the agent dashboard. Manage creatives, priority, and external briefing links.
+                  </p>
+                </GlassCard>
+              </Link>
             </div>
           </section>
 
