@@ -88,9 +88,9 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
         "fixed left-0 top-0 h-full w-64 z-[60] bg-surface-container-low shadow-2xl flex flex-col pt-0 pb-6 border-r border-primary/5 transition-transform duration-300 md:translate-x-0 md:flex",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="px-6 mb-0">
+        <div className="px-8 mb-0 pt-2 flex flex-col shrink-0">
           <div className="flex items-center justify-between">
-            <Link href="/" className="relative h-28 w-48 flex items-center justify-center -ml-2 -mt-16">
+            <Link href="/" className="relative h-24 w-40 flex items-center justify-center pt-2">
               <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
@@ -106,7 +106,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
               </button>
             )}
           </div>
-          <div className="-mt-4">
+          <div className="-mt-8">
             <p className="text-primary font-black font-headline leading-none text-[11px] uppercase tracking-widest">Command Center</p>
             <p className="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] mt-1 font-bold italic">
               {isCSR ? 'Field Operations (CSR)' : 'Admin Level Access'}
