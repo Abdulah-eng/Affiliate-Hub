@@ -74,6 +74,8 @@ type Props = {
   dailyTasks: { key: string; count: number }[];
 };
 
+import { AdPopup } from "@/components/ads/AdPopup";
+
 export default function AgentDashboardClient({
   platforms,
   announcements,
@@ -140,6 +142,8 @@ export default function AgentDashboardClient({
   };
 
   return (
+    <>
+    <AdPopup />
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10 animate-vapor">
       {/* Left Column */}
       <div className="lg:col-span-8 space-y-6 md:space-y-10">
@@ -828,5 +832,6 @@ export default function AgentDashboardClient({
         <Plus size={32} className="group-hover:rotate-90 transition-transform duration-500" />
       </Link>
     </div>
+    </>
   );
 }

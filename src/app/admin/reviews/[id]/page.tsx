@@ -24,15 +24,17 @@ export default async function ReviewDetailPage({ params }: Props) {
   // Fetch all brands so CSR can assign
   const brands = await prisma.brand.findMany({ orderBy: { name: "asc" } });
 
+  const isLocalIp = (ip: string) => ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(ip);
+
   // Fetch accounts sharing the same IP
-  const sharedIpUsers = user.registrationIp ? await prisma.user.findMany({
+  const sharedIpUsers = user.registrationIp && !isLocalIp(user.registrationIp) ? await prisma.user.findMany({
     where: {
       id: { not: user.id },
       role: "AGENT",
       OR: [
         { registrationIp: user.registrationIp },
         { lastLoginIp: user.registrationIp },
-        ...(user.lastLoginIp ? [{ registrationIp: user.lastLoginIp }, { lastLoginIp: user.lastLoginIp }] : [])
+        ...(user.lastLoginIp && !isLocalIp(user.lastLoginIp) ? [{ registrationIp: user.lastLoginIp }, { lastLoginIp: user.lastLoginIp }] : [])
       ]
     },
     select: { username: true, id: true, kycStatus: true }
@@ -55,7 +57,11 @@ export default async function ReviewDetailPage({ params }: Props) {
         registrationIp: user.registrationIp || "N/A",
         lastLoginIp: user.lastLoginIp || "N/A",
         kycSubmittedAt: user.kycSubmittedAt?.toISOString() || null,
-        kycReviewedAt: user.kycReviewedAt?.toISOString() || null
+        kycReviewedAt: user.kycReviewedAt?.toISOString() || null,
+        kycSecondaryId1FrontUrl: user.kycSecondaryId1FrontUrl,
+        kycSecondaryId1BackUrl: user.kycSecondaryId1BackUrl,
+        kycSecondaryId2FrontUrl: user.kycSecondaryId2FrontUrl,
+        kycSecondaryId2BackUrl: user.kycSecondaryId2BackUrl,
       }}
       sharedIpAccounts={sharedIpUsers.map(u => ({
         id: u.id,

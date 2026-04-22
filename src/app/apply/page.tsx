@@ -79,7 +79,7 @@ function ApplyPageContent() {
       if (user.kycStatus === "APPROVED") {
         router.push("/agent");
       } else if (user.kycStatus === "PENDING") {
-        // Stay here or show message
+        setSuccess(true);
       }
     }
   }, [sessionStatus, session, router]);

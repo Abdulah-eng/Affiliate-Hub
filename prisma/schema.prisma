@@ -370,3 +370,14 @@ model VisitorStat {
 
   @@index([timestamp])
 }
+
+model Advertisement {
+  id           String   @id @default(cuid())
+  title        String
+  imageUrl     String
+  externalLink String?
+  isActive     Boolean  @default(true)
+  priority     Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { reviewApplication } from "@/app/actions/admin";
 
 type PlatformAssignment = {
@@ -50,6 +50,10 @@ type Props = {
     lastLoginIp: string;
     kycSubmittedAt: string | null;
     kycReviewedAt: string | null;
+    kycSecondaryId1FrontUrl?: string | null;
+    kycSecondaryId1BackUrl?: string | null;
+    kycSecondaryId2FrontUrl?: string | null;
+    kycSecondaryId2BackUrl?: string | null;
   };
   sharedIpAccounts: { id: string; username: string; kycStatus: string }[];
   platforms: {
@@ -300,49 +304,71 @@ export default function KYCReviewDetail({ user, sharedIpAccounts, platforms, all
             <h3 className="text-xs font-black uppercase tracking-widest text-primary mb-6">
               Identity Documents
             </h3>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                  Government ID
-                </p>
-                <div className="border-2 border-dashed border-outline-variant rounded-xl h-40 flex items-center justify-center bg-surface-container/30">
-                  {user.idPhotoUrl && user.idPhotoUrl !== "/mock-id.png" ? (
-                    <img
-                      src={user.idPhotoUrl}
-                      alt="ID"
-                      className="object-cover h-full w-full rounded-xl"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <FileImage size={32} className="mx-auto mb-2 text-on-surface-variant/40" />
-                      <p className="text-xs text-on-surface-variant">
-                        No photo uploaded
-                      </p>
-                    </div>
-                  )}
+            
+            <div className="space-y-10">
+              {/* Primary / Set 1 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Primary ID Front
+                  </p>
+                  <div className="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container/30 group">
+                    {user.idPhotoUrl ? (
+                      <a href={getImageSrc(user.idPhotoUrl)} target="_blank">
+                        <img
+                          src={getImageSrc(user.idPhotoUrl)}
+                          alt="ID"
+                          className="object-contain h-60 w-full hover:scale-105 transition-transform duration-500"
+                        />
+                      </a>
+                    ) : (
+                      <div className="h-40 flex items-center justify-center text-on-surface-variant/40">No photo</div>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-secondary" /> Selfie with ID
+                  </p>
+                  <div className="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container/30">
+                    {user.selfieUrl ? (
+                      <a href={getImageSrc(user.selfieUrl)} target="_blank">
+                        <img
+                          src={getImageSrc(user.selfieUrl)}
+                          alt="Selfie"
+                          className="object-contain h-60 w-full hover:scale-105 transition-transform duration-500"
+                        />
+                      </a>
+                    ) : (
+                      <div className="h-40 flex items-center justify-center text-on-surface-variant/40">No selfie</div>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                  Selfie with ID
-                </p>
-                <div className="border-2 border-dashed border-outline-variant rounded-xl h-40 flex items-center justify-center bg-surface-container/30">
-                  {user.selfieUrl && user.selfieUrl !== "/mock-selfie.png" ? (
-                    <img
-                      src={user.selfieUrl}
-                      alt="Selfie"
-                      className="object-cover h-full w-full rounded-xl"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <FileImage size={32} className="mx-auto mb-2 text-on-surface-variant/40" />
-                      <p className="text-xs text-on-surface-variant">
-                        No selfie uploaded
-                      </p>
-                    </div>
-                  )}
+
+              {/* Secondary IDs if they exist */}
+              {user.kycSecondaryId1FrontUrl && (
+                <div className="pt-6 border-t border-white/5 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                   <div className="space-y-2">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Secondary ID 1</p>
+                      <div className="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container/30">
+                        <a href={getImageSrc(user.kycSecondaryId1FrontUrl)} target="_blank">
+                          <img src={getImageSrc(user.kycSecondaryId1FrontUrl)} alt="S1" className="object-contain h-40 w-full" />
+                        </a>
+                      </div>
+                   </div>
+                   {user.kycSecondaryId2FrontUrl && (
+                     <div className="space-y-2">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Secondary ID 2</p>
+                        <div className="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container/30">
+                          <a href={getImageSrc(user.kycSecondaryId2FrontUrl)} target="_blank">
+                            <img src={getImageSrc(user.kycSecondaryId2FrontUrl)} alt="S2" className="object-contain h-40 w-full" />
+                          </a>
+                        </div>
+                     </div>
+                   )}
                 </div>
-              </div>
+              )}
             </div>
           </GlassCard>
 
