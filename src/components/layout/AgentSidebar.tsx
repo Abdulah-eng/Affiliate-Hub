@@ -130,9 +130,9 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
         "fixed left-0 top-0 h-screen w-72 bg-slate-950 border-r border-white/5 flex flex-col pt-0 pb-4 z-[60] transition-transform duration-300 lg:translate-x-0",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="px-8 mb-0 flex flex-col shrink-0 gap-4">
+        <div className="px-8 mb-0 flex flex-col shrink-0">
           <div className="flex items-center justify-between">
-            <Link href="/" className="relative h-40 w-48 flex items-center justify-center -ml-2 -mt-12">
+            <Link href="/" className="relative h-28 w-48 flex items-center justify-center -ml-2 -mt-16">
               <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
@@ -146,8 +146,8 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
               <X size={24} />
             </button>
           </div>
-          <div className="flex flex-col">
-            <p className="text-primary font-black font-headline text-sm tracking-tighter uppercase leading-none">Agent Dashboard</p>
+          <div className="flex flex-col -mt-4">
+            <p className="text-primary font-black font-headline text-xs tracking-tighter uppercase leading-none">Agent Dashboard</p>
             <p className="text-[9px] text-on-surface-variant font-bold tracking-widest uppercase mt-1 italic">Operative Interface v2.4</p>
           </div>
         </div>
