@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { X, ExternalLink, Megaphone } from "lucide-react";
 import { getActiveAds } from "@/app/actions/ads";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 
 export function AdPopup() {
   const [currentAd, setCurrentAd] = useState<any>(null);
@@ -16,16 +16,9 @@ export function AdPopup() {
       try {
         const activeAds = await getActiveAds();
         if (activeAds && activeAds.length > 0) {
-          // Check if any ad has NOT been seen in this session
-          for (const ad of activeAds) {
-            const seen = sessionStorage.getItem(`ad_seen_${ad.id}`);
-            if (!seen) {
-              setCurrentAd(ad);
-              // Small delay to make it feel deliberate
-              setTimeout(() => setIsVisible(true), 1500);
-              break;
-            }
-          }
+          // Always show the first active ad as requested
+          setCurrentAd(activeAds[0]);
+          setTimeout(() => setIsVisible(true), 1000);
         }
       } catch (err) {
         console.error("Failed to fetch ads:", err);
@@ -68,7 +61,7 @@ export function AdPopup() {
           {/* Ad Creative */}
           <div className="relative aspect-[4/5] bg-surface-container overflow-hidden">
             <img 
-              src={currentAd.imageUrl} 
+              src={getImageSrc(currentAd.imageUrl)} 
               alt={currentAd.title} 
               className="w-full h-full object-cover"
             />

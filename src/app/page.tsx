@@ -19,6 +19,7 @@ import Link from "next/link";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getSystemSettings } from "@/app/actions/admin";
 import { getImageSrc } from "@/lib/utils";
+import { AdPopup } from "@/components/ads/AdPopup";
 
 export default async function LandingPage() {
   let settings: Record<string, string> = {};
@@ -85,6 +86,7 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary/30">
+      <AdPopup />
       <Navbar logo={settings['CMS_LOGO']} />
       
       <main className="pt-16">
