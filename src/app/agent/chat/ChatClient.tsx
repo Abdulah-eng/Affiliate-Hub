@@ -395,7 +395,7 @@ export function ChatClient({
                   type="button" 
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
                   className={cn(
-                    "p-3 transition-colors rounded-2xl hidden md:block",
+                    "p-3 transition-colors rounded-2xl",
                     showEmojiPicker ? "text-primary bg-primary/10" : "text-on-surface-variant hover:text-primary hover:bg-white/5"
                   )}
                 >
