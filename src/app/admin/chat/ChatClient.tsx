@@ -12,10 +12,11 @@ import {
   ThumbsUp,
   AlertTriangle,
   Star,
-  Heart
+  Heart,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { sendMessage, uploadChatAsset } from "@/app/actions/chat";
+import { sendMessage, uploadChatAsset, deleteChatMessage } from "@/app/actions/chat";
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useNotificationSound } from "@/hooks/useNotificationSound";
 
@@ -40,6 +41,7 @@ export function ChatClient({
 }: { 
   initialMessages: Message[]; 
   currentUserId: string;
+  userRole?: string;
 }) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -183,6 +185,11 @@ export function ChatClient({
     if (action === 'spam') await reportSpam(msgId);
     else if (action === 'helpful') await markHelpful(msgId);
     else if (action === 'like') await reactToMessage(msgId, 'like');
+    else if (action === 'delete') {
+      if (confirm("Permanently delete this message?")) {
+        await deleteChatMessage(msgId);
+      } else return;
+    }
     
     // Refresh messages
     const res = await fetch("/api/chat/sync");
@@ -320,6 +327,14 @@ export function ChatClient({
                         <button onClick={() => handleAction(msg.id, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
                           <AlertTriangle size={14} /> Report as Spam
                         </button>
+                        {(userRole === 'ADMIN' || userRole === 'CSR') && (
+                          <>
+                            <div className="h-[1px] bg-outline-variant/10 my-1" />
+                            <button onClick={() => handleAction(msg.id, 'delete')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-600 text-white text-xs font-bold transition-colors">
+                              <Trash2 size={14} /> Delete Transmission
+                            </button>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
