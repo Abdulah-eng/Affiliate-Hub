@@ -56,6 +56,7 @@ export default function AdminAdsPage() {
   const [formData, setFormData] = useState({
     title: "",
     externalLink: "",
+    imageLink: "",
     priority: "0",
     image: null as File | null
   });
@@ -63,22 +64,23 @@ export default function AdminAdsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!formData.image) {
-      setError("Please select an image.");
+    if (!formData.image && !formData.imageLink) {
+      setError("Please select an image or provide an image URL.");
       return;
     }
 
     const data = new FormData();
     data.append("title", formData.title);
     data.append("externalLink", formData.externalLink);
+    data.append("imageLink", formData.imageLink);
     data.append("priority", formData.priority);
-    data.append("image", formData.image);
+    if (formData.image) data.append("image", formData.image);
 
     startTransition(async () => {
       const result = await createAd(data);
       if (result.success) {
         setShowAddModal(false);
-        setFormData({ title: "", externalLink: "", priority: "0", image: null });
+        setFormData({ title: "", externalLink: "", imageLink: "", priority: "0", image: null });
         fetchAds();
       } else {
         setError(result.error || "Failed to create ad.");
@@ -237,10 +239,9 @@ export default function AdminAdsPage() {
                 <label className="text-[10px] font-black uppercase text-primary tracking-widest ml-2">Promotion Creative</label>
                 <div className="relative group">
                   <input
-                    required
                     type="file"
                     accept="image/*"
-                    onChange={e => setFormData({...formData, image: e.target.files?.[0] || null})}
+                    onChange={e => setFormData({...formData, image: e.target.files?.[0] || null, imageLink: ""})}
                     className="hidden"
                     id="ad-image-upload"
                   />
@@ -265,6 +266,17 @@ export default function AdminAdsPage() {
                     )}
                   </label>
                 </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-primary tracking-widest ml-2">Or Image URL</label>
+                <input
+                  type="url"
+                  placeholder="https://i.postimg.cc/..."
+                  className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-3 outline-none focus:border-primary text-on-surface text-sm"
+                  value={formData.imageLink}
+                  onChange={e => setFormData({...formData, imageLink: e.target.value, image: null})}
+                />
               </div>
 
               <button

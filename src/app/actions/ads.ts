@@ -9,22 +9,27 @@ export async function createAd(formData: FormData) {
   try {
     const title = formData.get("title") as string;
     const externalLink = formData.get("externalLink") as string;
+    const imageLink = formData.get("imageLink") as string;
     const file = formData.get("image") as File | null;
     const priority = parseInt(formData.get("priority") as string || "0");
 
-    if (!file || file.size === 0) {
-      throw new Error("Image is required");
+    let imageUrl = "";
+
+    if (file && file.size > 0) {
+      const uploadDir = join(process.cwd(), "public", "uploads", "ads");
+      await mkdir(uploadDir, { recursive: true });
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+      const filePath = join(uploadDir, fileName);
+      await writeFile(filePath, buffer);
+
+      imageUrl = `/uploads/ads/${fileName}`;
+    } else if (imageLink) {
+      imageUrl = imageLink;
+    } else {
+      throw new Error("Either an image file or an image URL is required");
     }
-
-    const uploadDir = join(process.cwd(), "public", "uploads", "ads");
-    await mkdir(uploadDir, { recursive: true });
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
-    const filePath = join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
-
-    const imageUrl = `/uploads/ads/${fileName}`;
 
     await prisma.advertisement.create({
       data: {
