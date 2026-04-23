@@ -84,6 +84,14 @@
     box-shadow: 0 4px 60px rgba(110, 155, 255, 0.08);
   }
 
+  input, textarea, select {
+    @apply bg-surface-container text-on-surface border-outline-variant/20 focus:border-primary/50 outline-none transition-all;
+  }
+  
+  .glass-panel input, .glass-panel textarea {
+    @apply bg-surface-container-high/50;
+  }
+
   .glass-panel::after {
     content: '';
     @apply absolute inset-0 bg-glass-gradient pointer-events-none;

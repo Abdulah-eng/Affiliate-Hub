@@ -70,8 +70,8 @@ export default function AdminBroadcastPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <GlassCard className="p-8 bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuCHmXfJscU8CByK3tqYyM9eYOn-f5hIEx3Kz1G_W5e6J6wVn6z1n6wVn6z1n6wVn6z1n6wVn6z1')] bg-cover relative overflow-hidden group border-primary/20 hover:shadow-[0_20px_50px_rgba(129,236,255,0.15)] transition-all">
-           <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl z-0"></div>
+        <GlassCard className="p-8 bg-surface-container relative overflow-hidden group border-primary/20 hover:shadow-[0_20px_50px_rgba(129,236,255,0.15)] transition-all">
+           <div className="absolute inset-0 bg-surface-container/80 backdrop-blur-xl z-0"></div>
            <div className="absolute -right-10 top-0 opacity-10 rotate-12 group-hover:scale-125 transition-transform duration-1000 z-0 text-primary">
               <Radio size={160} />
             </div>
@@ -84,7 +84,7 @@ export default function AdminBroadcastPage() {
 
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">Alert Type</label>
-                <div className="flex gap-2 bg-surface-container-low p-2 rounded-xl border border-white/10">
+                <div className="flex gap-2 bg-surface-container-low p-2 rounded-xl border border-outline-variant/10">
                   {["INFO", "SUCCESS", "WARNING", "ERROR"].map((t) => (
                     <button
                       key={t}
@@ -94,7 +94,7 @@ export default function AdminBroadcastPage() {
                         "flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-colors flex justify-center items-center gap-2",
                         type === t 
                            ? (t === "INFO" ? "bg-primary/20 text-primary" : t === "SUCCESS" ? "bg-emerald-500/20 text-emerald-400" : t === "WARNING" ? "bg-amber-500/20 text-amber-500" : "bg-red-500/20 text-red-500")
-                           : "text-on-surface-variant hover:bg-white/5"
+                           : "text-on-surface-variant hover:bg-surface-container-high/50"
                       )}
                     >
                       {IconForType(t)} {t}
@@ -110,7 +110,7 @@ export default function AdminBroadcastPage() {
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   placeholder="e.g. Server Maintenance at 24:00"
-                  className="w-full bg-surface-container-low border border-white/10 rounded-xl py-3 px-4 text-sm font-bold text-on-surface outline-none focus:border-primary transition-colors focus:shadow-[0_0_15px_rgba(129,236,255,0.2)]"
+                  className="w-full bg-surface-container-low border border-outline-variant/10 rounded-xl py-3 px-4 text-sm font-bold text-on-surface outline-none focus:border-primary transition-colors focus:shadow-[0_0_15px_rgba(129,236,255,0.2)]"
                 />
               </div>
 
@@ -121,7 +121,7 @@ export default function AdminBroadcastPage() {
                   value={message}
                   onChange={e => setMessage(e.target.value)}
                   placeholder="Enter the critical information..."
-                  className="w-full bg-surface-container-low border border-white/10 rounded-xl py-3 px-4 text-sm font-medium text-on-surface outline-none focus:border-primary transition-colors focus:shadow-[0_0_15px_rgba(129,236,255,0.2)] resize-none"
+                  className="w-full bg-surface-container-low border border-outline-variant/10 rounded-xl py-3 px-4 text-sm font-medium text-on-surface outline-none focus:border-primary transition-colors focus:shadow-[0_0_15px_rgba(129,236,255,0.2)] resize-none"
                 />
               </div>
 
@@ -153,13 +153,13 @@ export default function AdminBroadcastPage() {
           </h3>
           <p className="text-xs text-on-surface-variant font-medium">This is exactly how the agent will observe the incoming alert via their notification feed.</p>
           
-          <div className="max-w-[320px] bg-slate-950/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden mt-6">
-              <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+          <div className="max-w-[320px] bg-surface-container-highest/95 border border-outline-variant/10 rounded-2xl shadow-2xl overflow-hidden mt-6">
+              <div className="p-4 border-b border-outline-variant/5 flex items-center justify-between bg-surface-container-low/20">
                 <div>
                   <h3 className="text-sm font-black font-headline text-on-surface uppercase tracking-tight">System Alerts</h3>
                 </div>
               </div>
-              <div className="p-4 bg-white/[0.04] relative group">
+              <div className="p-4 bg-surface-container-low/40 relative group">
                 <div className={cn("absolute left-0 top-0 bottom-0 w-1 shadow-[0_0_10px_rgba(129,236,255,0.5)]", type === "SUCCESS" ? "bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]" : type === "ERROR" ? "bg-red-500" : type === "WARNING" ? "bg-amber-500" : "bg-primary")}></div>
                 <div className="flex gap-4">
                   <div className={cn("w-10 h-10 shrink-0 rounded-xl flex items-center justify-center border", 

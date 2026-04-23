@@ -70,7 +70,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
     { name: 'Raffle Matrix', icon: <Settings size={18} />, href: '/admin/raffle-settings', roles: ['ADMIN'] },
     { name: 'Global Broadcast', icon: <Radio size={18} />, href: '/admin/broadcast', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Frontend CMS', icon: <Layout size={18} />, href: '/admin/cms', roles: ['ADMIN'] },
-    { name: 'Nexus Feed', icon: <Radio size={18} />, href: '/agent/chat', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
+    { name: 'Nexus Feed', icon: <Radio size={18} />, href: '/admin/chat', roles: ['ADMIN', 'CSR', 'SEMI_ADMIN'] },
     { name: 'Audit Log', icon: <Database size={18} />, href: '/admin/audit', roles: ['ADMIN'] },
     { name: 'System Config', icon: <Settings size={18} />, href: '/admin/settings', roles: ['ADMIN', 'CSR'] },
   ];

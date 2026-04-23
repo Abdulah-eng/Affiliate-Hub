@@ -79,7 +79,7 @@ export default function AdminLeaderboardPage() {
       <div className="grid grid-cols-1 gap-12">
         {categories.map(cat => (
           <GlassCard key={cat.id} className="p-0 overflow-hidden border-primary/10">
-            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+            <div className="p-8 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container-low/20">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
                   {cat.icon}
@@ -96,7 +96,7 @@ export default function AdminLeaderboardPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-white/[0.03]">
+                <thead className="bg-surface-container-high/30">
                   <tr>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest w-20">Rank</th>
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">Username / User ID</th>
@@ -105,9 +105,9 @@ export default function AdminLeaderboardPage() {
                     <th className="px-8 py-4 text-[10px] font-black text-on-surface-variant uppercase tracking-widest text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-outline-variant/10">
                   {entries.filter(e => e.category === cat.id).map((entry, idx) => (
-                    <tr key={entry.id || idx} className="hover:bg-white/[0.01] transition-colors">
+                    <tr key={entry.id || idx} className="hover:bg-surface-container-high/20 transition-colors">
                       <td className="px-8 py-4">
                         <input 
                           type="number" 
@@ -118,7 +118,7 @@ export default function AdminLeaderboardPage() {
                             newEntries[foundIdx].rank = parseInt(e.target.value);
                             setEntries(newEntries);
                           }}
-                          className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-black text-primary w-16"
+                          className="bg-surface-container-highest/50 border border-outline-variant/10 rounded-lg px-3 py-1.5 text-xs font-black text-primary w-16"
                         />
                       </td>
                       <td className="px-8 py-4">
@@ -132,7 +132,7 @@ export default function AdminLeaderboardPage() {
                             newEntries[foundIdx].userId = e.target.value;
                             setEntries(newEntries);
                           }}
-                          className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[200px]"
+                          className="bg-surface-container-highest/50 border border-outline-variant/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[200px]"
                         />
                       </td>
                       <td className="px-8 py-4">
@@ -146,7 +146,7 @@ export default function AdminLeaderboardPage() {
                             newEntries[foundIdx].ggrValue = e.target.value;
                             setEntries(newEntries);
                           }}
-                          className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[150px]"
+                          className="bg-surface-container-highest/50 border border-outline-variant/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[150px]"
                         />
                       </td>
                       <td className="px-8 py-4">
@@ -160,7 +160,7 @@ export default function AdminLeaderboardPage() {
                             newEntries[foundIdx].dateRange = e.target.value;
                             setEntries(newEntries);
                           }}
-                          className="bg-slate-900 border border-white/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[150px]"
+                          className="bg-surface-container-highest/50 border border-outline-variant/10 rounded-lg px-3 py-1.5 text-xs font-bold w-full max-w-[150px]"
                         />
                       </td>
                       <td className="px-8 py-4 text-right flex items-center justify-end gap-3">

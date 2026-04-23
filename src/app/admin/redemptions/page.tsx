@@ -171,7 +171,7 @@ export default function AdminRedemptionsPage() {
         <div className="flex gap-4">
            <button 
              onClick={handleSeed}
-             className="px-6 py-3 bg-white/5 hover:bg-white/10 text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-white/10 flex items-center gap-2"
+             className="px-6 py-3 bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-outline-variant/10 flex items-center gap-2"
            >
              <RefreshCw size={14} /> Seed Products
            </button>
@@ -186,7 +186,7 @@ export default function AdminRedemptionsPage() {
 
       {/* Add Product Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-md flex items-center justify-center p-4">
           <GlassCard className="max-w-xl w-full p-8 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black text-on-surface uppercase tracking-tight">{editingProduct ? "Edit Product" : "Add New Product"}</h2>
@@ -235,7 +235,7 @@ export default function AdminRedemptionsPage() {
                   <select 
                     value={newProduct.type}
                     onChange={e => setNewProduct({...newProduct, type: e.target.value})}
-                    className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-primary outline-none"
+                    className="w-full bg-surface-container border border-outline-variant/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-primary outline-none"
                   >
                     <option value="PRODUCT">PRODUCT</option>
                     <option value="GCASH">GCASH</option>
@@ -276,7 +276,7 @@ export default function AdminRedemptionsPage() {
         </div>
       )}
 
-      <div className="flex bg-slate-950 p-1 rounded-2xl border border-white/5 w-fit">
+      <div className="flex bg-surface-container-lowest p-1 rounded-2xl border border-outline-variant/5 w-fit">
         <button 
           onClick={() => setActiveTab("pending")}
           className={cn(
@@ -290,7 +290,7 @@ export default function AdminRedemptionsPage() {
           onClick={() => setActiveTab("processed")}
           className={cn(
             "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            activeTab === "processed" ? "bg-primary text-slate-950 shadow-lg" : "text-on-surface-variant hover:text-white"
+             activeTab === "processed" ? "bg-primary text-background shadow-lg" : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
           )}
         >
           Processed History
@@ -299,7 +299,7 @@ export default function AdminRedemptionsPage() {
           onClick={() => setActiveTab("inventory")}
           className={cn(
             "px-8 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            activeTab === "inventory" ? "bg-primary text-slate-950 shadow-lg" : "text-on-surface-variant hover:text-white"
+             activeTab === "inventory" ? "bg-primary text-background shadow-lg" : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50"
           )}
         >
           Inventory Management ({products.length})
@@ -315,8 +315,8 @@ export default function AdminRedemptionsPage() {
           {activeTab === "inventory" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
-                <GlassCard key={product.id} className="p-0 overflow-hidden flex flex-col hover:border-primary/20 transition-all">
-                  <div className="aspect-video relative bg-slate-900">
+                <GlassCard key={product.id} className="p-0 overflow-hidden flex flex-col hover:border-primary/20 transition-all bg-surface-container">
+                  <div className="aspect-video relative bg-surface-container-low">
                     {product.imageUrl ? (
                       <img 
                         src={getImageSrc(product.imageUrl)} 
@@ -332,8 +332,8 @@ export default function AdminRedemptionsPage() {
                       </div>
                     )}
                     <div className="absolute top-3 right-3 flex gap-2">
-                       <button onClick={() => handleEditProduct(product)} className="p-2 bg-slate-950/80 rounded-lg text-primary hover:bg-primary hover:text-slate-950 transition-all"><Save size={14} /></button>
-                       <button onClick={() => handleDeleteProduct(product.id)} className="p-2 bg-slate-950/80 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
+                       <button onClick={() => handleEditProduct(product)} className="p-2 bg-surface-container-highest/80 rounded-lg text-primary hover:bg-primary hover:text-background transition-all"><Save size={14} /></button>
+                       <button onClick={() => handleDeleteProduct(product.id)} className="p-2 bg-surface-container-highest/80 rounded-lg text-red-400 hover:bg-red-500 hover:text-white transition-all"><Trash2 size={14} /></button>
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
@@ -353,7 +353,7 @@ export default function AdminRedemptionsPage() {
             </div>
           ) : (
             filteredRequests.map((req) => (
-              <GlassCard key={req.id} className="p-0 overflow-hidden border-white/5 hover:border-white/10 transition-all">
+              <GlassCard key={req.id} className="p-0 overflow-hidden border-outline-variant/5 hover:border-outline-variant/10 transition-all bg-surface-container">
                 {/* ... existing request card content ... */}
                 <div className="p-8 flex flex-col lg:flex-row gap-8">
                    <div className="flex-1 space-y-6">
@@ -373,14 +373,14 @@ export default function AdminRedemptionsPage() {
                          </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-white/[0.02] rounded-2xl border border-white/5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-surface-container-low/40 rounded-2xl border border-outline-variant/5">
                          <div>
                             <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-3">Agent Credentials</p>
                             <div className="space-y-2">
                                <p className="text-sm font-bold text-on-surface flex items-center gap-2">
                                   <Smartphone size={14} className="text-primary" /> {req.verificationDetails?.phone || "No Phone"}
                                </p>
-                               <p className="text-sm font-medium text-white flex items-center gap-2">
+                               <p className="text-sm font-medium text-on-surface flex items-center gap-2">
                                   <Users size={14} className="text-primary" /> {req.verificationDetails?.username || "No Username"}
                                </p>
                                <p className="text-sm font-medium text-on-surface-variant">
@@ -412,7 +412,7 @@ export default function AdminRedemptionsPage() {
                       </div>
                    </div>
 
-                   <div className="lg:w-64 flex flex-col justify-center gap-4 border-t lg:border-t-0 lg:border-l border-white/10 pt-6 lg:pt-0 lg:pl-8">
+                   <div className="lg:w-64 flex flex-col justify-center gap-4 border-t lg:border-t-0 lg:border-l border-outline-variant/10 pt-6 lg:pt-0 lg:pl-8">
                       {req.status === "PENDING" ? (
                         <>
                            <button 

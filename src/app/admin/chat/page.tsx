@@ -66,7 +66,7 @@ export default async function NexusFeedPage() {
   return (
     <div className="flex-1 flex min-h-0 min-w-0 animate-vapor">
       {/* Sidebar - Contacts & Groups */}
-      <div className="w-72 hidden xl:flex flex-col border-r border-white/5 pr-6 space-y-8 overflow-y-auto no-scrollbar shrink-0">
+      <div className="w-72 hidden xl:flex flex-col border-r border-outline-variant/10 pr-6 space-y-8 overflow-y-auto no-scrollbar shrink-0">
         <div className="space-y-4">
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Nexus Lobby</h3>
           <div className="space-y-2">
@@ -81,7 +81,7 @@ export default async function NexusFeedPage() {
                 message={`Connecting to ${item.name} is currently offline.`}
                 className={cn(
                   "w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group",
-                  item.active ? "bg-primary/10 text-primary border-l-2 border-primary shadow-[0_0_20px_rgba(129,236,255,0.05)]" : "text-on-surface-variant hover:bg-white/5 hover:text-on-surface"
+                  item.active ? "bg-primary/10 text-primary border-l-2 border-primary shadow-[0_0_20px_rgba(129,236,255,0.05)]" : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -106,13 +106,13 @@ export default async function NexusFeedPage() {
                 key={i} 
                 as="div"
                 message={`Direct connection to ${u.name} is unavailable.`}
-                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-white/[0.03] transition-all cursor-pointer group border border-transparent hover:border-white/5"
+                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container-high/30 transition-all cursor-pointer group border border-transparent hover:border-outline-variant/10"
               >
                 <div className="relative">
                   <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-primary border border-primary/10">
                     {u.char}
                   </div>
-                  <div className={cn("absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-950", u.status.includes('Away') ? "bg-amber-500" : "bg-emerald-500 animate-pulse")} />
+                  <div className={cn("absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background", u.status.includes('Away') ? "bg-amber-500" : "bg-emerald-500 animate-pulse")} />
                 </div>
                 <div>
                   <p className="text-xs font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">{u.name}</p>
@@ -126,7 +126,7 @@ export default async function NexusFeedPage() {
 
       {/* Main Chat Feed */}
       <div className="flex-1 flex flex-col min-w-0 lg:px-6 h-full relative">
-        <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02] rounded-t-2xl sm:rounded-t-3xl">
+        <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container-low/20 rounded-t-2xl sm:rounded-t-3xl">
           <div className="flex items-center gap-3 sm:gap-5">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
               <Zap fill="currentColor" size={20} className="sm:w-6 sm:h-6" />
@@ -150,7 +150,7 @@ export default async function NexusFeedPage() {
       </div>
 
       {/* Right Sidebar - Performance Hub */}
-      <div className="w-80 hidden 2xl:flex flex-col border-l border-white/5 pl-6 space-y-10 overflow-y-auto no-scrollbar shrink-0">
+      <div className="w-80 hidden 2xl:flex flex-col border-l border-outline-variant/10 pl-6 space-y-10 overflow-y-auto no-scrollbar shrink-0">
         <div className="space-y-6">
           <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Node Performance</h3>
           <GlassCard className="p-8 bg-surface-container-low/40 border-primary/10 relative overflow-hidden group shadow-2xl">
@@ -172,7 +172,7 @@ export default async function NexusFeedPage() {
                  <span>GOAL: OVERLORD</span>
                  <span>85% SYNCED</span>
               </div>
-              <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden p-0.5 shadow-inner">
+              <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden p-0.5 shadow-inner">
                  <div className="bg-gradient-to-r from-primary to-secondary h-full w-[85%] rounded-full shadow-[0_0_15px_rgba(129,236,255,0.3)]" />
               </div>
             </div>
@@ -184,7 +184,7 @@ export default async function NexusFeedPage() {
           <div className="space-y-3">
              {topChatters.map((chatter: any, i: number) => (
                 <div key={chatter.userId} className={cn(
-                  "p-5 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer bg-white/[0.02] border-white/5 hover:border-primary/10"
+                  "p-5 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer bg-surface-container-low/20 border-outline-variant/10 hover:border-primary/10"
                 )}>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold uppercase border border-primary/20">
@@ -201,7 +201,7 @@ export default async function NexusFeedPage() {
           </div>
         </div>
 
-        <div className="mt-auto p-6 rounded-3xl bg-slate-950/40 border border-white/5">
+        <div className="mt-auto p-6 rounded-3xl bg-surface-container-low/40 border border-outline-variant/10">
            <p className="text-[9px] font-black text-[#a3aac4] leading-relaxed uppercase tracking-widest text-center">
               <span className="text-primary">FAIR PLAY NOTICE:</span> ENGAGEMENT REWARDS ARE AI-MONITORED. VIOLATIONS LEAD TO PERMANENT VAULT SUSPENSION.
            </p>
