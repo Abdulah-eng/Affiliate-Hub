@@ -3,70 +3,70 @@
 @tailwind utilities;
 
 :root {
-  --background: #060e20;
-  --foreground: #dee5ff;
+  --background: 6 14 32;
+  --foreground: 222 229 255;
   
-  --primary: #81ecff;
-  --primary-container: #00e3fd;
-  --primary-dim: #00d4ec;
+  --primary: 129 236 255;
+  --primary-container: 0 227 253;
+  --primary-dim: 0 212 236;
   
-  --secondary: #6e9bff;
-  --secondary-fixed: #c0d1ff;
+  --secondary: 110 155 255;
+  --secondary-fixed: 192 209 255;
   
-  --tertiary: #a68cff;
-  --tertiary-container: #7c4dff;
+  --tertiary: 166 140 255;
+  --tertiary-container: 124 77 255;
   
-  --surface: #060e20;
-  --surface-dim: #060e20;
-  --surface-bright: #1f2b49;
-  --surface-variant: #192540;
+  --surface: 6 14 32;
+  --surface-dim: 6 14 32;
+  --surface-bright: 31 43 73;
+  --surface-variant: 25 37 64;
   
-  --surface-container-lowest: #000000;
-  --surface-container-low: #091328;
-  --surface-container: #0f1930;
-  --surface-container-high: #141f38;
-  --surface-container-highest: #192540;
+  --surface-container-lowest: 0 0 0;
+  --surface-container-low: 9 19 40;
+  --surface-container: 15 25 48;
+  --surface-container-high: 20 31 56;
+  --surface-container-highest: 25 37 64;
   
-  --on-surface: #dee5ff;
-  --on-surface-variant: #a3aac4;
+  --on-surface: 222 229 255;
+  --on-surface-variant: 163 170 196;
   
-  --outline: #6d758c;
-  --outline-variant: #40485d;
+  --outline: 109 117 140;
+  --outline-variant: 64 72 93;
 
   --glass-bg: rgba(15, 25, 48, 0.6);
   --glass-border: rgba(129, 236, 255, 0.1);
 }
 
 .light {
-  --background: #f8faff;
-  --foreground: #001d33;
+  --background: 248 250 255;
+  --foreground: 0 29 51;
   
-  --primary: #006875;
-  --primary-container: #a2eeff;
-  --primary-dim: #006875;
+  --primary: 0 104 117;
+  --primary-container: 162 238 255;
+  --primary-dim: 0 104 117;
   
-  --secondary: #0056d2;
-  --secondary-fixed: #d8e2ff;
+  --secondary: 0 86 210;
+  --secondary-fixed: 216 226 255;
   
-  --tertiary: #6750a4;
-  --tertiary-container: #eaddff;
+  --tertiary: 103 80 164;
+  --tertiary-container: 234 221 255;
   
-  --surface: #f8faff;
-  --surface-dim: #d8dae0;
-  --surface-bright: #f8faff;
-  --surface-variant: #dee3eb;
+  --surface: 248 250 255;
+  --surface-dim: 216 218 224;
+  --surface-bright: 248 250 255;
+  --surface-variant: 222 227 235;
   
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f2f3f9;
-  --surface-container: #eceef4;
-  --surface-container-high: #e6e8ee;
-  --surface-container-highest: #e0e2e8;
+  --surface-container-lowest: 255 255 255;
+  --surface-container-low: 242 243 249;
+  --surface-container: 236 238 244;
+  --surface-container-high: 230 232 238;
+  --surface-container-highest: 224 226 232;
   
-  --on-surface: #001d33;
-  --on-surface-variant: #43474e;
+  --on-surface: 0 29 51;
+  --on-surface-variant: 67 71 78;
   
-  --outline: #73777f;
-  --outline-variant: #c3c7cf;
+  --outline: 115 119 127;
+  --outline-variant: 195 199 207;
 
   --glass-bg: rgba(236, 238, 244, 0.8);
   --glass-border: rgba(0, 104, 117, 0.1);
@@ -80,7 +80,7 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-[var(--glass-bg)] backdrop-blur-2xl border border-[var(--glass-border)] overflow-hidden relative transition-all duration-500;
+    @apply bg-surface-container/60 backdrop-blur-2xl border border-primary/10 overflow-hidden relative transition-all duration-500;
     box-shadow: 0 4px 60px rgba(110, 155, 255, 0.08);
   }
 

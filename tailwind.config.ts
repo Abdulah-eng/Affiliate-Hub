@@ -9,40 +9,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
+        background: "rgb(var(--background) / <alpha-value>)",
         primary: {
-          DEFAULT: "var(--primary)",
-          container: "var(--primary-container)",
-          dim: "var(--primary-dim)",
+          DEFAULT: "rgb(var(--primary) / <alpha-value>)",
+          container: "rgb(var(--primary-container) / <alpha-value>)",
+          dim: "rgb(var(--primary-dim) / <alpha-value>)",
         },
         secondary: {
-          DEFAULT: "var(--secondary)",
-          fixed: "var(--secondary-fixed)",
+          DEFAULT: "rgb(var(--secondary) / <alpha-value>)",
+          fixed: "rgb(var(--secondary-fixed) / <alpha-value>)",
         },
         tertiary: {
-          DEFAULT: "var(--tertiary)",
-          container: "var(--tertiary-container)",
+          DEFAULT: "rgb(var(--tertiary) / <alpha-value>)",
+          container: "rgb(var(--tertiary-container) / <alpha-value>)",
         },
         surface: {
-          DEFAULT: "var(--surface)",
-          dim: "var(--surface-dim)",
-          bright: "var(--surface-bright)",
-          variant: "var(--surface-variant)",
+          DEFAULT: "rgb(var(--surface) / <alpha-value>)",
+          dim: "rgb(var(--surface-dim) / <alpha-value>)",
+          bright: "rgb(var(--surface-bright) / <alpha-value>)",
+          variant: "rgb(var(--surface-variant) / <alpha-value>)",
           container: {
-            lowest: "var(--surface-container-lowest)",
-            low: "var(--surface-container-low)",
-            DEFAULT: "var(--surface-container)",
-            high: "var(--surface-container-high)",
-            highest: "var(--surface-container-highest)",
+            lowest: "rgb(var(--surface-container-lowest) / <alpha-value>)",
+            low: "rgb(var(--surface-container-low) / <alpha-value>)",
+            DEFAULT: "rgb(var(--surface-container) / <alpha-value>)",
+            high: "rgb(var(--surface-container-high) / <alpha-value>)",
+            highest: "rgb(var(--surface-container-highest) / <alpha-value>)",
           }
         },
         "on-surface": {
-          DEFAULT: "var(--on-surface)",
-          variant: "var(--on-surface-variant)",
+          DEFAULT: "rgb(var(--on-surface) / <alpha-value>)",
+          variant: "rgb(var(--on-surface-variant) / <alpha-value>)",
         },
         outline: {
-          DEFAULT: "var(--outline)",
-          variant: "var(--outline-variant)",
+          DEFAULT: "rgb(var(--outline) / <alpha-value>)",
+          variant: "rgb(var(--outline-variant) / <alpha-value>)",
         }
       },
       fontFamily: {
