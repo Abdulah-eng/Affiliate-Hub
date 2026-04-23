@@ -42,8 +42,8 @@ export function ChatHeaderDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] animate-in fade-in zoom-in duration-200">
-          <div className="px-3 py-2 border-b border-white/5 mb-1">
+        <div className="absolute right-0 mt-2 w-56 bg-surface-container border border-outline-variant/10 rounded-2xl shadow-2xl p-2 z-[100] animate-in fade-in zoom-in duration-200">
+          <div className="px-3 py-2 border-b border-outline-variant/5 mb-1">
             <span className="text-[10px] font-black text-primary uppercase tracking-widest">Channel Options</span>
           </div>
           {options.map((opt, i) => (
@@ -53,7 +53,7 @@ export function ChatHeaderDropdown() {
                 opt.action();
                 setIsOpen(false);
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors text-left"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors text-left"
             >
               <span className="text-on-surface-variant">{opt.icon}</span>
               {opt.label}

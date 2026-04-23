@@ -186,6 +186,11 @@ export function ChatClient({
     if (action === 'spam') await reportSpam(msgId);
     else if (action === 'helpful') await markHelpful(msgId);
     else if (action === 'like') await reactToMessage(msgId, 'like');
+    else if (action === 'delete') {
+      if (confirm("Permanently delete this message?")) {
+        await deleteChatMessage(msgId);
+      } else return;
+    }
     
     // Refresh messages
     const syncRes = await fetch("/api/chat/sync");
@@ -209,7 +214,7 @@ export function ChatClient({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-b from-[#0f172a] to-[#080d1a] rounded-3xl border border-[#1e293b] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.6),inset_0_0_80px_rgba(129,236,255,0.02)] relative h-full">
+    <div className="flex-1 flex flex-col bg-surface-container border border-outline-variant/20 overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.3),inset_0_0_80px_rgba(129,236,255,0.02)] relative h-full">
       {/* Message List */}
       <div 
         ref={scrollRef}
@@ -218,10 +223,13 @@ export function ChatClient({
         {messages.map((msg) => {
           const isSelf = msg.userId === currentUserId;
           return (
-            <div key={msg.id} className={cn(
-              "flex gap-3 max-w-[90%] animate-vapor",
-              isSelf ? "flex-row-reverse ml-auto" : "flex-row"
-            )}>
+            <div key={msg.id} 
+              className={cn(
+                "flex gap-3 max-w-[90%] animate-vapor relative",
+                isSelf ? "flex-row-reverse ml-auto" : "flex-row",
+                contextMenu?.msgId === msg.id ? "z-[100]" : "z-10"
+              )}
+            >
               <div className="shrink-0 relative h-fit">
                 <div className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold border border-primary/10 ring-2 ring-white/5 uppercase text-xs">
                   {msg.userName?.[0]}
@@ -247,8 +255,8 @@ export function ChatClient({
                       msg.isSpam && "opacity-40 grayscale",
                       msg.isHelpful && "border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
                       isSelf 
-                        ? "bg-gradient-to-br from-primary/20 to-primary/5 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface ml-auto" 
-                        : "bg-gradient-to-br from-white/10 to-white/5 border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)] rounded-tl-none text-on-surface-variant/90 mr-auto"
+                        ? "bg-primary/20 border-primary/30 shadow-[0_10px_30px_rgba(129,236,255,0.15)] rounded-tr-none text-on-surface ml-auto" 
+                        : "bg-surface-container-high/60 border-outline-variant/10 shadow-[0_10px_30px_rgba(0,0,0,0.1)] rounded-tl-none text-on-surface-variant/90 mr-auto"
                     )}
                     onContextMenu={(e) => e.preventDefault()}
                     onClick={(e) => {
@@ -257,7 +265,7 @@ export function ChatClient({
                     >
                       
                       {msg.attachmentUrl && (
-                        <div className="rounded-lg overflow-hidden border border-black/10 bg-black/5 mb-2 max-w-full">
+                        <div className="rounded-lg overflow-hidden border border-outline-variant/10 bg-surface-container-lowest/20 mb-2 max-w-full">
                           {msg.attachmentType?.startsWith('image/') ? (
                             <img 
                               src={msg.attachmentUrl} 
@@ -300,7 +308,7 @@ export function ChatClient({
                             </div>
                           )}
                           {msg.reactions && Array.from(new Set(msg.reactions.map(r => r.type))).map(type => (
-                            <div key={type} className="bg-white/5 border border-white/10 px-2 py-1 rounded-full text-[10px] flex items-center gap-1">
+                            <div key={type} className="bg-surface-container-highest/30 border border-outline-variant/10 px-2 py-1 rounded-full text-[10px] flex items-center gap-1">
                               {type === 'like' && <Heart size={10} fill="#ff4b4b" className="text-[#ff4b4b]" />}
                               <span className="font-bold">{msg.reactions?.filter(r => r.type === type).length}</span>
                             </div>
@@ -320,25 +328,41 @@ export function ChatClient({
                     {contextMenu?.msgId === msg.id && (
                       <div 
                         className={cn(
-                          "absolute z-[120] bg-[#0f172a] border border-white/10 rounded-2xl shadow-2xl p-2 min-w-[190px] animate-in fade-in zoom-in duration-200 context-menu-container top-1/2 -translate-y-1/2",
+                          "absolute z-[120] bg-surface-container border border-outline-variant/20 rounded-2xl shadow-2xl p-2 min-w-[190px] animate-in fade-in zoom-in duration-200 context-menu-container top-1/2 -translate-y-1/2",
                           isSelf ? "right-full mr-4" : "left-full ml-4"
                         )}
                       >
-                        <button onClick={() => handleAction(msg.id, 'like')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'like'); }} 
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors cursor-pointer"
+                        >
                           <Heart size={14} className="text-red-500" /> Like Message
                         </button>
-                        <button onClick={() => handleAction(msg.id, 'helpful')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-xs font-bold text-on-surface transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'helpful'); }} 
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors cursor-pointer"
+                        >
                           <Star size={14} className="text-amber-500" /> Mark as Helpful
                         </button>
-                        <div className="h-[1px] bg-white/5 my-1" />
-                        <button onClick={() => handleAction(msg.id, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
+                        <div className="h-[1px] bg-outline-variant/10 my-1" />
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'spam'); }} 
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors cursor-pointer"
+                        >
                           <AlertTriangle size={14} /> Report as Spam
                         </button>
                         {(userRole === 'ADMIN' || userRole === 'CSR') && (
                           <>
-                            <div className="h-[1px] bg-white/5 my-1" />
-                            <button onClick={() => handleDelete(msg.id)} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 text-xs font-bold text-red-500 transition-colors">
-                              <Trash2 size={14} /> Delete Message
+                            <div className="h-[1px] bg-outline-variant/10 my-1" />
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleAction(msg.id, 'delete');
+                              }} 
+                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-600 text-white text-xs font-bold transition-colors cursor-pointer"
+                            >
+                              <Trash2 size={14} /> Delete Transmission
                             </button>
                           </>
                         )}
@@ -353,10 +377,10 @@ export function ChatClient({
 
 
       {/* Input Area */}
-      <div className="p-4 bg-gradient-to-t from-background/40 to-transparent border-t border-white/5 relative z-10 backdrop-blur-sm">
+      <div className="p-4 bg-gradient-to-t from-background/40 to-transparent border-t border-outline-variant/10 relative z-10 backdrop-blur-sm">
         <form 
           onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-          className="bg-surface-container-high/60 border border-white/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 focus-within:bg-surface-container-high/90 focus-within:shadow-[0_10px_40px_rgba(129,236,255,0.15)] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.3),inset_0_2px_15px_rgba(255,255,255,0.05)] group backdrop-blur-lg"
+          className="bg-surface-container-high/60 border border-outline-variant/10 p-3 rounded-3xl flex items-center gap-3 focus-within:border-primary/40 focus-within:bg-surface-container-high/90 focus-within:shadow-[0_10px_40px_rgba(129,236,255,0.15)] transition-all shadow-[0_10px_30px_rgba(0,0,0,0.1),inset_0_2px_15px_rgba(255,255,255,0.05)] group backdrop-blur-lg"
         >
             <input 
               type="file" 
@@ -369,7 +393,7 @@ export function ChatClient({
               type="button" 
               onClick={() => fileInputRef.current?.click()} 
               disabled={isUploading || isSending}
-              className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-white/5 rounded-2xl disabled:opacity-30"
+              className="p-3 text-on-surface-variant hover:text-primary transition-colors hover:bg-surface-container-high/50 rounded-2xl disabled:opacity-30"
             >
               {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Paperclip size={20} />}
             </button>
@@ -386,7 +410,7 @@ export function ChatClient({
                   <div className="absolute bottom-full right-0 mb-4 z-50">
                     <EmojiPicker 
                       onEmojiClick={onEmojiClick}
-                      theme={Theme.DARK}
+                      theme={document.documentElement.classList.contains('light') ? Theme.LIGHT : Theme.DARK}
                       lazyLoadEmojis={true}
                     />
                   </div>
@@ -396,7 +420,7 @@ export function ChatClient({
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)} 
                   className={cn(
                     "p-3 transition-colors rounded-2xl",
-                    showEmojiPicker ? "text-primary bg-primary/10" : "text-on-surface-variant hover:text-primary hover:bg-white/5"
+                    showEmojiPicker ? "text-primary bg-primary/10" : "text-on-surface-variant hover:text-primary hover:bg-surface-container-high/50"
                   )}
                 >
                   <Smile size={20} />
