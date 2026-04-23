@@ -320,20 +320,20 @@ export function ChatClient({
                       >
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'like'); }} 
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors cursor-pointer"
                         >
                           <Heart size={14} className="text-red-500" /> Like Message
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'helpful'); }} 
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors cursor-pointer"
                         >
                           <Star size={14} className="text-amber-500" /> Mark as Helpful
                         </button>
                         <div className="h-[1px] bg-outline-variant/10 my-1" />
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'spam'); }} 
-                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors"
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors cursor-pointer"
                         >
                           <AlertTriangle size={14} /> Report as Spam
                         </button>
@@ -346,7 +346,7 @@ export function ChatClient({
                                 e.stopPropagation();
                                 handleAction(msg.id, 'delete');
                               }} 
-                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-600 text-white text-xs font-bold transition-colors"
+                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-600 text-white text-xs font-bold transition-colors cursor-pointer"
                             >
                               <Trash2 size={14} /> Delete Transmission
                             </button>
