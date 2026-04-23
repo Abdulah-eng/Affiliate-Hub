@@ -37,7 +37,8 @@ type Message = {
 
 export function ChatClient({ 
   initialMessages, 
-  currentUserId 
+  currentUserId,
+  userRole
 }: { 
   initialMessages: Message[]; 
   currentUserId: string;
@@ -178,7 +179,7 @@ export function ChatClient({
     }
   };
 
-  const handleAction = async (msgId: string, action: 'spam' | 'helpful' | 'like') => {
+  const handleAction = async (msgId: string, action: 'spam' | 'helpful' | 'like' | 'delete') => {
     setContextMenu(null);
     const { reportSpam, markHelpful, reactToMessage } = await import("@/app/actions/chat");
     
