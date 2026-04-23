@@ -29,6 +29,7 @@ import { useSession, signOut } from 'next-auth/react';
 import Image from 'next/image';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getUnreadCount, getSupportUnreadCount } from '@/app/actions/notifications';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen: (val: boolean) => void }) => {
   const pathname = usePathname();
@@ -200,6 +201,7 @@ export const AgentSidebar = ({ isOpen, setIsOpen }: { isOpen: boolean, setIsOpen
             </div>
           </div>
           
+          <ThemeToggle />
           <button 
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-full transition-all text-[10px] font-black uppercase tracking-widest"

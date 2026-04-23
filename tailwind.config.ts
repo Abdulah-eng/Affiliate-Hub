@@ -9,40 +9,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#060e20",
+        background: "var(--background)",
         primary: {
-          DEFAULT: "#81ecff",
-          container: "#00e3fd",
-          dim: "#00d4ec",
+          DEFAULT: "var(--primary)",
+          container: "var(--primary-container)",
+          dim: "var(--primary-dim)",
         },
         secondary: {
-          DEFAULT: "#6e9bff",
-          fixed: "#c0d1ff",
+          DEFAULT: "var(--secondary)",
+          fixed: "var(--secondary-fixed)",
         },
         tertiary: {
-          DEFAULT: "#a68cff",
-          container: "#7c4dff",
+          DEFAULT: "var(--tertiary)",
+          container: "var(--tertiary-container)",
         },
         surface: {
-          DEFAULT: "#060e20",
-          dim: "#060e20",
-          bright: "#1f2b49",
-          variant: "#192540",
+          DEFAULT: "var(--surface)",
+          dim: "var(--surface-dim)",
+          bright: "var(--surface-bright)",
+          variant: "var(--surface-variant)",
           container: {
-            lowest: "#000000",
-            low: "#091328",
-            DEFAULT: "#0f1930",
-            high: "#141f38",
-            highest: "#192540",
+            lowest: "var(--surface-container-lowest)",
+            low: "var(--surface-container-low)",
+            DEFAULT: "var(--surface-container)",
+            high: "var(--surface-container-high)",
+            highest: "var(--surface-container-highest)",
           }
         },
         "on-surface": {
-          DEFAULT: "#dee5ff",
-          variant: "#a3aac4",
+          DEFAULT: "var(--on-surface)",
+          variant: "var(--on-surface-variant)",
         },
         outline: {
-          DEFAULT: "#6d758c",
-          variant: "#40485d",
+          DEFAULT: "var(--outline)",
+          variant: "var(--outline-variant)",
         }
       },
       fontFamily: {

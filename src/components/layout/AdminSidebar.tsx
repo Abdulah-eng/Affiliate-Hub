@@ -27,6 +27,7 @@ import Image from 'next/image';
 import { SafeImage } from '@/components/ui/SafeImage';
 import { getAdminSidebarStats } from '@/app/actions/admin';
 import { getUnreadCount, getSupportUnreadCount } from '@/app/actions/notifications';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) => {
   const pathname = usePathname();
@@ -154,6 +155,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
           </div>
           {unreadCount > 0 && <span className="bg-red-500 w-2 h-2 rounded-full animate-ping"></span>}
         </Link>
+        <ThemeToggle />
         <Link href="/admin/docs" onClick={() => setIsOpen && setIsOpen(false)} className="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-r-full text-xs font-medium">
           <FileText size={16} /> Documentation
         </Link>
