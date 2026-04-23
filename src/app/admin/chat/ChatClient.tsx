@@ -318,20 +318,36 @@ export function ChatClient({
                           isSelf ? "right-full mr-4" : "left-full ml-4"
                         )}
                       >
-                        <button onClick={() => handleAction(msg.id, 'like')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'like'); }} 
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors"
+                        >
                           <Heart size={14} className="text-red-500" /> Like Message
                         </button>
-                        <button onClick={() => handleAction(msg.id, 'helpful')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'helpful'); }} 
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-surface-container-high/50 text-xs font-bold text-on-surface transition-colors"
+                        >
                           <Star size={14} className="text-amber-500" /> Mark as Helpful
                         </button>
                         <div className="h-[1px] bg-outline-variant/10 my-1" />
-                        <button onClick={() => handleAction(msg.id, 'spam')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleAction(msg.id, 'spam'); }} 
+                          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-xs font-bold text-red-500 transition-colors"
+                        >
                           <AlertTriangle size={14} /> Report as Spam
                         </button>
                         {(userRole === 'ADMIN' || userRole === 'CSR') && (
                           <>
                             <div className="h-[1px] bg-outline-variant/10 my-1" />
-                            <button onClick={() => handleAction(msg.id, 'delete')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-600 text-white text-xs font-bold transition-colors">
+                            <button 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleAction(msg.id, 'delete');
+                              }} 
+                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-600 text-white text-xs font-bold transition-colors"
+                            >
                               <Trash2 size={14} /> Delete Transmission
                             </button>
                           </>
