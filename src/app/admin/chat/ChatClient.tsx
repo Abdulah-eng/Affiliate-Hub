@@ -212,10 +212,13 @@ export function ChatClient({
         {messages.map((msg) => {
           const isSelf = msg.userId === currentUserId;
           return (
-            <div key={msg.id} className={cn(
-              "flex gap-3 max-w-[90%] animate-vapor",
-              isSelf ? "flex-row-reverse ml-auto" : "flex-row"
-            )}>
+            <div key={msg.id} 
+              className={cn(
+                "flex gap-3 max-w-[90%] animate-vapor relative",
+                isSelf ? "flex-row-reverse ml-auto" : "flex-row",
+                contextMenu?.msgId === msg.id ? "z-[100]" : "z-10"
+              )}
+            >
               <div className="shrink-0 relative h-fit">
                 <div className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold border border-primary/10 ring-2 ring-outline-variant/5 uppercase text-xs">
                   {msg.userName?.[0]}
