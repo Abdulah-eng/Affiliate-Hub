@@ -58,8 +58,17 @@ export function ChatClient({
 
   // Auto-scroll to bottom and play sound for new messages
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const scrollToBottom = () => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    };
+
+    // Initial mount scroll
+    if (messages.length === initialMessages.length) {
+      setTimeout(scrollToBottom, 100);
+    } else {
+      scrollToBottom();
     }
     
     if (messages.length > lastMessageCount.current) {
@@ -69,7 +78,7 @@ export function ChatClient({
       }
     }
     lastMessageCount.current = messages.length;
-  }, [messages, currentUserId, playNotification]);
+  }, [messages, currentUserId, playNotification, initialMessages.length]);
 
   // Polling for new messages (Simple implementation)
   useEffect(() => {
@@ -218,7 +227,7 @@ export function ChatClient({
       {/* Message List */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-5 py-2 space-y-2 no-scrollbar scroll-smooth"
+        className="flex-1 overflow-y-auto px-5 py-4 space-y-4 no-scrollbar scroll-smooth bg-slate-950/20 shadow-inner"
       >
         {messages.map((msg) => {
           const isSelf = msg.userId === currentUserId;

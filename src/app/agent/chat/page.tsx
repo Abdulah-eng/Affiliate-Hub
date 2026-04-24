@@ -64,7 +64,7 @@ export default async function NexusFeedPage() {
   });
 
   return (
-    <div className="flex-1 flex min-h-0 min-w-0 animate-vapor">
+    <div className="flex-1 flex min-h-0 min-w-0 animate-vapor h-[calc(100vh-176px)] overflow-hidden">
       {/* Sidebar - Contacts & Groups */}
       <div className="w-72 hidden xl:flex flex-col border-r border-outline-variant/10 pr-6 space-y-8 overflow-y-auto no-scrollbar shrink-0">
         <div className="space-y-4">
@@ -143,7 +143,7 @@ export default async function NexusFeedPage() {
           <ChatHeaderDropdown />
         </div>
 
-        <div className="flex-1 flex flex-col min-w-0 max-w-5xl mx-auto w-full h-full relative pb-6">
+        <div className="flex-1 flex flex-col min-w-0 max-w-5xl mx-auto w-full h-full relative">
           <ChatClient 
             initialMessages={messages} 
             currentUserId={currentUserId} 
