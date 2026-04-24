@@ -134,8 +134,8 @@ export default function AgentLayout({
         </div>
       </header>
 
-      <main className="lg:ml-72 pt-44 px-6 lg:px-12 transition-all h-screen overflow-hidden">
-        <div className="max-w-[1600px] mx-auto h-full flex flex-col">
+      <main className="lg:ml-72 pt-44 pb-10 px-6 lg:px-12 transition-all">
+        <div className="max-w-[1600px] mx-auto min-h-[calc(100vh-176px)] flex flex-col">
           {children}
         </div>
       </main>

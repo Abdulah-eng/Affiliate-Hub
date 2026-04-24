@@ -64,152 +64,136 @@ export default async function NexusFeedPage() {
   });
 
   return (
-    <div className="flex-1 flex min-h-0 min-w-0 animate-vapor h-full overflow-hidden pb-4">
-      {/* Sidebar - Contacts & Groups */}
-      <div className="w-72 hidden xl:flex flex-col border-r border-outline-variant/10 pr-6 space-y-8 overflow-y-auto no-scrollbar shrink-0">
-        <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Nexus Lobby</h3>
-          <div className="space-y-2">
-            {[
-              { name: 'Global Chat', icon: <Users size={18} />, active: true, count: '1.2k' },
-              { name: 'Private Nodes', icon: <Lock size={18} />, count: '0' },
-              { name: 'Squad Groups', icon: <Users size={18} />, count: '2' }
-            ].map((item, idx) => (
-              <ClientSoon 
-                key={idx} 
-                as="button"
-                message={`Connecting to ${item.name} is currently offline.`}
-                className={cn(
-                  "w-full flex items-center justify-between px-6 py-4 rounded-2xl transition-all group",
-                  item.active ? "bg-primary/10 text-primary border-l-2 border-primary shadow-[0_0_20px_rgba(129,236,255,0.05)]" : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  {item.icon}
-                  <span className="text-sm font-black uppercase tracking-tight">{item.name}</span>
-                </div>
-                <span className="text-[10px] font-black opacity-40">{item.count}</span>
-              </ClientSoon>
-            ))}
+    <div className="flex flex-col gap-6 h-[calc(100vh-220px)] min-h-[600px]">
+      <div className="flex-1 flex min-h-0 min-w-0 gap-6 animate-vapor overflow-hidden">
+        {/* Sidebar - Contacts & Groups */}
+        <GlassCard className="w-80 hidden xl:flex flex-col border-white/5 pr-0 overflow-hidden shrink-0" innerClassName="h-full flex flex-col !p-0">
+          <div className="p-6 border-b border-white/5">
+            <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Nexus Lobby</h3>
           </div>
-        </div>
-
-        <div className="flex-1 space-y-4 overflow-y-auto pr-2 no-scrollbar">
-          <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Active Operatives</h3>
-          <div className="space-y-3">
-            {[
-              { name: 'Cyber_Merchant', status: 'Healthy', char: 'C' },
-              { name: 'Sarah_Ops', status: 'Away (5m)', char: 'S' },
-              { name: 'PinoAffiliate_CEO', status: 'Healthy', char: 'P' }
-            ].map((u, i) => (
-              <ClientSoon 
-                key={i} 
-                as="div"
-                message={`Direct connection to ${u.name} is unavailable.`}
-                className="flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container-high/30 transition-all cursor-pointer group border border-transparent hover:border-outline-variant/10"
-              >
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-primary border border-primary/10">
-                    {u.char}
+          <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
+            <div className="space-y-2">
+              {[
+                { name: 'Global Chat', icon: <Users size={18} />, active: true, count: '1.2k' },
+                { name: 'Private Nodes', icon: <Lock size={18} />, count: '0' },
+                { name: 'Squad Groups', icon: <Users size={18} />, count: '2' }
+              ].map((item, idx) => (
+                <ClientSoon 
+                  key={idx} 
+                  as="button"
+                  message={`Connecting to ${item.name} is currently offline.`}
+                  className={cn(
+                    "w-full flex items-center justify-between px-5 py-4 rounded-2xl transition-all group",
+                    item.active ? "bg-primary/10 text-primary border-l-2 border-primary shadow-[0_0_20px_rgba(129,236,255,0.05)]" : "text-on-surface-variant hover:bg-surface-container-high/50 hover:text-on-surface"
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    {item.icon}
+                    <span className="text-sm font-black uppercase tracking-tight">{item.name}</span>
                   </div>
-                  <div className={cn("absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background", u.status.includes('Away') ? "bg-amber-500" : "bg-emerald-500 animate-pulse")} />
-                </div>
-                <div>
-                  <p className="text-xs font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">{u.name}</p>
-                  <p className="text-[9px] text-on-surface-variant font-medium uppercase">{u.status}</p>
-                </div>
-              </ClientSoon>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chat Feed */}
-      <div className="flex-1 flex flex-col min-w-0 lg:px-6 h-full relative">
-        <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container-low/20 rounded-t-2xl sm:rounded-t-3xl">
-          <div className="flex items-center gap-3 sm:gap-5">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
-              <Zap fill="currentColor" size={20} className="sm:w-6 sm:h-6" />
+                  <span className="text-[10px] font-black opacity-40">{item.count}</span>
+                </ClientSoon>
+              ))}
             </div>
-            <div>
-              <h2 className="text-lg sm:text-xl font-black font-headline text-on-surface uppercase tracking-tight leading-tight">Nexus Feed</h2>
-              <p className="text-[10px] sm:text-xs text-on-surface-variant font-medium flex items-center gap-2">
-                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="hidden xs:inline">Real-time synchronization active</span>
-                <span className="xs:hidden">Live Sync</span>
-              </p>
+
+            <div className="pt-6 space-y-4">
+              <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Active Operatives</h3>
+              <div className="space-y-3">
+                {[
+                  { name: 'Cyber_Merchant', status: 'Healthy', char: 'C' },
+                  { name: 'Sarah_Ops', status: 'Away (5m)', char: 'S' },
+                  { name: 'PinoAffiliate_CEO', status: 'Healthy', char: 'P' }
+                ].map((u, i) => (
+                  <ClientSoon 
+                    key={i} 
+                    as="div"
+                    message={`Direct connection to ${u.name} is unavailable.`}
+                    className="flex items-center gap-4 p-3 rounded-2xl hover:bg-surface-container-high/30 transition-all cursor-pointer group border border-transparent hover:border-outline-variant/10"
+                  >
+                    <div className="relative">
+                      <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center font-bold text-primary border border-primary/10">
+                        {u.char}
+                      </div>
+                      <div className={cn("absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background", u.status.includes('Away') ? "bg-amber-500" : "bg-emerald-500 animate-pulse")} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-on-surface uppercase tracking-tight group-hover:text-primary transition-colors">{u.name}</p>
+                      <p className="text-[9px] text-on-surface-variant font-medium uppercase">{u.status}</p>
+                    </div>
+                  </ClientSoon>
+                ))}
+              </div>
             </div>
           </div>
-          <ChatHeaderDropdown />
-        </div>
+        </GlassCard>
 
-        <div className="flex-1 flex flex-col min-w-0 max-w-5xl mx-auto w-full h-full relative">
+        {/* Main Chat Feed */}
+        <div className="flex-1 flex flex-col min-w-0 h-full relative">
           <ChatClient 
             initialMessages={messages} 
             currentUserId={currentUserId} 
             userRole={session?.user?.role || "AGENT"}
           />
         </div>
-      </div>
 
-      {/* Right Sidebar - Performance Hub */}
-      <div className="w-80 hidden 2xl:flex flex-col border-l border-outline-variant/10 pl-6 space-y-10 overflow-y-auto no-scrollbar shrink-0">
-        <div className="space-y-6">
-          <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Node Performance</h3>
-          <GlassCard className="p-8 bg-surface-container-low/40 border-primary/10 relative overflow-hidden group shadow-2xl">
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform duration-700">
-               <Trophy size={64} className="text-primary" />
+        {/* Right Sidebar - Performance Hub */}
+        <GlassCard className="w-80 hidden 2xl:flex flex-col border-white/5 overflow-hidden shrink-0" innerClassName="h-full flex flex-col !p-0">
+          <div className="p-6 border-b border-white/5">
+            <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">Node Performance</h3>
+          </div>
+          <div className="flex-1 overflow-y-auto no-scrollbar p-6 space-y-10">
+            <div className="space-y-6">
+              <GlassCard className="p-8 bg-surface-container-low/40 border-primary/10 relative overflow-hidden group shadow-2xl">
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:rotate-12 transition-transform duration-700">
+                  <Trophy size={64} className="text-primary" />
+                </div>
+                <div className="flex justify-between items-end mb-8 relative z-10">
+                  <div>
+                    <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Reputation</p>
+                    <h4 className="text-3xl font-black text-on-surface font-headline tracking-tighter">12,450 <span className="text-sm font-black text-primary">PTS</span></h4>
+                  </div>
+                </div>
+                <div className="space-y-3 relative z-10">
+                  <div className="flex justify-between items-center text-[9px] font-black tracking-widest text-[#a3aac4]">
+                    <span>85% SYNCED</span>
+                  </div>
+                  <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden p-0.5 shadow-inner">
+                    <div className="bg-gradient-to-r from-primary to-secondary h-full w-[85%] rounded-full shadow-[0_0_15px_rgba(129,236,255,0.3)]" />
+                  </div>
+                </div>
+              </GlassCard>
             </div>
-            <div className="flex justify-between items-end mb-8 relative z-10">
-              <div>
-                <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1">Nexus Reputation</p>
-                <h4 className="text-4xl font-black text-on-surface font-headline tracking-tighter">12,450 <span className="text-sm font-black text-primary">PTS</span></h4>
-              </div>
-              <div className="text-right">
-                <p className="text-[9px] font-black text-primary uppercase tracking-widest mb-1">Rank</p>
-                <span className="text-sm font-black text-on-surface italic">#42 GLOBAL</span>
-              </div>
-            </div>
-            <div className="space-y-3 relative z-10">
-              <div className="flex justify-between items-center text-[9px] font-black tracking-widest text-[#a3aac4]">
-                 <span>GOAL: OVERLORD</span>
-                 <span>85% SYNCED</span>
-              </div>
-              <div className="w-full bg-surface-container-highest h-2 rounded-full overflow-hidden p-0.5 shadow-inner">
-                 <div className="bg-gradient-to-r from-primary to-secondary h-full w-[85%] rounded-full shadow-[0_0_15px_rgba(129,236,255,0.3)]" />
-              </div>
-            </div>
-          </GlassCard>
-        </div>
 
-        <div className="space-y-6">
-          <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Top Transmitters</h3>
-          <div className="space-y-3">
-             {topChatters.map((chatter: any, i: number) => (
-                <div key={chatter.userId} className={cn(
-                  "p-5 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer bg-surface-container-low/20 border-outline-variant/10 hover:border-primary/10"
-                )}>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold uppercase border border-primary/20">
-                      ?
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-on-surface uppercase tracking-tight">Agent {chatter.userId.slice(0, 5)}</p>
-                      <p className="text-[9px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">{chatter._count.id} Messages Sync'd</p>
+            <div className="space-y-6">
+              <h3 className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-2">Top Transmitters</h3>
+              <div className="space-y-3">
+                {topChatters.map((chatter: any, i: number) => (
+                  <div key={chatter.userId} className={cn(
+                    "p-4 rounded-2xl border transition-all flex items-center justify-between group cursor-pointer bg-surface-container-low/20 border-outline-variant/10 hover:border-primary/10"
+                  )}>
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold uppercase border border-primary/20 text-[10px]">
+                        ?
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-on-surface uppercase tracking-tight">Agent {chatter.userId.slice(0, 5)}</p>
+                        <p className="text-[8px] font-black text-on-surface-variant uppercase tracking-widest opacity-60">{chatter._count.id} Messages</p>
+                      </div>
                     </div>
                   </div>
-                  <span className="text-[8px] font-black uppercase tracking-widest text-primary">ACTIVE</span>
-                </div>
-             ))}
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="mt-auto p-6 rounded-3xl bg-surface-container-low/40 border border-outline-variant/10">
-           <p className="text-[9px] font-black text-[#a3aac4] leading-relaxed uppercase tracking-widest text-center">
-              <span className="text-primary">FAIR PLAY NOTICE:</span> ENGAGEMENT REWARDS ARE AI-MONITORED. VIOLATIONS LEAD TO PERMANENT VAULT SUSPENSION.
-           </p>
-        </div>
+          <div className="p-6 border-t border-white/5 bg-slate-950/20">
+             <p className="text-[8px] font-black text-[#a3aac4] leading-relaxed uppercase tracking-widest text-center">
+                AI-MONITORED ENGAGEMENT
+             </p>
+          </div>
+        </GlassCard>
       </div>
     </div>
+  );
+}
   );
 }
