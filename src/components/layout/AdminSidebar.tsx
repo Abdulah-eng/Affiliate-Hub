@@ -92,7 +92,7 @@ export const AdminSidebar = ({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpe
       )}>
         <div className="px-6 mb-0">
           <div className="flex items-center justify-between">
-            <Link href="/" className="relative h-52 w-48 flex items-center justify-center -ml-2 -mt-10">
+            <Link href="/admin" className="relative h-52 w-48 flex items-center justify-center -ml-2 -mt-10">
               <SafeImage 
                 src={getImageSrc("/WhatsApp_Image_2026-04-11_at_01.17.27-removebg-preview.png")} 
                 alt="Logo" 
