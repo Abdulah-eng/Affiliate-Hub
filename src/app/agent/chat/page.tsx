@@ -64,7 +64,7 @@ export default async function NexusFeedPage() {
   });
 
   return (
-    <div className="flex-1 flex min-h-0 min-w-0 animate-vapor h-[calc(100vh-176px)] overflow-hidden">
+    <div className="flex-1 flex min-h-0 min-w-0 animate-vapor h-full overflow-hidden pb-4">
       {/* Sidebar - Contacts & Groups */}
       <div className="w-72 hidden xl:flex flex-col border-r border-outline-variant/10 pr-6 space-y-8 overflow-y-auto no-scrollbar shrink-0">
         <div className="space-y-4">
