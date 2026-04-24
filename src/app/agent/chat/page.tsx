@@ -143,11 +143,13 @@ export default async function NexusFeedPage() {
           <ChatHeaderDropdown />
         </div>
 
-        <ChatClient 
-          initialMessages={messages} 
-          currentUserId={currentUserId} 
-          userRole={session?.user?.role || "AGENT"}
-        />
+        <div className="flex-1 flex flex-col min-w-0 max-w-5xl mx-auto w-full h-full relative pb-6">
+          <ChatClient 
+            initialMessages={messages} 
+            currentUserId={currentUserId} 
+            userRole={session?.user?.role || "AGENT"}
+          />
+        </div>
       </div>
 
       {/* Right Sidebar - Performance Hub */}

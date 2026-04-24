@@ -91,7 +91,7 @@ export default function AgentDashboardClient({
     { key: "DAILY_SURVIVAL", label: "Daily Survival Kit", reward: "200 GCASH", target: 1, icon: <Gift size={16} />, color: "text-amber-400" },
   ];
 
-  const getTaskCount = (key: string) => dailyTasks.find(t => t.key === key)?.count || 0;
+  const getTaskCount = (key: string) => dailyTasks?.find(t => t?.key === key)?.count || 0;
 
   const [revealedPasswords, setRevealedPasswords] = useState<Set<string>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);

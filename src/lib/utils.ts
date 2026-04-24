@@ -17,8 +17,8 @@ export function getImageSrc(src: string | null | undefined) {
     path = path.replace(domain, '');
   }
   
-  // If it's still an absolute external URL (e.g. Google Photos), return it as is
-  if (path.startsWith('http')) return path;
+  // If it's still an absolute external URL (e.g. Google Photos) or a preview blob/data, return it as is
+  if (path.startsWith('http') || path.startsWith('blob:') || path.startsWith('data:')) return path;
   
   // Ensure leading slash
   if (!path.startsWith('/')) path = '/' + path;

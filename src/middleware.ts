@@ -20,9 +20,9 @@ export default withAuth(
       !pathname.startsWith("/agent/help") &&
       pathname !== "/favicon.ico"
     ) {
-      // If PENDING, don't redirect to /apply if they are already on a safe path
-      // The apply page itself will handle showing the PENDING status
-      return NextResponse.redirect(new URL("/apply", req.url));
+      // If they are already authenticated (e.g. via Google), redirect to the kyc-specific form
+      // otherwise redirect to the general apply page
+      return NextResponse.redirect(new URL("/apply/kyc", req.url));
     }
     // ----------------------------
 
@@ -55,5 +55,5 @@ export default withAuth(
 
 
 export const config = {
-  matcher: ["/agent/:path*", "/admin/:path*"]
+  matcher: ["/agent", "/agent/:path*", "/admin", "/admin/:path*"]
 };

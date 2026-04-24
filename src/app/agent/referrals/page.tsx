@@ -21,30 +21,31 @@ import { cn } from "@/lib/utils";
 
 export default async function ReferralsPage() {
   const session = await getServerSession(authOptions);
-  const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id },
+  const user = session?.user?.id ? await prisma.user.findUnique({
+    where: { id: session.user.id },
     include: {
       referrals: true,
     }
-  });
+  }) : null;
 
   let referralCode = user?.referralCode;
   const targetCode = user?.username || referralCode;
 
-  if (referralCode !== targetCode && targetCode) {
+  if (user && referralCode !== targetCode && targetCode) {
     referralCode = targetCode;
     await prisma.user.update({
-      where: { id: session?.user?.id },
+      where: { id: user.id },
       data: { referralCode }
     });
   }
 
-  const totalReferrals = user?.referrals.length || 0;
+  const referrals = user?.referrals || [];
+  const totalReferrals = referrals.length;
   const pendingRewards = totalReferrals * 500; // Mock calculation
 
   // For leaderboard, fetch top 3 referrers
   const topReferrers = await prisma.user.findMany({
-    where: { role: "AGENT" },
+    where: { role: "AGENT", referralCode: { not: null } },
     include: { _count: { select: { referrals: true } } },
     orderBy: { referrals: { _count: "desc" } },
     take: 3

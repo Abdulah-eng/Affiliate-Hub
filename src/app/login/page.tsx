@@ -37,7 +37,9 @@ function LoginContent() {
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
-    await signIn("google", { callbackUrl: "/agent" });
+    const ref = searchParams.get("ref");
+    const callbackUrl = ref ? `/agent?ref=${ref}` : "/agent";
+    await signIn("google", { callbackUrl });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
