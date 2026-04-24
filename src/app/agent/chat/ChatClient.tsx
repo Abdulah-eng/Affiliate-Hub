@@ -13,7 +13,8 @@ import {
   AlertTriangle,
   Star,
   Heart,
-  Trash2
+  Trash2,
+  Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { sendMessage, uploadChatAsset, deleteChatMessage } from "@/app/actions/chat";
