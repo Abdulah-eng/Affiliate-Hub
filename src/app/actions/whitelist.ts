@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 export async function getWhitelist() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return [];
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return [];
 
   return prisma.whitelistEntry.findMany({
     orderBy: { createdAt: "desc" }
@@ -16,7 +16,7 @@ export async function getWhitelist() {
 
 export async function addToWhitelist(data: { type: "IP" | "USERNAME", value: string, reason?: string }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.whitelistEntry.create({

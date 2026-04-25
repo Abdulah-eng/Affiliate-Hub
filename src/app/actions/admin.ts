@@ -9,6 +9,11 @@ import { authOptions } from "@/lib/authOptions";
 import bcrypt from "bcryptjs";
 
 export async function getPendingApplications() {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!["ADMIN", "SEMI_ADMIN", "CSR"].includes(role)) {
+    return [];
+  }
   return prisma.user.findMany({
     where: { kycStatus: "PENDING" },
     include: { platforms: { include: { brand: true } } },
@@ -29,6 +34,11 @@ export async function reviewApplication(
   }[]
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (!["ADMIN", "SEMI_ADMIN", "CSR"].includes(role)) {
+      return { success: false, error: "Unauthorized" };
+    }
     await prisma.$transaction(async (tx) => {
       // Update User KYC status
       await tx.user.update({
@@ -109,12 +119,17 @@ export async function reviewApplication(
 }
 
 export async function getAllBrands() {
+  // Publicly used in KYC forms, so no role check needed but session helps
   return prisma.brand.findMany({
     orderBy: { createdAt: "asc" }
   });
 }
 
 export async function updateBrandLoginUrl(brandId: string, loginUrl: string) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return { success: false, error: "Unauthorized" };
+
   await prisma.brand.update({
     where: { id: brandId },
     data: { loginUrl }
@@ -123,6 +138,10 @@ export async function updateBrandLoginUrl(brandId: string, loginUrl: string) {
 }
 
 export async function updateBrandStatus(brandId: string, status: string) {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return { success: false, error: "Unauthorized" };
+
   await prisma.brand.update({
     where: { id: brandId },
     data: { status }
@@ -132,6 +151,10 @@ export async function updateBrandStatus(brandId: string, status: string) {
 
 export async function createBrand(name: string, loginUrl: string, logoUrl?: string, playerLoginUrl?: string) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return { success: false, error: "Unauthorized" };
+
     await prisma.brand.create({
       data: { name, loginUrl, logoUrl, playerLoginUrl, status: 'ONLINE', isActive: true }
     });
@@ -154,6 +177,10 @@ export async function updateBrand(brandId: string, data: {
   isActive?: boolean
 }) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return { success: false, error: "Unauthorized" };
+
     await prisma.brand.update({
       where: { id: brandId },
       data
@@ -168,6 +195,10 @@ export async function updateBrand(brandId: string, data: {
 
 export async function deleteBrand(brandId: string) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (role !== "ADMIN") return { success: false, error: "Unauthorized. Full Admin access required for deletion." };
+
     // Delete related platform access records first
     await prisma.platformAccess.deleteMany({ where: { brandId } });
     await prisma.brand.delete({ where: { id: brandId } });
@@ -180,6 +211,10 @@ export async function deleteBrand(brandId: string) {
 }
 
 export async function getSystemSettings() {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return [];
+
   return prisma.systemSetting.findMany({
     orderBy: { key: "asc" }
   });
@@ -187,6 +222,10 @@ export async function getSystemSettings() {
 
 export async function updateSystemSettings(updates: Record<string, string>) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (role !== "ADMIN") return { success: false, error: "Unauthorized. Settings are Admin-only." };
+
     for (const [key, value] of Object.entries(updates)) {
       await prisma.systemSetting.upsert({
         where: { key },
@@ -206,6 +245,10 @@ export async function updateSystemSettings(updates: Record<string, string>) {
 }
 
 export async function getAuditLogs() {
+  const session = await getServerSession(authOptions);
+  const role = (session?.user as any)?.role;
+  if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return [];
+
   return prisma.pointTransaction.findMany({
     include: { user: true },
     orderBy: { createdAt: "desc" },
@@ -225,6 +268,10 @@ export async function getReviewHistory() {
 
 export async function uploadCmsAsset(formData: FormData) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (role !== "ADMIN") return { success: false, error: "Unauthorized" };
+
     const file = formData.get("file") as File;
     const key = formData.get("key") as string;
     
@@ -260,6 +307,10 @@ export async function uploadCmsAsset(formData: FormData) {
 
 export async function uploadBrandLogo(formData: FormData) {
   try {
+    const session = await getServerSession(authOptions);
+    const role = (session?.user as any)?.role;
+    if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return { success: false, error: "Unauthorized" };
+
     const file = formData.get("file") as File;
     if (!file) return { success: false, error: "No file provided" };
 

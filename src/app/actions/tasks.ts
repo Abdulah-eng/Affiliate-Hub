@@ -187,7 +187,8 @@ export async function adminCreateTask(data: {
   type?: string
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.task.create({ data });
@@ -211,7 +212,8 @@ export async function adminUpdateTask(id: string, data: {
   type?: string
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.task.update({ where: { id }, data });
@@ -225,7 +227,8 @@ export async function adminUpdateTask(id: string, data: {
 
 export async function adminDeleteTask(id: string) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.task.delete({ where: { id } });
@@ -307,7 +310,8 @@ export async function submitTaskProof(formData: FormData) {
 
 export async function adminReviewTaskProgress(progressId: string, status: "COMPLETED" | "REJECTED") {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     const progress = await prisma.userTaskProgress.findUnique({
@@ -369,7 +373,8 @@ export async function adminReviewTaskProgress(progressId: string, status: "COMPL
 
 export async function adminGetPendingTaskSubmissions() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return [];
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return [];
 
   return prisma.userTaskProgress.findMany({
     where: { status: "PENDING" },

@@ -20,15 +20,7 @@ const STEPS = [
   { id: 4, name: "Review" },
 ];
 
-const PLATFORMS = [
-  { id: "POTS", name: "Pearl Of The Seas (POTS)", status: "ACTIVE" },
-  { id: "WinForLife", name: "Win For Life", status: "ACTIVE" },
-  { id: "Rollem", name: "Rollem", status: "ACTIVE" },
-  { id: "TAMASA", name: "TAMASA", status: "ACTIVE" },
-  { id: "COW", name: "COW", status: "ACTIVE" },
-  { id: "MegaPerya", name: "Mega Perya", status: "COMING_SOON" },
-  { id: "BIGWIN", name: "BIGWIN", status: "UNAVAILABLE" },
-];
+// PLATFORMS removed, will be fetched dynamically
 
 const PRIMARY_IDS = [
   "PhilSys National ID", "Passport", "Driver's License",
@@ -58,6 +50,7 @@ function GoogleKycPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [platforms, setPlatforms] = useState<any[]>([]);
 
   // Profile fields
   const [profile, setProfile] = useState({
@@ -92,11 +85,18 @@ function GoogleKycPageContent() {
   const kycStatus = (session?.user as any)?.kycStatus;
 
   useEffect(() => {
+    // Fetch Dynamic Brands
+    const fetchBrands = async () => {
+      const { getAllBrands } = await import("@/app/actions/admin");
+      const data = await getAllBrands();
+      setPlatforms(data);
+    };
+    fetchBrands();
+
     if (status === "authenticated") {
       if (kycStatus === "APPROVED") {
         router.push("/agent");
       } else if (kycStatus === "PENDING" && !success) {
-        // Option: allow them to see the success screen again if they refresh
         setSuccess(true);
       }
     }
@@ -145,7 +145,7 @@ function GoogleKycPageContent() {
     // Files
     Object.entries(kycFiles).forEach(([k, v]) => { if (v) formData.set(k, v); });
     // Platforms & referral
-    formData.set("requestedPlatforms", JSON.stringify(selectedPlatforms));
+    formData.set("requestedBrands", JSON.stringify(selectedPlatforms));
     formData.set("referralSource", referralSource.join(", "));
     formData.set("agreedToTerms", agreedToTerms.toString());
     if (referralCode) formData.set("referrerCode", referralCode);
@@ -283,18 +283,18 @@ function GoogleKycPageContent() {
               <div>
                 <label className="block text-xs font-bold text-primary uppercase tracking-widest mb-3">Select Partner Platforms *</label>
                 <div className="grid grid-cols-1 gap-2">
-                  {PLATFORMS.map(platform => (
-                    <button type="button" key={platform.id} disabled={platform.status !== "ACTIVE"}
-                      onClick={() => setSelectedPlatforms(prev => prev.includes(platform.id) ? prev.filter(b => b !== platform.id) : [...prev, platform.id])}
+                  {platforms.map(platform => (
+                    <button type="button" key={platform.id} disabled={!platform.isActive}
+                      onClick={() => setSelectedPlatforms(prev => prev.includes(platform.name) ? prev.filter(b => b !== platform.name) : [...prev, platform.name])}
                       className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all",
-                        selectedPlatforms.includes(platform.id) ? "bg-primary/10 border-primary/40 text-primary" : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant hover:text-on-surface",
-                        platform.status !== "ACTIVE" && "opacity-30 cursor-not-allowed")}>
-                      <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0", selectedPlatforms.includes(platform.id) ? "bg-primary border-primary" : "border-outline-variant")}>
-                        {selectedPlatforms.includes(platform.id) && <Check size={12} className="text-background" />}
+                        selectedPlatforms.includes(platform.name) ? "bg-primary/10 border-primary/40 text-primary" : "border-outline-variant/30 text-on-surface-variant hover:border-outline-variant hover:text-on-surface",
+                        !platform.isActive && "opacity-30 cursor-not-allowed")}>
+                      <div className={cn("w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0", selectedPlatforms.includes(platform.name) ? "bg-primary border-primary" : "border-outline-variant")}>
+                        {selectedPlatforms.includes(platform.name) && <Check size={12} className="text-background" />}
                       </div>
                       <span className="font-bold text-sm">{platform.name}</span>
                       <span className={cn("ml-auto text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
-                        platform.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400" : "bg-surface-container text-on-surface-variant")}>{platform.status}</span>
+                        platform.isActive ? "bg-emerald-500/10 text-emerald-400" : "bg-surface-container text-on-surface-variant")}>{platform.isActive ? platform.status : "OFFLINE"}</span>
                     </button>
                   ))}
                 </div>

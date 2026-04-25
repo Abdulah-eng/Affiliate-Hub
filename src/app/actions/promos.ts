@@ -25,7 +25,8 @@ export async function adminCreatePromo(data: {
   pointsAward?: number
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.promo.create({ data });
@@ -46,7 +47,8 @@ export async function adminUpdatePromo(id: string, data: {
   pointsAward?: number
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.promo.update({ where: { id }, data });
@@ -59,7 +61,8 @@ export async function adminUpdatePromo(id: string, data: {
 
 export async function adminDeletePromo(id: string) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.promo.delete({ where: { id } });
@@ -72,7 +75,8 @@ export async function adminDeletePromo(id: string) {
 
 export async function uploadPromoImage(formData: FormData) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     const file = formData.get("file") as File;
@@ -160,7 +164,8 @@ export async function getAgentSubmissions() {
 // Admin only: Get all pending submissions
 export async function adminGetPendingSubmissions() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return [];
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return [];
 
   return prisma.promoSubmission.findMany({
     where: { status: "PENDING" },
@@ -174,7 +179,8 @@ export async function adminGetPendingSubmissions() {
 
 export async function adminReviewSubmission(submissionId: string, status: "APPROVED" | "REJECTED") {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) return { success: false, error: "Unauthorized" };
 
   try {
     const submission = await prisma.promoSubmission.findUnique({

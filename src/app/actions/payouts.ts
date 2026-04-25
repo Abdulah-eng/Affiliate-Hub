@@ -93,7 +93,7 @@ export async function requestWithdrawal(amount: number, paymentMethod: string, p
 
 export async function processWithdrawal(id: string, action: "APPROVED" | "REJECTED", notes?: string, proofUrl?: string) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     return await prisma.$transaction(async (tx) => {
@@ -169,7 +169,7 @@ export async function processWithdrawal(id: string, action: "APPROVED" | "REJECT
 
 export async function getWithdrawalsAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return null;
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return null;
 
   return prisma.withdrawal.findMany({
     include: {
@@ -180,7 +180,7 @@ export async function getWithdrawalsAdmin() {
 }
 export async function uploadPayoutProof(formData: FormData) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     const file = formData.get("file") as File;

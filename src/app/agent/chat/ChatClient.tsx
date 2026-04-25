@@ -226,16 +226,16 @@ export function ChatClient({
   return (
     <div className="flex-1 flex flex-col bg-surface-container/30 border border-white/5 overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.3)] relative h-full rounded-3xl">
       {/* Pulse Style Header */}
-      <div className="px-6 py-5 bg-primary/5 border-b border-white/5 flex items-center justify-between backdrop-blur-md">
+      <div className="px-6 py-4 bg-primary/5 border-b border-primary/10 flex items-center justify-between backdrop-blur-md">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-[0_0_20px_rgba(129,236,255,0.1)]">
             <Zap fill="currentColor" size={20} />
           </div>
           <div>
-            <h2 className="text-sm font-black font-headline text-on-surface uppercase tracking-widest leading-tight">Nexus Feed</h2>
+            <h2 className="text-xs font-black font-headline text-on-surface uppercase tracking-widest leading-tight">Nexus synchronization active</h2>
             <p className="text-[9px] text-on-surface-variant font-black flex items-center gap-1.5 uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Live Sync Active
+              Broadcasting to all nodes
             </p>
           </div>
         </div>

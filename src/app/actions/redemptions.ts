@@ -62,7 +62,7 @@ export async function submitRedemptionRequest(productId: string, verificationDet
 
 export async function getPendingRedemptions() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     const requests = await prisma.redemptionRequest.findMany({
@@ -80,7 +80,7 @@ export async function getPendingRedemptions() {
 
 export async function processRedemption(requestId: string, status: "APPROVED" | "REJECTED", adminNotes?: string) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     const request = await prisma.redemptionRequest.findUnique({
@@ -149,7 +149,7 @@ export async function processRedemption(requestId: string, status: "APPROVED" | 
 
 export async function seedInitialProducts() {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+    if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
     const initialProducts = [
         { name: "100 PHP GCash", pointsCost: 1000, type: "GCASH", description: "Direct transfer to your GCash wallet." },
@@ -177,7 +177,7 @@ export async function addRedemptionProduct(data: {
   stock?: number;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     const product = await prisma.redemptionProduct.create({
@@ -203,7 +203,7 @@ export async function addRedemptionProduct(data: {
 
 export async function uploadProductImage(formData: FormData) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     const file = formData.get("file") as File;
@@ -239,7 +239,7 @@ export async function updateRedemptionProduct(id: string, data: {
   isActive?: boolean;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.redemptionProduct.update({
@@ -266,7 +266,7 @@ export async function updateRedemptionProduct(id: string, data: {
 
 export async function deleteRedemptionProduct(id: string) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "ADMIN") return { success: false, error: "Unauthorized" };
+  if (!session || !["ADMIN", "SEMI_ADMIN", "CSR"].includes(session?.user?.role || "")) return { success: false, error: "Unauthorized" };
 
   try {
     await prisma.redemptionProduct.delete({ where: { id } });

@@ -64,7 +64,50 @@ export default async function NexusFeedPage() {
   });
 
   return (
-    <div className="flex flex-col gap-6 h-[calc(100vh-220px)] min-h-[600px]">
+    <div className="animate-vapor">
+      <div className="mb-10 flex justify-between items-end">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
+            Nexus <span className="text-primary tracking-normal">Feed</span>
+          </h1>
+          <p className="text-on-surface-variant max-w-xl text-lg font-medium mt-4">
+            Direct synchronization with all active agents. Share intel, coordinate ops, and track performance.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <GlassCard className="p-6 flex items-center gap-4 bg-primary/5 border-primary/20">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-[0_0_15px_rgba(129,236,255,0.1)]">
+            <Zap size={24} fill="currentColor" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Active Transmissions</p>
+            <p className="text-3xl font-black text-on-surface">{messages.length}</p>
+          </div>
+        </GlassCard>
+
+        <GlassCard className="p-6 flex items-center gap-4 bg-secondary/5 border-secondary/10">
+          <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+            <Users size={24} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Node Occupancy</p>
+            <p className="text-3xl font-black text-on-surface">{topChatters.length}</p>
+          </div>
+        </GlassCard>
+
+        <GlassCard className="p-6 flex items-center gap-4 bg-amber-500/5 border-amber-500/10">
+          <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+            <Trophy size={24} />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Total Reputation</p>
+            <p className="text-3xl font-black text-on-surface">1.2M</p>
+          </div>
+        </GlassCard>
+      </div>
+
       <div className="flex-1 flex min-h-0 min-w-0 gap-6 animate-vapor overflow-hidden">
         {/* Sidebar - Contacts & Groups */}
         <GlassCard className="w-80 hidden xl:flex flex-col border-white/5 pr-0 overflow-hidden shrink-0" innerClassName="h-full flex flex-col !p-0">
