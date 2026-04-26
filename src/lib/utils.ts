@@ -9,22 +9,25 @@ export function getImageSrc(src: string | null | undefined) {
   if (!src) return '/placeholder-logo.png';
   
   let path = src;
+
+  // Cloudinary Resilience: Strip versioning (v123456789) as it often causes 404s if outdated
+  if (path.includes('cloudinary.com') && path.includes('/image/upload/v')) {
+    path = path.replace(/\/v\d+\//, '/');
+  }
   
   // Normalize internal URLs: if they contain our domain, make them relative
-  // This prevents issues with SSL/DNS when the server tries to resolve its own public domain
   const domain = 'https://affiliatehubph.com';
   if (path.startsWith(domain)) {
     path = path.replace(domain, '');
   }
   
-  // If it's still an absolute external URL (e.g. Google Photos) or a preview blob/data, return it as is
+  // If it's still an absolute external URL return it as is
   if (path.startsWith('http') || path.startsWith('blob:') || path.startsWith('data:')) return path;
   
   // Ensure leading slash
   if (!path.startsWith('/')) path = '/' + path;
-
-  // Convert /uploads paths to /api/uploads for dynamic serving
-  // This is critical for Next.js standalone mode (Docker) where public/ is static
+  
+  // Convert /uploads paths to /api/uploads
   if (path.startsWith('/uploads') && !path.startsWith('/api/uploads')) {
     path = '/api' + path;
   }

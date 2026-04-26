@@ -19,7 +19,7 @@ import {
   AlertTriangle,
   Zap
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { getTasks, completeTask } from "@/app/actions/tasks";
 import { submitPromoProof, claimSimplePromo } from "@/app/actions/promos";
 
@@ -249,7 +249,7 @@ export default function AgentTasksPage() {
                        ) : (selectedTask.videoUrl?.toLowerCase().endsWith('.gif') || selectedTask.taskType === 'SOCIAL' || selectedTask.taskType === 'IMAGE') ? (
                          <div className="w-full h-full flex items-center justify-center bg-black">
                            <img 
-                             src={selectedTask.videoUrl || selectedTask.imageUrl} 
+                             src={getImageSrc(selectedTask.videoUrl || selectedTask.imageUrl)} 
                              alt="" 
                              className="max-w-full max-h-full object-contain"
                              onError={(e) => {
@@ -323,9 +323,9 @@ export default function AgentTasksPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                    <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative bg-slate-950/80">
                       {selectedTask.imageUrl ? (
-                        <a href={selectedTask.imageUrl} target="_blank" rel="noreferrer" className="w-full h-full block">
+                        <a href={getImageSrc(selectedTask.imageUrl)} target="_blank" rel="noreferrer" className="w-full h-full block">
                           <img 
-                            src={selectedTask.imageUrl} 
+                            src={getImageSrc(selectedTask.imageUrl)} 
                             alt="" 
                             className="w-full h-full object-contain" 
                             onError={(e) => {

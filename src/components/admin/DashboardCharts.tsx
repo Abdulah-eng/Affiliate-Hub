@@ -22,6 +22,25 @@ interface AnalyticsData {
 }
 
 export const DashboardCharts = ({ data }: { data: AnalyticsData[] }) => {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-[450px]">
+        <GlassCard className="h-[400px] flex items-center justify-center">
+          <Activity className="animate-pulse text-primary/20" size={48} />
+        </GlassCard>
+        <GlassCard className="h-[400px] flex items-center justify-center">
+          <TrendingUp className="animate-pulse text-emerald-500/20" size={48} />
+        </GlassCard>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-[450px]">
       {/* Website Visits Chart */}
@@ -43,8 +62,8 @@ export const DashboardCharts = ({ data }: { data: AnalyticsData[] }) => {
           </div>
         </div>
 
-        <div className="h-[300px] w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[300px] w-full mt-4 min-h-[300px]">
+          <ResponsiveContainer width="100%" height="100%" minHeight={300}>
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
@@ -113,8 +132,8 @@ export const DashboardCharts = ({ data }: { data: AnalyticsData[] }) => {
           </div>
         </div>
 
-        <div className="h-[300px] w-full mt-4">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="h-[300px] w-full mt-4 min-h-[300px]">
+          <ResponsiveContainer width="100%" height="100%" minHeight={300}>
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="colorKycs" x1="0" y1="0" x2="0" y2="1">
