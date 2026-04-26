@@ -52,6 +52,7 @@ export async function getTasks() {
       description: p.description,
       points: p.pointsAward,
       imageUrl: p.imageUrl,
+      externalLink: p.externalLink,
       completed: sub?.status === "APPROVED",
       submissionStatus: sub?.status, // PENDING, APPROVED, REJECTED
       requiresVerification: p.requiresVerification,

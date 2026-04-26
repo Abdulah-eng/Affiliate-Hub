@@ -252,7 +252,15 @@ export default function AdminPromosPage() {
                 
                 <div className="aspect-video rounded-xl bg-slate-950/50 border border-white/5 overflow-hidden flex items-center justify-center relative">
                   {(promoPreview || form.imageUrl) ? (
-                    <img src={promoPreview || form.imageUrl} alt="Preview" className="w-full h-full object-contain" />
+                    <img 
+                      src={promoPreview || form.imageUrl} 
+                      alt="Preview" 
+                      className="w-full h-full object-contain" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://i.postimg.cc/8P2zP8xG/broken-image.png';
+                        // Or just hide it and show the icon
+                      }}
+                    />
                   ) : (
                     <ImageIcon size={32} className="opacity-10" />
                   )}
@@ -316,7 +324,15 @@ export default function AdminPromosPage() {
           <GlassCard key={promo.id} className="group overflow-hidden relative">
             <div className="aspect-video bg-black relative">
                {promo.imageUrl ? (
-                 <img src={promo.imageUrl} alt="" className="w-full h-full object-contain" />
+                 <img 
+                   src={promo.imageUrl} 
+                   alt="" 
+                   className="w-full h-full object-contain" 
+                   onError={(e) => {
+                     (e.target as HTMLImageElement).style.display = 'none';
+                     (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-primary/10"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div>';
+                   }}
+                 />
                ) : (
                  <div className="w-full h-full flex items-center justify-center text-primary/10">
                    <Megaphone size={64} />

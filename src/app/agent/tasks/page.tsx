@@ -307,7 +307,15 @@ export default function AgentTasksPage() {
                    <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative bg-slate-950/80">
                       {selectedTask.imageUrl ? (
                         <a href={selectedTask.imageUrl} target="_blank" rel="noreferrer" className="w-full h-full block">
-                          <img src={selectedTask.imageUrl} alt="" className="w-full h-full object-contain" />
+                          <img 
+                            src={selectedTask.imageUrl} 
+                            alt="" 
+                            className="w-full h-full object-contain" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-tertiary/20"><svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div>';
+                            }}
+                          />
                         </a>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-tertiary/20">
@@ -320,6 +328,24 @@ export default function AgentTasksPage() {
                    </GlassCard>
 
                    <div className="space-y-8 flex flex-col justify-center">
+                      {selectedTask.externalLink && (
+                        <div className="p-6 bg-primary/5 border border-primary/20 rounded-2xl space-y-3">
+                          <div className="flex items-center gap-2 text-primary">
+                            <Zap size={18} />
+                            <span className="text-xs font-black uppercase tracking-widest">Mission Link Available</span>
+                          </div>
+                          <p className="text-[10px] text-on-surface-variant font-medium">Click the button below to open the target post or page for this mission.</p>
+                          <a 
+                            href={selectedTask.externalLink} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="flex items-center justify-center gap-2 w-full py-4 bg-primary text-background rounded-xl font-black uppercase tracking-widest text-xs hover:scale-[1.02] active:scale-[0.98] transition-all"
+                          >
+                            Open Mission Link <ArrowRight size={14} />
+                          </a>
+                        </div>
+                      )}
+
                       {selectedTask.requiresVerification ? (
                         <div className="space-y-6">
                            <div className="flex items-center gap-3 mb-2">
