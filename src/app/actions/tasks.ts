@@ -41,7 +41,7 @@ export async function getTasks() {
   const mappedTasks = tasks.map(t => ({
     ...t,
     completed: t.userProgress.length > 0,
-    taskType: "VIDEO"
+    taskType: t.type
   }));
 
   const mappedPromos = promos.map(p => {

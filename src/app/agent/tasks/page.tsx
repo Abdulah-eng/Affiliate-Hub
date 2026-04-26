@@ -246,6 +246,19 @@ export default function AgentTasksPage() {
                            title={selectedTask.title}
                            allowFullScreen
                          ></iframe>
+                       ) : (selectedTask.videoUrl?.toLowerCase().endsWith('.gif') || selectedTask.taskType === 'SOCIAL' || selectedTask.taskType === 'IMAGE') ? (
+                         <div className="w-full h-full flex items-center justify-center bg-black">
+                           <img 
+                             src={selectedTask.videoUrl || selectedTask.imageUrl} 
+                             alt="" 
+                             className="max-w-full max-h-full object-contain"
+                             onError={(e) => {
+                               (e.target as HTMLImageElement).src = 'https://i.postimg.cc/8P2zP8xG/broken-image.png';
+                               setVideoEnded(true); // Allow claiming if image is broken to prevent soft-lock
+                             }}
+                             onLoad={() => setVideoEnded(true)}
+                           />
+                         </div>
                        ) : (
                          <video 
                            ref={videoRef}
@@ -254,6 +267,10 @@ export default function AgentTasksPage() {
                            controls 
                            autoPlay
                            onEnded={onVideoEnd}
+                           onError={() => {
+                             console.error("Video failed to load:", selectedTask.videoUrl);
+                             setVideoEnded(true); // Allow claiming if video is broken
+                           }}
                          />
                        )}
                     </div>
