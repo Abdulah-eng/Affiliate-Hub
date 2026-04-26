@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function submitKycApplication(formData: FormData) {
   try {
-    const rawData = Object.fromEntries(formData.entries());
+    const get = (key: string) => formData.get(key) as string;
     
     // Handle File Storage
     const uploadDir = join(process.cwd(), "public", "uploads", "kyc");
@@ -35,12 +35,11 @@ export async function submitKycApplication(formData: FormData) {
     const kycSecondaryId2BackUrl = await handleFileUpload("secondaryId2Back", "s2-back");
     const selfieUrl = await handleFileUpload("selfie", "selfie") || "/mock-selfie.png";
 
-    // Hash password
-    const password = rawData.password as string;
+    const password = get("password");
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Handle Referral logic
-    const referrerCode = rawData.referrerCode as string;
+    const referrerCode = get("referrerCode");
     let referrerId = null;
     if (referrerCode) {
       const referrer = await prisma.user.findUnique({
@@ -59,49 +58,49 @@ export async function submitKycApplication(formData: FormData) {
     const newUser = await prisma.user.create({
       data: {
         registrationIp,
-        email: rawData.email as string,
-        name: `${rawData.firstName} ${rawData.lastName}`.trim(),
-        firstName: rawData.firstName as string,
-        lastName: rawData.lastName as string,
-        fbProfileName: rawData.fbProfileName as string,
-        mobileNumber: rawData.mobileNumber as string,
-        address: rawData.address as string,
-        city: rawData.city as string,
-        username: rawData.username as string,
+        email: get("email"),
+        name: `${get("firstName")} ${get("lastName")}`.trim(),
+        firstName: get("firstName"),
+        lastName: get("lastName"),
+        fbProfileName: get("fbProfileName"),
+        mobileNumber: get("mobileNumber"),
+        address: get("address"),
+        city: get("city"),
+        username: get("username"),
         password: hashedPassword,
-        affiliateUsername: rawData.username as string, // Unified Identity
-        location: rawData.location as string || rawData.city as string, 
-        referralSource: rawData.referralSource as string,
+        affiliateUsername: get("username"), // Unified Identity
+        location: get("location") || get("city"), 
+        referralSource: get("referralSource"),
         referrerId, // Link!
         
         // KYC Data
-        kycIdType: rawData.idType as string,
-        kycIdNumber: rawData.idNumber as string,
+        kycIdType: get("idType"),
+        kycIdNumber: get("idNumber"),
         idPhotoUrl, // Front
         idBackUrl,
         
-        kycSecondaryId1Type: rawData.secondaryId1Type as string,
-        kycSecondaryId1Number: rawData.secondaryId1Number as string,
+        kycSecondaryId1Type: get("secondaryId1Type"),
+        kycSecondaryId1Number: get("secondaryId1Number"),
         kycSecondaryId1FrontUrl,
         kycSecondaryId1BackUrl,
         
-        kycSecondaryId2Type: rawData.secondaryId2Type as string,
-        kycSecondaryId2Number: rawData.secondaryId2Number as string,
+        kycSecondaryId2Type: get("secondaryId2Type"),
+        kycSecondaryId2Number: get("secondaryId2Number"),
         kycSecondaryId2FrontUrl,
         kycSecondaryId2BackUrl,
         
         selfieUrl,
-        agreedToTerms: rawData.agreedToTerms === "true",
+        agreedToTerms: get("agreedToTerms") === "true",
         
         role: "AGENT",
         kycStatus: "PENDING",
         kycSubmittedAt: new Date(),
-        referralCode: rawData.username as string,
+        referralCode: get("username"),
       }
     });
 
     // Handle initial requested brands mapping
-    const requestedPlatformsStr = rawData.requestedPlatforms as string;
+    const requestedPlatformsStr = get("requestedPlatforms");
     if (requestedPlatformsStr) {
       const brands = JSON.parse(requestedPlatformsStr);
       for (const brandName of brands) {
@@ -143,7 +142,7 @@ export async function submitKycApplication(formData: FormData) {
 
 export async function submitKycForGoogleUser(userId: string, formData: FormData) {
   try {
-    const rawData = Object.fromEntries(formData.entries());
+    const get = (key: string) => formData.get(key) as string;
 
     const uploadDir = join(process.cwd(), "public", "uploads", "kyc");
     await mkdir(uploadDir, { recursive: true });
@@ -169,7 +168,7 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
     const selfieUrl = await handleFileUpload("selfie", "selfie") || "/mock-selfie.png";
 
     // Handle Referral logic
-    const referrerCode = rawData.referrerCode as string;
+    const referrerCode = get("referrerCode");
     let referrerId = undefined;
     if (referrerCode) {
       const referrer = await prisma.user.findUnique({
@@ -189,43 +188,43 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
       where: { id: userId },
       data: {
         registrationIp,
-        name: `${rawData.firstName} ${rawData.lastName}`.trim(),
-        firstName: rawData.firstName as string,
-        lastName: rawData.lastName as string,
-        username: rawData.username as string,
-        fbProfileName: rawData.fbProfileName as string,
-        mobileNumber: rawData.mobileNumber as string,
-        address: rawData.address as string,
-        city: rawData.city as string,
-        affiliateUsername: rawData.username as string, // Unified Identity
-        location: rawData.location as string || rawData.city as string,
-        referralSource: rawData.referralSource as string,
+        name: `${get("firstName")} ${get("lastName")}`.trim(),
+        firstName: get("firstName"),
+        lastName: get("lastName"),
+        username: get("username"),
+        fbProfileName: get("fbProfileName"),
+        mobileNumber: get("mobileNumber"),
+        address: get("address"),
+        city: get("city"),
+        affiliateUsername: get("username"), // Unified Identity
+        location: get("location") || get("city"),
+        referralSource: get("referralSource"),
         referrerId, // Link!
 
-        kycIdType: rawData.idType as string,
-        kycIdNumber: rawData.idNumber as string,
+        kycIdType: get("idType"),
+        kycIdNumber: get("idNumber"),
         idPhotoUrl,
         idBackUrl,
-        kycSecondaryId1Type: rawData.secondaryId1Type as string,
-        kycSecondaryId1Number: rawData.secondaryId1Number as string,
+        kycSecondaryId1Type: get("secondaryId1Type"),
+        kycSecondaryId1Number: get("secondaryId1Number"),
         kycSecondaryId1FrontUrl,
         kycSecondaryId1BackUrl,
-        kycSecondaryId2Type: rawData.secondaryId2Type as string,
-        kycSecondaryId2Number: rawData.secondaryId2Number as string,
+        kycSecondaryId2Type: get("secondaryId2Type"),
+        kycSecondaryId2Number: get("secondaryId2Number"),
         kycSecondaryId2FrontUrl,
         kycSecondaryId2BackUrl,
         selfieUrl,
-        agreedToTerms: rawData.agreedToTerms === "true",
+        agreedToTerms: get("agreedToTerms") === "true",
 
         kycStatus: "PENDING",
         kycSubmittedAt: new Date(),
-        referralCode: rawData.username as string,
+        referralCode: get("username"),
         role: "AGENT",
       }
     });
 
     // Handle brand access requests
-    const requestedBrandsStr = rawData.requestedBrands as string;
+    const requestedBrandsStr = get("requestedBrands");
     if (requestedBrandsStr) {
       const brands = JSON.parse(requestedBrandsStr);
       for (const brandName of brands) {

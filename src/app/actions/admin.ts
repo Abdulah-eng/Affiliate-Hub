@@ -211,10 +211,7 @@ export async function deleteBrand(brandId: string) {
 }
 
 export async function getSystemSettings() {
-  const session = await getServerSession(authOptions);
-  const role = (session?.user as any)?.role;
-  if (!["ADMIN", "SEMI_ADMIN"].includes(role)) return [];
-
+  // Public UI settings - no role check needed for retrieval
   return prisma.systemSetting.findMany({
     orderBy: { key: "asc" }
   });
