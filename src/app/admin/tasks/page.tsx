@@ -14,7 +14,7 @@ import {
   Image as ImageIcon,
   Upload
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageSrc } from "@/lib/utils";
 import { adminCreateTask, adminUpdateTask, adminDeleteTask, getTasks, uploadTaskThumbnail } from "@/app/actions/tasks";
 
 export default function AdminTasksPage() {
@@ -274,19 +274,41 @@ export default function AdminTasksPage() {
                   <Video size={32} />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <h3 className="text-xl font-black text-on-surface uppercase tracking-tight">{task.title}</h3>
                     <span className="px-2 py-0.5 bg-white/5 border border-white/10 text-[8px] font-black uppercase text-on-surface-variant rounded">{task.type}</span>
+                    {task.imageUrl && task.imageUrl.includes('cloudinary.com') && (
+                      <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-[8px] font-black uppercase text-amber-400 rounded flex items-center gap-1">
+                        ⚠ Update Thumbnail
+                      </span>
+                    )}
+                    {!task.imageUrl && (
+                      <span className="px-2 py-0.5 bg-slate-500/10 border border-slate-500/20 text-[8px] font-black uppercase text-slate-400 rounded">No Thumbnail</span>
+                    )}
                   </div>
                   <p className="text-on-surface-variant text-sm mt-1 max-w-xl">{task.description}</p>
-                  <div className="flex items-center gap-4 mt-4">
+                  <div className="flex items-center gap-4 mt-4 flex-wrap">
                     <p className="text-xs font-mono text-primary font-black uppercase tracking-widest">
                       Award: {task.points} PTS
                     </p>
                     <div className="w-1 h-1 bg-white/20 rounded-full" />
                     <p className="text-[10px] text-on-surface-variant font-bold truncate max-w-xs opacity-60">
-                      {task.videoUrl}
+                      {task.videoUrl || 'No video URL'}
                     </p>
+                    {task.imageUrl && (
+                      <>
+                        <div className="w-1 h-1 bg-white/20 rounded-full" />
+                        <img 
+                          src={task.imageUrl} 
+                          alt="" 
+                          className="w-8 h-8 rounded object-cover border border-white/10" 
+                          onError={(e) => { 
+                            (e.target as HTMLImageElement).style.opacity = '0.2'; 
+                            (e.target as HTMLImageElement).style.filter = 'grayscale(1)';
+                          }}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

@@ -34,8 +34,7 @@ export function useNotificationSound() {
     try {
       // Only attempt to create/play if an interaction has happened
       if (!interactionHappened.current) {
-        console.warn("AudioContext blocked: No user interaction yet.");
-        return;
+        return; // Silently skip until user has interacted
       }
 
       if (!audioContextRef.current) {
