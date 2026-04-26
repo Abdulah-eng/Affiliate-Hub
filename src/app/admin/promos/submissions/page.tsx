@@ -11,10 +11,16 @@ export default function PromoSubmissions() {
   const [isPending, startTransition] = useTransition();
 
   const fetchSubmissions = async () => {
-    setLoading(true);
-    const data = await adminGetPendingSubmissions();
-    setSubmissions(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const data = await adminGetPendingSubmissions();
+      setSubmissions(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch submissions:", err);
+      setSubmissions([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchSubmissions(); }, []);

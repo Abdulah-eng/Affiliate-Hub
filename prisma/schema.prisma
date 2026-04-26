@@ -160,9 +160,9 @@ model Withdrawal {
   amount         Int
   status         String   @default("PENDING") // PENDING, APPROVED, REJECTED
   paymentMethod  String // Bank Transfer
-  paymentDetails String // Account number details
-  notes          String?
-  proofUrl       String?
+  paymentDetails String   @db.Text // Account number details
+  notes          String?  @db.Text
+  proofUrl       String?  @db.Text
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -172,14 +172,14 @@ model Withdrawal {
 model Task {
   id                   String             @id @default(cuid())
   title                String
-  description          String?
+  description          String?            @db.Text
   points               Int
   type                 String             @default("VIDEO") // VIDEO, SOCIAL, etc.
-  videoUrl             String?
-  externalLink         String?
+  videoUrl             String?            @db.Text
+  externalLink         String?            @db.Text
   isExternal           Boolean            @default(false)
   requiresVerification Boolean            @default(false)
-  imageUrl             String?
+  imageUrl             String?            @db.Text
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 
@@ -191,7 +191,7 @@ model UserTaskProgress {
   userId      String
   taskId      String
   status      String    @default("COMPLETED") // PENDING, COMPLETED, REJECTED
-  proofUrl    String?
+  proofUrl    String?   @db.Text
   completedAt DateTime  @default(now())
   reviewedAt  DateTime?
 
@@ -205,12 +205,12 @@ model Promo {
   id                   String            @id @default(cuid())
   title                String
   description          String?           @db.Text
-  imageUrl             String?
+  imageUrl             String?           @db.Text
   pointsAward          Int               @default(0)
   currency             Currency          @default(PTS)
   active               Boolean           @default(true)
   requiresVerification Boolean           @default(false)
-  externalLink         String?
+  externalLink         String?           @db.Text
   submissions          PromoSubmission[]
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
@@ -220,7 +220,7 @@ model PromoSubmission {
   id            String    @id @default(cuid())
   promoId       String
   userId        String
-  screenshotUrl String
+  screenshotUrl String    @db.Text
   status        String    @default("PENDING") // PENDING, APPROVED, REJECTED
   reviewedAt    DateTime?
 
@@ -292,21 +292,21 @@ model User {
   firstName      String?
   lastName       String?
   mobileNumber   String?
-  fbProfileName  String?
-  location       String? // Profile Location
-  address        String?
-  city           String?
-  referralSource String? // How did you hear about us?
+  fbProfileName  String?        @db.Text
+  location       String?        @db.Text // Profile Location
+  address        String?        @db.Text
+  city           String?        @db.Text
+  referralSource String?        @db.Text // How did you hear about us?
   agreedToTerms  Boolean        @default(false)
   kycStatus      KycStatus      @default(PENDING)
   kycIdType      String? // Passport, National ID, etc.
   kycIdNumber    String?
-  idPhotoUrl     String? // URL to ID Front image
-  idBackUrl      String? // URL to ID Back image
-  selfieUrl      String? // URL to Selfie image
+  idPhotoUrl     String?        @db.Text // URL to ID Front image
+  idBackUrl      String?        @db.Text // URL to ID Back image
+  selfieUrl      String?        @db.Text // URL to Selfie image
   kycSubmittedAt DateTime?
   kycReviewedAt  DateTime?
-  kycNotes       String?
+  kycNotes       String?        @db.Text
 
   // Additional 2nd ID Documents
   kycSecondaryId1Type     String?

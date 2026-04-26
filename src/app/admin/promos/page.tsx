@@ -21,7 +21,7 @@ import {
   adminCreatePromo, 
   adminUpdatePromo,
   adminDeletePromo, 
-  getPromos,
+  adminGetPromos,
   uploadPromoImage 
 } from "@/app/actions/promos";
 
@@ -45,10 +45,21 @@ export default function AdminPromosPage() {
   const [promoPreview, setPromoPreview] = useState<string | null>(null);
 
   const fetchPromos = async () => {
-    setLoading(true);
-    const data = await getPromos();
-    setPromos(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const res = await adminGetPromos();
+      if (res.success) {
+        setPromos(res.items || []);
+      } else {
+        console.error("Admin promo fetch failed:", res.error);
+        setPromos([]);
+      }
+    } catch (err) {
+      console.error("Client side promo fetch error:", err);
+      setPromos([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { fetchPromos(); }, []);

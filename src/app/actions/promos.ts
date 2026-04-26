@@ -8,10 +8,33 @@ import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
 export async function getPromos() {
-  return prisma.promo.findMany({
-    where: { active: true },
-    orderBy: { createdAt: "desc" }
-  });
+  try {
+    return await prisma.promo.findMany({
+      where: { active: true },
+      orderBy: { createdAt: "desc" }
+    });
+  } catch (error) {
+    console.error("Error fetching promos:", error);
+    return [];
+  }
+}
+
+export async function adminGetPromos() {
+  const session = await getServerSession(authOptions);
+  const userRole = session?.user?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "SEMI_ADMIN" && userRole !== "CSR")) {
+    return { success: false, error: "Unauthorized", items: [] };
+  }
+
+  try {
+    const items = await prisma.promo.findMany({
+      orderBy: { createdAt: "desc" }
+    });
+    return { success: true, items };
+  } catch (error: any) {
+    console.error("Error fetching admin promos:", error);
+    return { success: false, error: error.message, items: [] };
+  }
 }
 
 // Admin Actions
