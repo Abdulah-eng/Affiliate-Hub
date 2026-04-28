@@ -321,24 +321,30 @@ export default function AgentTasksPage() {
               ) : (
                 /* PROMO UI */
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                   <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative bg-slate-950/80">
-                      {selectedTask.imageUrl ? (
-                        <a href={getImageSrc(selectedTask.imageUrl)} target="_blank" rel="noreferrer" className="w-full h-full block">
-                          <img 
-                            src={getImageSrc(selectedTask.imageUrl)} 
-                            alt="" 
-                            className="w-full h-full object-contain" 
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-tertiary/20"><svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div>';
-                            }}
-                          />
-                        </a>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-tertiary/20">
-                           <Megaphone size={120} />
-                        </div>
-                      )}
+                    <GlassCard className="p-0 overflow-hidden border-tertiary/20 aspect-video relative bg-slate-950/80">
+                       {selectedTask.imageUrl ? (
+                         <div className="w-full h-full relative">
+                           <a href={getImageSrc(selectedTask.imageUrl)} target="_blank" rel="noreferrer" className="w-full h-full block">
+                             <img 
+                               src={getImageSrc(selectedTask.imageUrl)} 
+                               alt="" 
+                               className="w-full h-full object-contain" 
+                               onError={(e) => {
+                                 const target = e.target as HTMLImageElement;
+                                 target.style.display = 'none';
+                                 const fallback = document.createElement('div');
+                                 fallback.className = "w-full h-full flex items-center justify-center text-tertiary/20";
+                                 fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
+                                 target.parentElement?.appendChild(fallback);
+                               }}
+                             />
+                           </a>
+                         </div>
+                       ) : (
+                         <div className="w-full h-full flex items-center justify-center text-tertiary/20">
+                            <Megaphone size={120} />
+                         </div>
+                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent flex items-end p-8">
                          <p className="text-sm font-medium italic opacity-80">{selectedTask.description}</p>
                       </div>

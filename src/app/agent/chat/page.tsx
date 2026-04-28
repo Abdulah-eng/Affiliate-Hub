@@ -108,7 +108,7 @@ export default async function NexusFeedPage() {
         </GlassCard>
       </div>
 
-      <div className="flex-1 flex min-h-0 min-w-0 gap-6 animate-vapor overflow-hidden">
+      <div className="flex-1 flex min-h-[500px] h-[calc(100vh-320px)] max-h-[900px] min-w-0 gap-6 animate-vapor overflow-hidden">
         {/* Sidebar - Contacts & Groups */}
         <GlassCard className="w-80 hidden xl:flex flex-col border-white/5 pr-0 overflow-hidden shrink-0" innerClassName="h-full flex flex-col !p-0">
           <div className="p-6 border-b border-white/5">

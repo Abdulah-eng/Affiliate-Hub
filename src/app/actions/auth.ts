@@ -102,38 +102,48 @@ export async function submitKycApplication(formData: FormData) {
     // Handle initial requested brands mapping
     const requestedPlatformsStr = get("requestedPlatforms");
     if (requestedPlatformsStr) {
-      const brands = JSON.parse(requestedPlatformsStr);
-      for (const brandName of brands) {
-        const brand = await prisma.brand.findUnique({ where: { name: brandName } });
-        if (brand) {
-          await prisma.platformAccess.create({
-            data: {
-              userId: newUser.id,
-              brandId: brand.id,
-              status: "PENDING"
-            }
+      try {
+        const brands = JSON.parse(requestedPlatformsStr);
+        if (Array.isArray(brands) && brands.length > 0) {
+          // Find all relevant brands first
+          const brandRecords = await prisma.brand.findMany({
+            where: { name: { in: brands } }
           });
+
+          if (brandRecords.length > 0) {
+            await prisma.platformAccess.createMany({
+              data: brandRecords.map(brand => ({
+                userId: newUser.id,
+                brandId: brand.id,
+                status: "PENDING"
+              })),
+              skipDuplicates: true
+            });
+          }
         }
+      } catch (e) {
+        console.error("Platform mapping error:", e);
+        // Don't fail the whole signup if just platform mapping fails
       }
     }
 
     revalidatePath("/admin/review");
+    console.log("KYC Submission Success for user:", newUser.id);
     return { success: true, userId: newUser.id };
   } catch (error: any) {
-    console.error("KYC Submission error details:", error);
-    if (error.stack) console.error("KYC Stack Trace:", error.stack);
-
+    console.error("CRITICAL KYC ERROR:", error);
+    
     let errorMessage = 'Failed to submit application. Please try again.';
 
     if (error.code === 'P2002') {
-      const field = error.meta?.target?.join(', ') || 'email or username';
+      const field = error.meta?.target || ['email or username'];
       errorMessage = `This ${field} is already registered. Please use a different one.`;
     } else if (error.message?.includes("Can't reach database") || error.code === 'P1001') {
       errorMessage = 'Database connection failed. Please contact support.';
     } else if (error.message?.includes("Unknown field") || error.code === 'P2009') {
       errorMessage = 'Schema mismatch error. Please contact support.';
-    } else if (error.message) {
-      errorMessage = `Error: ${error.message.substring(0, 120)}`;
+    } else {
+      errorMessage = error.message || "An unexpected error occurred during submission.";
     }
 
     return { success: false, error: errorMessage };
@@ -226,16 +236,26 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
     // Handle brand access requests
     const requestedBrandsStr = get("requestedBrands");
     if (requestedBrandsStr) {
-      const brands = JSON.parse(requestedBrandsStr);
-      for (const brandName of brands) {
-        const brand = await prisma.brand.findUnique({ where: { name: brandName } });
-        if (brand) {
-          await prisma.platformAccess.upsert({
-            where: { userId_brandId: { userId, brandId: brand.id } },
-            update: { status: "PENDING" },
-            create: { userId, brandId: brand.id, status: "PENDING" }
+      try {
+        const brands = JSON.parse(requestedBrandsStr);
+        if (Array.isArray(brands) && brands.length > 0) {
+          const brandRecords = await prisma.brand.findMany({
+            where: { name: { in: brands } }
           });
+
+          if (brandRecords.length > 0) {
+            await prisma.platformAccess.createMany({
+              data: brandRecords.map(brand => ({
+                userId: userId,
+                brandId: brand.id,
+                status: "PENDING"
+              })),
+              skipDuplicates: true
+            });
+          }
         }
+      } catch (e) {
+        console.error("Google Platform mapping error:", e);
       }
     }
 
@@ -243,10 +263,10 @@ export async function submitKycForGoogleUser(userId: string, formData: FormData)
     revalidatePath("/agent");
     return { success: true };
   } catch (error: any) {
-    console.error("Google KYC Submission error:", error.message);
+    console.error("Google KYC Submission error:", error);
     if (error.code === 'P2002') {
       return { success: false, error: "This username is already taken. Please choose another." };
     }
-    return { success: false, error: error.message?.substring(0, 120) || "Submission failed." };
+    return { success: false, error: error.message || "Submission failed." };
   }
 }

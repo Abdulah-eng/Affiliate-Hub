@@ -240,12 +240,17 @@ function ApplyPageContent() {
     if (referralCode) formData.append("referrerCode", referralCode);
 
     startTransition(async () => {
-      const result = await submitKycApplication(formData);
-      if (result.success) {
-        setSuccess(true);
-        setTimeout(() => router.push("/login"), 5000);
-      } else {
-        setError(result.error || "Submission failed.");
+      try {
+        const result = await submitKycApplication(formData);
+        if (result.success) {
+          setSuccess(true);
+          setTimeout(() => router.push("/login"), 5000);
+        } else {
+          setError(result.error || "Submission failed.");
+        }
+      } catch (err: any) {
+        console.error("Manual signup crash:", err);
+        setError("A system error occurred. Please refresh and try again.");
       }
     });
   };

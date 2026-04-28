@@ -244,20 +244,20 @@ export function ChatClient({
       {/* Message List */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-6 py-8 space-y-6 no-scrollbar scroll-smooth bg-slate-950/20"
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-3 custom-scrollbar scroll-smooth bg-slate-950/20"
       >
         {messages.map((msg) => {
           const isSelf = msg.userId === currentUserId;
           return (
             <div key={msg.id} 
               className={cn(
-                "flex flex-col max-w-[80%] animate-vapor relative group",
+                "flex flex-col max-w-[75%] animate-vapor relative group",
                 isSelf ? "ml-auto items-end" : "mr-auto items-start",
                 contextMenu?.msgId === msg.id ? "z-[100]" : "z-10"
               )}
             >
               <div className={cn(
-                "px-5 py-3 rounded-2xl text-sm flex flex-col gap-2 shadow-xl transition-all hover:scale-[1.01]",
+                "px-3.5 py-1.5 rounded-2xl text-sm flex flex-col gap-1.5 shadow-xl transition-all hover:scale-[1.01]",
                 isSelf 
                   ? "bg-primary text-slate-950 font-bold rounded-tr-none shadow-primary/10" 
                   : "bg-surface-container-high border border-outline-variant/10 text-on-surface rounded-tl-none font-medium"
@@ -328,7 +328,7 @@ export function ChatClient({
                 {isSelf && <div className="flex justify-end mt-1"><CheckCheck size={12} className="opacity-40" /></div>}
               </div>
 
-              <span className="text-[9px] font-black uppercase tracking-widest mt-2 opacity-30 px-2">
+              <span className="text-[9px] font-black uppercase tracking-widest mt-1 opacity-30 px-2">
                 {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </span>
 
@@ -382,8 +382,8 @@ export function ChatClient({
       </div>
 
       {/* Input Area - Pulse Tactical Style */}
-      <div className="p-6 bg-slate-950/40 border-t border-white/5 relative z-10 backdrop-blur-md">
-        <div className="flex gap-4 items-end max-w-4xl mx-auto w-full">
+      <div className="p-4 bg-slate-950/40 border-t border-white/5 relative z-10 backdrop-blur-md">
+        <div className="flex gap-3 items-end max-w-5xl mx-auto w-full">
           <input 
             type="file" 
             ref={fileInputRef}
@@ -395,9 +395,9 @@ export function ChatClient({
             type="button" 
             onClick={() => fileInputRef.current?.click()} 
             disabled={isUploading || isSending}
-            className="p-4 bg-white/5 border border-white/10 rounded-2xl text-on-surface-variant hover:text-primary transition-all active:scale-90 disabled:opacity-30"
+            className="p-3 bg-white/5 border border-white/10 rounded-xl text-on-surface-variant hover:text-primary transition-all active:scale-90 disabled:opacity-30"
           >
-            {isUploading ? <Loader2 size={24} className="animate-spin" /> : <Paperclip size={24} />}
+            {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Paperclip size={20} />}
           </button>
 
           <div className="relative flex-1">

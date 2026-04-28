@@ -327,10 +327,17 @@ export default function AdminPromosPage() {
                  <img 
                    src={promo.imageUrl} 
                    alt="" 
-                   className="w-full h-full object-contain" 
+                   className="w-full h-full object-contain relative z-0" 
                    onError={(e) => {
-                     (e.target as HTMLImageElement).style.display = 'none';
-                     (e.target as HTMLImageElement).parentElement!.innerHTML = '<div class="w-full h-full flex items-center justify-center text-primary/10"><svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></div>';
+                     const target = e.target as HTMLImageElement;
+                     target.style.display = 'none';
+                     const parent = target.parentElement;
+                     if (parent) {
+                       const fallback = document.createElement('div');
+                       fallback.className = "w-full h-full flex items-center justify-center text-primary/10";
+                       fallback.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-megaphone"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>';
+                       parent.appendChild(fallback);
+                     }
                    }}
                  />
                ) : (
@@ -338,16 +345,18 @@ export default function AdminPromosPage() {
                    <Megaphone size={64} />
                  </div>
                )}
-               <div className="absolute top-4 right-4 flex gap-2">
+               
+               {/* Actions Overlay - Always visible and safe from innerHTML wipes */}
+               <div className="absolute top-4 right-4 flex gap-2 z-10">
                   <button 
                     onClick={() => handleEdit(promo)}
-                    className="p-2 bg-primary/20 text-primary hover:bg-primary hover:text-white rounded-lg transition-all backdrop-blur-md"
+                    className="p-2 bg-slate-900/60 text-primary hover:bg-primary hover:text-white rounded-lg transition-all backdrop-blur-md border border-white/10 shadow-lg"
                   >
                     <Settings2 size={16} />
                   </button>
                   <button 
                     onClick={() => handleDelete(promo.id)}
-                    className="p-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all backdrop-blur-md"
+                    className="p-2 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition-all backdrop-blur-md border border-white/10 shadow-lg"
                   >
                     <Trash2 size={16} />
                   </button>
